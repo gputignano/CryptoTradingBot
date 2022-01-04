@@ -1,0 +1,5 @@
+node_modules/
+playground/
+.env.development
+.env.production
+package-lock.json
