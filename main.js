@@ -13,7 +13,6 @@ require("./modules/db"); // Connect to MongoDB
 
 const TradeModel = require("./models/Trade"); // Trade Model
 
-let PRICE_FILTER, PERCENT_PRICE, LOT_SIZE, MIN_NOTIONAL, ICEBERG_PARTS, MARKET_LOT_SIZE, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS;
 let balances = {};
 let openOrders;
 let amountToBuy;
