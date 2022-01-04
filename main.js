@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const _ = require("lodash");
 const { baseAsset, quoteAsset, gridStep, interest, minNotional, interval } = require("./modules/argv");
 
@@ -10,16 +9,7 @@ console.log(`${process.env.NODE_ENV} mode.`);
 
 const binance = require("./modules/binance");
 
-const mongoDB = "mongodb://127.0.0.1:27017/trades";
-
-mongoose.connect(mongoDB, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+require("./modules/db"); // Connect to MongoDB
 
 const TradeModel = require("./models/Trade"); // Trade Model
 
