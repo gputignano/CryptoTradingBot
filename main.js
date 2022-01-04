@@ -23,14 +23,7 @@ let sellPrice;
 let kill = false;
 
 binance
-  // CHECK CONNECTIVITY
-  .ping()
-  .then(response => {
-    console.log(`Pinging: OK`);
-
-    // READS FILTERS
-    return binance.exchangeInfo(baseAsset, quoteAsset);
-  })
+  .exchangeInfo(baseAsset, quoteAsset)
   .then(response => {
     console.log(`Getting Exchange Info`);
 
@@ -162,7 +155,6 @@ binance
         .catch(error => console.log(error));
     }, interval);
   })
-
   .catch(error => console.log(error.message));
 
 process.on("SIGINT", () => {
