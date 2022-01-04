@@ -21,23 +21,7 @@ const db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-const TradeSchema = new mongoose.Schema({
-  symbol: String,
-  origClientOrderId: String,
-  orderId: Number,
-  orderListId: Number,
-  clientOrderId: String,
-  price: Number,
-  origQty: Number,
-  executedQty: Number,
-  cummulativeQuoteQty: Number,
-  status: String,
-  timeInForce: String,
-  type: String,
-  side: String,
-});
-
-const TradeModel = mongoose.model("TradeModel", TradeSchema);
+const TradeModel = require("./models/Trade"); // Trade Model
 
 let PRICE_FILTER, PERCENT_PRICE, LOT_SIZE, MIN_NOTIONAL, ICEBERG_PARTS, MARKET_LOT_SIZE, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS;
 let balances = {};
