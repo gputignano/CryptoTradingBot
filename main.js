@@ -87,8 +87,8 @@ binance
 
           return binance.tickerPrice(baseAsset, quoteAsset);
         })
-        .then(response => {
-          let price = response.data.price;
+        .then(ticker => {
+          let price = ticker.data.price;
           console.log(`price: ${price}`);
 
           sellPrice = _.round(price, PRICE_FILTER.precision);
