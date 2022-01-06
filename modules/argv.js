@@ -15,24 +15,35 @@ const argv = yargs
     describe: "Grid",
     demandOption: true,
     type: "number",
+    default: 1.0,
   })
   .option("interest", {
     describe: "Interest",
     type: "number",
+    default: 1,
   })
   .option("minNotional", {
     describe: "minNotional",
     type: "number",
+    default: 10.2,
   })
   .option("interval", {
     describe: "Interval",
+    type: "number",
+    default: 5000,
+  })
+  .option("side", {
+    describe: "Side",
+    type: "string",
+    default: "long",
   }).argv;
 
 module.exports = {
   baseAsset: argv.base,
   quoteAsset: argv.quote,
-  gridStep: argv.grid || 1.0,
-  interest: (argv.interest || 1.0) / 100,
-  minNotional: argv.minNotional || 10.2,
-  interval: argv.interval || 5000,
+  gridStep: argv.grid,
+  interest: argv.interest / 100,
+  minNotional: argv.minNotional,
+  interval: argv.interval,
+  side: argv.side,
 };

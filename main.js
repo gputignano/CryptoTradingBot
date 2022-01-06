@@ -1,6 +1,5 @@
 const _ = require("lodash");
-const { baseAsset, quoteAsset, gridStep, interest, minNotional, interval } = require("./modules/argv");
-
+const { baseAsset, quoteAsset, gridStep, interest, minNotional, interval, side } = require("./modules/argv");
 require("dotenv").config({
   path: `${__dirname}/.env.${(process.env.NODE_ENV = process.env.NODE_ENV || "development")}`,
 });
@@ -145,7 +144,7 @@ binance
               })
               .catch(error => console.log(error));
           } else {
-            // console.log(`SLOT already in use!`);
+            console.log(`SLOT already in use!`);
           }
         })
         .catch(error => console.log(error));
