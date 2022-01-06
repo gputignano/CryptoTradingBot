@@ -21,12 +21,13 @@ let buyPrice;
 let sellPrice;
 let kill = false;
 
+// READS FILTERS
 binance
   .exchangeInfo(baseAsset, quoteAsset)
-  .then(response => {
+  .then(exchangeInfo => {
     console.log(`Getting Exchange Info`);
 
-    [symbol] = response.data.symbols;
+    [symbol] = exchangeInfo.data.symbols;
 
     [
       PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
