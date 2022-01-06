@@ -94,9 +94,16 @@ binance
           let price = ticker.data.price;
           console.log(`price: ${price}`);
 
-          sellPrice = _.round(price, PRICE_FILTER.precision);
-          buyPrice = _.round(price / (1 + interest), PRICE_FILTER.precision);
-          console.log(`sellPrice: ${sellPrice} - buyPrice: ${buyPrice}`);
+          switch (side) {
+            case "long":
+              buyPrice = _.round(price, PRICE_FILTER.precision);
+              sellPrice = _.round(price * (1 + interest), PRICE_FILTER.precision);
+              break;
+            case "short":
+              sellPrice = _.round(price, PRICE_FILTER.precision);
+              buyPrice = _.round(price / (1 + interest), PRICE_FILTER.precision);
+              break;
+          }
 
           let sellSlot = binance.priceToSlot(sellPrice, gridStep, PRICE_FILTER.precision);
           let buySlot = binance.priceToSlot(buyPrice, gridStep, PRICE_FILTER.precision);
