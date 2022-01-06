@@ -38,6 +38,14 @@ const argv = yargs
     default: "long",
   }).argv;
 
+console.log(`base = ${argv.base}`);
+console.log(`quote = ${argv.quote}`);
+console.log(`grid = ${argv.grid}`);
+console.log(`interest = ${argv.interest}%`);
+console.log(`minNotional = ${argv.minNotional}`);
+console.log(`interval = ${argv.interval}`);
+console.log(`side = ${argv.side}`);
+
 module.exports = {
   baseAsset: argv.base,
   quoteAsset: argv.quote,
