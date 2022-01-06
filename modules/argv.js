@@ -36,6 +36,12 @@ const argv = yargs
     describe: "Side",
     type: "string",
     default: "long",
+  })
+  .option("earn", {
+    describe: "Asset to earn (base or quote)",
+    demandOption: true,
+    type: "string",
+    default: "base",
   }).argv;
 
 console.log(`base = ${argv.base}`);
@@ -45,6 +51,7 @@ console.log(`interest = ${argv.interest}%`);
 console.log(`minNotional = ${argv.minNotional}`);
 console.log(`interval = ${argv.interval}`);
 console.log(`side = ${argv.side}`);
+console.log(`earn = ${argv.earn}`);
 
 module.exports = {
   baseAsset: argv.base,
