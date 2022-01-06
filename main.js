@@ -63,16 +63,20 @@ binance
           // Sort orders array by price
           orders.data.sort((a, b) => a.price - b.price);
 
+          // Cancel an order if array length >= MAX_NUM_ORDERS.maxNumOrders
           if (orders.data.length >= MAX_NUM_ORDERS.maxNumOrders) {
+            const pos = side === "long" ? orders.data.length - 1 : 0;
+
             binance
               .cancelOrder({
                 symbol: baseAsset + quoteAsset,
-                orderId: orders.data[0].orderId,
+                orderId: orders.data[pos].orderId,
               })
               .then(canceledOrder => {
+                console.log(`Order CANCELED: ${canceledOrder.data.orderId}`);
                 TradeModel.create(canceledOrder.data)
-                  .then(result => {
-                    console.log(`Order DELETED: ${orders.data[0].orderId}`);
+                  .then(trade => {
+                    console.log(`Order ADDED TO DATABASE: ${trade.orderId}`);
                   })
                   .catch(error => console.log(error));
               });
