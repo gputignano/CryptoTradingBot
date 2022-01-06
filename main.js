@@ -115,12 +115,10 @@ binance
                 price: sellPrice,
               })
               .then(sellOrder => {
+                // console.log(sellOrder.data);
+
                 if (sellOrder.data.status === "FILLED") {
-                  console.log(
-                    `SELL Order #${sellOrder.data.orderId}, ${Number(sellOrder.data.executedQty).toFixed(LOT_SIZE.precision)} tokens at ${Number(sellOrder.data.price).toFixed(
-                      PRICE_FILTER.precision
-                    )}, TOTAL: ${sellOrder.data.cummulativeQuoteQty}`
-                  );
+                  console.log(`SELL: Price: ${sellOrder.data.fills[0].price} / Qty: ${sellOrder.data.fills[0].qty} / Total: ${sellOrder.data.cummulativeQuoteQty}`);
 
                   // EARNS CRYPTO
                   let commission = sellOrder.data.fills[0].commission;
@@ -138,11 +136,8 @@ binance
                       price: buyPrice,
                     })
                     .then(buyOrder => {
-                      console.log(
-                        `BUY Order #${buyOrder.data.orderId}, ${Number(buyOrder.data.origQty).toFixed(LOT_SIZE.precision)} tokens at ${Number(buyOrder.data.price).toFixed(
-                          PRICE_FILTER.precision
-                        )}, TOTAL: ${buyOrder.data.origQty * buyOrder.data.price}`
-                      );
+                      // console.log(buyOrder.data);
+                      console.log(`BUY: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.origQty} / Total: ${buyOrder.data.price * buyOrder.data.origQty}`);
                     });
                 } else if (sellOrder.data.status === "EXPIRED") {
                   console.log(`Order #${sellOrder.data.orderId} ${sellOrder.data.status} (${_.round(sellOrder.data.price, PRICE_FILTER.precision)})`);
