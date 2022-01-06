@@ -51,16 +51,17 @@ binance
       // READS BALANCES
       binance
         .account()
-        .then(response => {
+        .then(account => {
           console.log(`=======================================`);
 
-          balances = binance.getBalances(response.data.balances);
+          balances = binance.getBalances(account.data.balances);
 
           return binance.openOrders(baseAsset, quoteAsset);
         })
         .then(orders => {
           console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
+          // Sort orders array by price
           orders.data.sort((a, b) => a.price - b.price);
 
           if (orders.data.length >= MAX_NUM_ORDERS.maxNumOrders) {
