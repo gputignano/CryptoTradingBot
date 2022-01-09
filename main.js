@@ -19,6 +19,8 @@ let amountToBuy;
 let amountToSell;
 let buyPrice;
 let sellPrice;
+let makerCommission;
+let takerCommission;
 let kill = false;
 
 // READS FILTERS
@@ -53,6 +55,11 @@ binance
         .account()
         .then(account => {
           console.log(`=======================================`);
+
+          makerCommission = account.data.makerCommission / 10000;
+          takerCommission = account.data.takerCommission / 10000;
+
+          console.log(`makerCommission: ${makerCommission} / takerCommission: ${takerCommission}`);
 
           balances = binance.getBalances(account.data.balances);
 
@@ -97,64 +104,157 @@ binance
 
           switch (side) {
             case "long":
-              buyPrice = _.round(price, PRICE_FILTER.precision);
-              sellPrice = _.round(price * (1 + interest), PRICE_FILTER.precision);
+              buyPrice = price;
+              sellPrice = _.ceil(price * (1 + interest), PRICE_FILTER.precision);
+              console.log(`buyPrice: ${buyPrice} / sellPrice: ${sellPrice}`);
               break;
             case "short":
-              sellPrice = _.round(price, PRICE_FILTER.precision);
-              buyPrice = _.round(price / (1 + interest), PRICE_FILTER.precision);
+              sellPrice = price;
+              buyPrice = _.floor(price / (1 + interest), PRICE_FILTER.precision);
+              console.log(`sellPrice: ${sellPrice} / buyPrice: ${buyPrice}`);
               break;
           }
 
-          let sellSlot = binance.priceToSlot(sellPrice, gridStep, PRICE_FILTER.precision);
-          let buySlot = binance.priceToSlot(buyPrice, gridStep, PRICE_FILTER.precision);
-          console.log(`sellSlot: ${sellSlot} - buySlot: ${buySlot}`);
+          let slot1 = binance.priceToSlot(sellPrice, gridStep, PRICE_FILTER.precision);
+          let slot2 = binance.priceToSlot(buyPrice, gridStep, PRICE_FILTER.precision);
 
-          if (openOrders[buySlot] === undefined && openOrders[sellSlot] === undefined) {
-            amountToSell = _.ceil(minNotional / sellPrice, LOT_SIZE.precision);
+          if (openOrders[slot1] === undefined && openOrders[slot2] === undefined) {
+            switch (side) {
+              case "long":
+                amountToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
 
-            if (Number(balances[baseAsset].free) < amountToSell) new Error(`baseAsset insufficient.`);
+                if (Number(balances[quoteAsset].free) < amountToBuy) new Error(`quoteAsset insufficient.`);
 
-            // SELL ORDER
-            binance
-              .order({
-                symbol: baseAsset + quoteAsset,
-                side: "SELL",
-                type: "LIMIT",
-                timeInForce: "FOK",
-                quantity: amountToSell,
-                price: sellPrice,
-              })
-              .then(sellOrder => {
-                // console.log(sellOrder.data);
+                // BUY ORDER
+                binance
+                  .order({
+                    symbol: baseAsset + quoteAsset,
+                    side: "BUY",
+                    type: "LIMIT",
+                    timeInForce: "FOK",
+                    quantity: amountToBuy,
+                    price: buyPrice,
+                  })
+                  .then(buyOrder => {
+                    if (buyOrder.data.status === "FILLED") {
+                      console.log(`BUY ORDER EXECUTED: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.executedQty} / Total: ${buyOrder.data.cummulativeQuoteQty}`);
 
-                if (sellOrder.data.status === "FILLED") {
-                  console.log(`SELL: Price: ${sellOrder.data.fills[0].price} / Qty: ${sellOrder.data.fills[0].qty} / Total: ${sellOrder.data.cummulativeQuoteQty}`);
+                      console.log(buyOrder.data);
 
-                  // EARNS CRYPTO
-                  let commission = sellOrder.data.fills[0].commission;
-                  console.log(`Commission: ${commission}`);
-                  amountToBuy = _.floor((sellOrder.data.cummulativeQuoteQty - commission) / buyPrice, LOT_SIZE.precision);
+                      let fills = buyOrder.data.fills.reduce(
+                        (prev, curr) => {
+                          prev.qty += Number(curr.qty);
+                          prev.commission += Number(curr.commission);
+                          return prev;
+                        },
+                        {
+                          qty: 0,
+                          commission: 0,
+                        }
+                      );
 
-                  // BUY ORDER
-                  binance
-                    .order({
-                      symbol: baseAsset + quoteAsset,
-                      side: "BUY",
-                      type: "LIMIT",
-                      timeInForce: "GTC",
-                      quantity: amountToBuy,
-                      price: buyPrice,
-                    })
-                    .then(buyOrder => {
-                      // console.log(buyOrder.data);
-                      console.log(`BUY: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.origQty} / Total: ${buyOrder.data.price * buyOrder.data.origQty}`);
-                    });
-                } else if (sellOrder.data.status === "EXPIRED") {
-                  console.log(`Order #${sellOrder.data.orderId} ${sellOrder.data.status} (${_.round(sellOrder.data.price, PRICE_FILTER.precision)})`);
-                }
-              })
-              .catch(error => console.log(error));
+                      console.log(fills);
+
+                      switch (earn) {
+                        // Earns BASE Asset
+                        case "base":
+                          amountToSell = _.ceil(buyOrder.data.cummulativeQuoteQty / sellPrice - fills.commission, LOT_SIZE.precision);
+                          break;
+                        // Earns QUOTE Asset
+                        case "quote":
+                          amountToSell = _.floor(buyOrder.data.executedQty - fills.commission, LOT_SIZE.precision);
+                          break;
+                      }
+
+                      // SELL ORDER
+                      binance
+                        .order({
+                          symbol: baseAsset + quoteAsset,
+                          side: "SELL",
+                          type: "LIMIT",
+                          timeInForce: "GTC",
+                          quantity: amountToSell,
+                          price: sellPrice,
+                        })
+                        .then(sellOrder => {
+                          // console.log(sellOrder.data);
+                          console.log(
+                            `SELL ORDER EXECUTED: Price: ${sellOrder.data.price} / Qty: ${sellOrder.data.origQty} / Total: ${sellOrder.data.price * sellOrder.data.origQty}`
+                          );
+                        });
+                    } else {
+                      console.log(buyOrder.data);
+                    }
+                  })
+                  .catch(error => console.log(error));
+                break;
+              case "short":
+                amountToSell = _.ceil(minNotional / sellPrice, LOT_SIZE.precision);
+                console.log(`amountToSell: ${amountToSell}`);
+
+                if (Number(balances[baseAsset].free) < amountToSell) new Error(`baseAsset insufficient.`);
+
+                // SELL ORDER
+                binance
+                  .order({
+                    symbol: baseAsset + quoteAsset,
+                    side: "SELL",
+                    type: "LIMIT",
+                    timeInForce: "FOK",
+                    quantity: amountToSell,
+                    price: sellPrice,
+                  })
+                  .then(sellOrder => {
+                    if (sellOrder.data.status === "FILLED") {
+                      console.log(
+                        `SELL ORDER EXECUTED: Price: ${sellOrder.data.fills[0].price} / Qty: ${buyOrder.data.fills[0].qty} / Total: ${buyOrder.data.cummulativeQuoteQty}`
+                      );
+
+                      let fills = sellOrder.data.fills.reduce(
+                        (prev, curr) => {
+                          prev.qty += Number(curr.qty);
+                          prev.commission += Number(curr.commission);
+                          return prev;
+                        },
+                        {
+                          qty: 0,
+                          commission: 0,
+                        }
+                      );
+
+                      switch (earn) {
+                        // EARNS BASE Asset
+                        case "base":
+                          amountToBuy = _.floor((sellOrder.data.executedQty - fills.commission) / buyPrice, LOT_SIZE.precision);
+                          break;
+                        // EARNS QUOTE Asset
+                        case "quote":
+                          amountToBuy = _.ceil(sellOrder.data.cummulativeQuoteQty / buyPrice - fills.commission, LOT_SIZE.precision);
+                          break;
+                      }
+
+                      console.log(`amountToBuy: ${amountToBuy}`);
+
+                      // BUY ORDER
+                      binance
+                        .order({
+                          symbol: baseAsset + quoteAsset,
+                          side: "BUY",
+                          type: "LIMIT",
+                          timeInForce: "GTC",
+                          quantity: amountToBuy,
+                          price: buyPrice,
+                        })
+                        .then(buyOrder => {
+                          console.log(`BUY: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.origQty} / Total: ${buyOrder.data.price * buyOrder.data.origQty}`);
+                        });
+                    } else {
+                      console.log(sellOrder.data);
+                    }
+                  })
+                  .catch(error => console.log(error));
+                break;
+            }
           } else {
             console.log(`SLOT already in use!`);
           }
