@@ -61,4 +61,5 @@ module.exports = {
   minNotional: argv.minNotional,
   interval: argv.interval,
   side: argv.side,
+  earn: argv.earn,
 };
