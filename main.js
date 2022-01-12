@@ -93,7 +93,7 @@ binance
           openOrders = {};
 
           orders.data.forEach(order => {
-            openOrders[binance.priceToSlot(order.price, gridStep, PRICE_FILTER.precision)] = true;
+            openOrders[priceToSlot(order.price, gridStep, PRICE_FILTER.precision)] = true;
           });
 
           return binance.tickerPrice(baseAsset, quoteAsset);
@@ -115,8 +115,8 @@ binance
               break;
           }
 
-          let slot1 = binance.priceToSlot(sellPrice, gridStep, PRICE_FILTER.precision);
-          let slot2 = binance.priceToSlot(buyPrice, gridStep, PRICE_FILTER.precision);
+          let slot1 = priceToSlot(sellPrice, gridStep, PRICE_FILTER.precision);
+          let slot2 = priceToSlot(buyPrice, gridStep, PRICE_FILTER.precision);
 
           if (openOrders[slot1] === undefined && openOrders[slot2] === undefined) {
             switch (side) {
@@ -267,3 +267,6 @@ binance
 process.on("SIGINT", () => {
   kill = true;
 });
+
+priceToSlot = (price, gridStep, precision) => Math.floor(_.round(Math.log10(price) / Math.log10(1 + gridStep / 100), precision));
+slotToPrice = (slot, gridStep) => Math.pow(1 + gridStep / 100, slot);

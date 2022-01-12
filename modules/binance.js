@@ -66,6 +66,3 @@ module.exports.getBalances = arrayBalances => {
 
   return objectBalances;
 };
-
-module.exports.priceToSlot = (price, gridStep, precision) => Math.floor(_.round(Math.log10(price) / Math.log10(1 + gridStep / 100), precision));
-module.exports.slotToPrice = (slot, gridStep) => Math.pow(1 + gridStep / 100, slot);
