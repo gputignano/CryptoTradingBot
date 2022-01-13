@@ -100,18 +100,23 @@ binance
         })
         .then(ticker => {
           let price = ticker.data.price;
-          console.log(`price: ${price}`);
+          let lowerPrice = _.ceil(slotToPrice(priceToSlot(price, gridStep), gridStep), PRICE_FILTER.precision);
+          let higherPrice = _.floor(slotToPrice(priceToSlot(price, gridStep) + 1, gridStep), PRICE_FILTER.precision);
+
+          console.log(`lowerPrice: ${lowerPrice} - slot: ${priceToSlot(lowerPrice, gridStep)}`);
+          console.log(`price: ${price} - slot: ${priceToSlot(price, gridStep)}`);
+          console.log(`higherPrice: ${higherPrice} - slot: ${priceToSlot(higherPrice, gridStep)}`);
 
           switch (side) {
             case "long":
-              buyPrice = price;
-              sellPrice = _.ceil(price * (1 + interest), PRICE_FILTER.precision);
-              console.log(`buyPrice: ${buyPrice} / sellPrice: ${sellPrice}`);
+              buyPrice = higherPrice;
+              sellPrice = _.ceil(buyPrice * (1 + interest), PRICE_FILTER.precision);
+              console.log(`buyPrice: ${buyPrice} (${priceToSlot(buyPrice, gridStep)}) / sellPrice: ${sellPrice} (${priceToSlot(sellPrice, gridStep)})`);
               break;
             case "short":
-              sellPrice = price;
-              buyPrice = _.floor(price / (1 + interest), PRICE_FILTER.precision);
-              console.log(`sellPrice: ${sellPrice} / buyPrice: ${buyPrice}`);
+              sellPrice = lowerPrice;
+              buyPrice = _.floor(sellPrice / (1 + interest), PRICE_FILTER.precision);
+              console.log(`sellPrice: ${sellPrice} (${priceToSlot(sellPrice, gridStep)}) / buyPrice: ${buyPrice} (${priceToSlot(buyPrice, gridStep)})`);
               break;
           }
 
@@ -138,8 +143,6 @@ binance
                   .then(buyOrder => {
                     if (buyOrder.data.status === "FILLED") {
                       console.log(`BUY ORDER EXECUTED: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.executedQty} / Total: ${buyOrder.data.cummulativeQuoteQty}`);
-
-                      console.log(buyOrder.data);
 
                       let fills = buyOrder.data.fills.reduce(
                         (prev, curr) => {
