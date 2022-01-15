@@ -259,7 +259,15 @@ binance
                 break;
             }
           } else {
-            console.log(`SLOT already in use!`);
+            console.log(
+              `SLOT ${slot2} (${_.ceil(slotToPrice(slot2, gridStep), PRICE_FILTER.precision)} - ${_.floor(
+                slotToPrice(slot2 + 1, gridStep),
+                PRICE_FILTER.precision
+              )}) or ${slot1} (${_.ceil(slotToPrice(slot1, gridStep), PRICE_FILTER.precision)} - ${_.floor(
+                slotToPrice(slot1 + 1, gridStep),
+                PRICE_FILTER.precision
+              )}) already in use!`
+            );
           }
         })
         .catch(error => console.log(error));
