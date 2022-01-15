@@ -93,7 +93,7 @@ binance
           openOrders = {};
 
           orders.data.forEach(order => {
-            openOrders[priceToSlot(order.price, gridStep)] = true;
+            openOrders[priceToSlot(order.price, gridStep)] = order.orderId;
           });
 
           return binance.tickerPrice(baseAsset, quoteAsset);
