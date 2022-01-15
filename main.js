@@ -110,12 +110,12 @@ binance
           switch (side) {
             case "long":
               buyPrice = higherPrice;
-              sellPrice = _.ceil(buyPrice * (1 + interest), PRICE_FILTER.precision);
+              sellPrice = _.round(buyPrice * (1 + interest), PRICE_FILTER.precision);
               console.log(`buyPrice: ${buyPrice} (${priceToSlot(buyPrice, gridStep)}) / sellPrice: ${sellPrice} (${priceToSlot(sellPrice, gridStep)})`);
               break;
             case "short":
               sellPrice = lowerPrice;
-              buyPrice = _.floor(sellPrice / (1 + interest), PRICE_FILTER.precision);
+              buyPrice = _.round(sellPrice / (1 + interest), PRICE_FILTER.precision);
               console.log(`sellPrice: ${sellPrice} (${priceToSlot(sellPrice, gridStep)}) / buyPrice: ${buyPrice} (${priceToSlot(buyPrice, gridStep)})`);
               break;
           }
