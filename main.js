@@ -126,7 +126,11 @@ binance
           if (openOrders[slot1] === undefined && openOrders[slot2] === undefined) {
             switch (side) {
               case "long":
-                amountToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
+                let numberOfPossibleOrders = _.floor(balances[quoteAsset].free / minNotional);
+                let recalculatedMinNotional = _.floor(balances[quoteAsset].free / numberOfPossibleOrders, PRICE_FILTER.precision);
+                console.log(`recalculatedMinNotional: ${recalculatedMinNotional}`);
+
+                amountToBuy = _.ceil(recalculatedMinNotional / buyPrice, LOT_SIZE.precision);
 
                 if (Number(balances[quoteAsset].free) < amountToBuy) new Error(`quoteAsset insufficient.`);
 
