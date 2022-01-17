@@ -86,7 +86,7 @@ binance
                   .then(trade => {
                     console.log(`Order ADDED TO DATABASE: ${trade.orderId}`);
                   })
-                  .catch(error => console.log(error));
+                  .catch(error => console.error(error));
               });
           }
 
@@ -193,7 +193,7 @@ binance
                       console.log(buyOrder.data);
                     }
                   })
-                  .catch(error => console.log(error));
+                  .catch(error => console.error(error));
                 break;
               case "short":
                 amountToSell = _.ceil(minNotional / sellPrice, LOT_SIZE.precision);
@@ -259,7 +259,7 @@ binance
                       console.log(sellOrder.data);
                     }
                   })
-                  .catch(error => console.log(error));
+                  .catch(error => console.error(error));
                 break;
             }
           } else {
@@ -274,10 +274,10 @@ binance
             );
           }
         })
-        .catch(error => console.log(error));
+        .catch(error => console.error(error));
     }, interval);
   })
-  .catch(error => console.log(error.message));
+  .catch(error => console.error(error));
 
 process.on("SIGINT", () => {
   kill = true;
