@@ -62,6 +62,7 @@ binance
           console.log(`makerCommission: ${makerCommission} / takerCommission: ${takerCommission}`);
 
           balances = binance.getBalances(account.data.balances);
+          console.table(balances);
 
           return binance.openOrders(baseAsset, quoteAsset);
         })
