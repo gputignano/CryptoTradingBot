@@ -131,7 +131,7 @@ binance
                 let recalculatedMinNotional = _.floor(balances[quoteAsset].free / numberOfPossibleOrders, PRICE_FILTER.precision);
                 console.log(`recalculatedMinNotional: ${recalculatedMinNotional}`);
 
-                amountToBuy = _.ceil(recalculatedMinNotional / buyPrice, LOT_SIZE.precision);
+                amountToBuy = _.floor(recalculatedMinNotional / buyPrice, LOT_SIZE.precision);
 
                 if (Number(balances[quoteAsset].free) < amountToBuy) new Error(`quoteAsset insufficient.`);
 
@@ -166,7 +166,7 @@ binance
                       switch (earn) {
                         // Earns BASE Asset
                         case "base":
-                          amountToSell = _.ceil(buyOrder.data.cummulativeQuoteQty / sellPrice - fills.commission, LOT_SIZE.precision);
+                          amountToSell = _.floor(buyOrder.data.cummulativeQuoteQty / sellPrice - fills.commission, LOT_SIZE.precision);
                           break;
                         // Earns QUOTE Asset
                         case "quote":
