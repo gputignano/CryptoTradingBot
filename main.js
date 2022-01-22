@@ -134,8 +134,6 @@ binance
 
                 amountToBuy = _.floor(recalculatedMinNotional / buyPrice, LOT_SIZE.precision);
 
-                if (Number(balances[quoteAsset].free) < amountToBuy) new Error(`quoteAsset insufficient.`);
-
                 // BUY ORDER
                 binance
                   .order({
