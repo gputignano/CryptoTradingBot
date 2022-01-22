@@ -129,6 +129,7 @@ binance
               case "long":
                 let numberOfPossibleOrders = _.floor(balances[quoteAsset].free / minNotional);
                 if (numberOfPossibleOrders == 0) throw new Error(`Impossible to execute a new order`);
+
                 let recalculatedMinNotional = _.floor(balances[quoteAsset].free / numberOfPossibleOrders, PRICE_FILTER.precision);
                 console.log(`recalculatedMinNotional: ${recalculatedMinNotional}`);
 
@@ -184,7 +185,6 @@ binance
                           price: sellPrice,
                         })
                         .then(sellOrder => {
-                          // console.log(sellOrder.data);
                           console.log(
                             `SELL ORDER EXECUTED: Price: ${sellOrder.data.price} / Qty: ${sellOrder.data.origQty} / Total: ${sellOrder.data.price * sellOrder.data.origQty}`
                           );
