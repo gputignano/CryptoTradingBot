@@ -58,6 +58,7 @@ module.exports.getBalances = arrayBalances => {
   let objectBalances = {};
 
   arrayBalances.forEach(balance => {
+    if (balance.free == 0 && balance.locked == 0) return;
     objectBalances[balance.asset] = {
       free: balance.free,
       locked: balance.locked,
