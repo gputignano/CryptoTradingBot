@@ -149,17 +149,7 @@ binance
                     if (buyOrder.data.status === "FILLED") {
                       console.log(`BUY ORDER EXECUTED: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.executedQty} / Total: ${buyOrder.data.cummulativeQuoteQty}`);
 
-                      let fills = buyOrder.data.fills.reduce(
-                        (prev, curr) => {
-                          prev.qty += Number(curr.qty);
-                          prev.commission += Number(curr.commission);
-                          return prev;
-                        },
-                        {
-                          qty: 0,
-                          commission: 0,
-                        }
-                      );
+                      let fills = reduceFills(buyOrder.data.fills);
 
                       console.log(fills);
 
@@ -217,17 +207,7 @@ binance
                         `SELL ORDER EXECUTED: Price: ${sellOrder.data.fills[0].price} / Qty: ${buyOrder.data.fills[0].qty} / Total: ${buyOrder.data.cummulativeQuoteQty}`
                       );
 
-                      let fills = sellOrder.data.fills.reduce(
-                        (prev, curr) => {
-                          prev.qty += Number(curr.qty);
-                          prev.commission += Number(curr.commission);
-                          return prev;
-                        },
-                        {
-                          qty: 0,
-                          commission: 0,
-                        }
-                      );
+                      let fills = reduceFills(sellOrder.data.fills);
 
                       switch (earn) {
                         // EARNS BASE Asset
@@ -285,3 +265,21 @@ process.on("SIGINT", () => {
 
 priceToSlot = (price, gridStep) => Math.floor(Math.log10(price) / Math.log10(1 + gridStep / 100));
 slotToPrice = (slot, gridStep) => Math.pow(1 + gridStep / 100, slot);
+
+reduceFills = data => {
+  let fills = data.reduce(
+    (prev, curr) => {
+      prev.qty += Number(curr.qty);
+      prev.commission += Number(curr.commission);
+      return prev;
+    },
+    {
+      qty: 0,
+      commission: 0,
+    }
+  );
+
+  console.log(fills);
+
+  return fills;
+};
