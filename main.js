@@ -151,8 +151,6 @@ binance
 
                       let fills = reduceFills(buyOrder.data.fills);
 
-                      console.log(fills);
-
                       switch (earn) {
                         // Earns BASE Asset
                         case "base":
@@ -187,7 +185,6 @@ binance
                 break;
               case "short":
                 amountToSell = _.ceil(minNotional / sellPrice, LOT_SIZE.precision);
-                console.log(`amountToSell: ${amountToSell}`);
 
                 if (Number(balances[baseAsset].free) < amountToSell) new Error(`baseAsset insufficient.`);
 
