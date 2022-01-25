@@ -217,8 +217,6 @@ binance
                           break;
                       }
 
-                      console.log(`amountToBuy: ${amountToBuy}`);
-
                       // BUY ORDER
                       binance
                         .order({
