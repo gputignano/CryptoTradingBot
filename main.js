@@ -200,9 +200,7 @@ binance
                   })
                   .then(sellOrder => {
                     if (sellOrder.data.status === "FILLED") {
-                      console.log(
-                        `SELL ORDER EXECUTED: Price: ${sellOrder.data.fills[0].price} / Qty: ${sellOrder.data.fills[0].qty} / Total: ${sellOrder.data.cummulativeQuoteQty}`
-                      );
+                      console.log(`SELL ORDER EXECUTED: Price: ${sellOrder.data.price} / Qty: ${sellOrder.data.executedQty} / Total: ${sellOrder.data.cummulativeQuoteQty}`);
 
                       let fills = reduceFills(sellOrder.data.fills);
 
