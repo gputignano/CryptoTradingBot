@@ -212,7 +212,7 @@ binance
                       switch (earn) {
                         // EARNS BASE Asset
                         case "base":
-                          amountToBuy = _.floor((sellOrder.data.executedQty - fills.commission) / buyPrice, LOT_SIZE.precision);
+                          amountToBuy = _.floor(sellOrder.data.executedQty - fills.commission, LOT_SIZE.precision);
                           break;
                         // EARNS QUOTE Asset
                         case "quote":
