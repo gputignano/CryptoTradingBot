@@ -233,7 +233,7 @@ binance
                           price: buyPrice,
                         })
                         .then(buyOrder => {
-                          console.log(`BUY: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.origQty} / Total: ${buyOrder.data.price * buyOrder.data.origQty}`);
+                          console.log(`BUY ORDER EXECUTED: Price: ${buyOrder.data.price} / Qty: ${buyOrder.data.origQty} / Total: ${buyOrder.data.price * buyOrder.data.origQty}`);
                         });
                     } else {
                       console.log(sellOrder.data);
