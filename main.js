@@ -130,10 +130,10 @@ binance
                 let numberOfPossibleOrders = _.floor(balances[quoteAsset].free / minNotional);
                 if (numberOfPossibleOrders == 0) throw new Error(`Impossible to execute a new order`);
 
-                let recalculatedMinNotional = _.floor(balances[quoteAsset].free / numberOfPossibleOrders, PRICE_FILTER.precision);
+                let recalculatedMinNotional = _.ceil(balances[quoteAsset].free / numberOfPossibleOrders, PRICE_FILTER.precision);
                 console.log(`recalculatedMinNotional: ${recalculatedMinNotional}`);
 
-                amountToBuy = _.floor(recalculatedMinNotional / buyPrice, LOT_SIZE.precision);
+                amountToBuy = _.ceil(recalculatedMinNotional / buyPrice, LOT_SIZE.precision);
 
                 // BUY ORDER
                 binance
@@ -154,11 +154,11 @@ binance
                       switch (earn) {
                         // Earns BASE Asset
                         case "base":
-                          amountToSell = _.floor(buyOrder.data.cummulativeQuoteQty / sellPrice - fills.commission, LOT_SIZE.precision);
+                          amountToSell = _.ceil(recalculatedMinNotional / (1 - takerCommission) / sellPrice - fills.commission, LOT_SIZE.precision);
                           break;
                         // Earns QUOTE Asset
                         case "quote":
-                          amountToSell = _.floor(buyOrder.data.executedQty - fills.commission, LOT_SIZE.precision);
+                          amountToSell = _.ceil((amountToBuy - fills.commission) / (1 - takerCommission), LOT_SIZE.precision);
                           break;
                       }
 
