@@ -277,7 +277,7 @@ getOpenOrders = orders => {
   let openOrders = {};
 
   orders.forEach(order => {
-    openOrders[priceToSlot(order.price, gridStep)] = order.orderId;
+    openOrders[priceToSlot(order.price, gridStep)] = true;
   });
 
   return openOrders;
