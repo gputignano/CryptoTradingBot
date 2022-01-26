@@ -91,11 +91,7 @@ binance
               });
           }
 
-          openOrders = {};
-
-          orders.data.forEach(order => {
-            openOrders[priceToSlot(order.price, gridStep)] = order.orderId;
-          });
+          openOrders = getOpenOrders(orders.data);
 
           return binance.tickerPrice(baseAsset, quoteAsset);
         })
@@ -275,4 +271,14 @@ reduceFills = data => {
   console.log(fills);
 
   return fills;
+};
+
+getOpenOrders = orders => {
+  let openOrders = {};
+
+  orders.forEach(order => {
+    openOrders[priceToSlot(order.price, gridStep)] = order.orderId;
+  });
+
+  return openOrders;
 };
