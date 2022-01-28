@@ -35,7 +35,7 @@ const argv = yargs
   .option("side", {
     describe: "Side",
     type: "string",
-    default: "long",
+    default: "buy",
   })
   .option("earn", {
     describe: "Asset to earn (base or quote)",
