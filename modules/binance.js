@@ -65,5 +65,7 @@ module.exports.getBalances = arrayBalances => {
     };
   });
 
+  console.table(objectBalances);
+
   return objectBalances;
 };

@@ -27,8 +27,6 @@ let kill = false;
 binance
   .exchangeInfo(baseAsset, quoteAsset)
   .then(exchangeInfo => {
-    console.log(`Getting Exchange Info`);
-
     [symbol] = exchangeInfo.data.symbols;
 
     [
@@ -62,7 +60,6 @@ binance
           console.log(`makerCommission: ${makerCommission} / takerCommission: ${takerCommission}`);
 
           balances = binance.getBalances(account.data.balances);
-          console.table(balances);
 
           return binance.openOrders(baseAsset, quoteAsset);
         })
@@ -132,10 +129,6 @@ binance
                 case "quote": // EARNS QUOTE Asset
                   amountToSell = _.ceil(minNotional / sellPrice / (1 - interest), LOT_SIZE.precision);
                   amountToBuy = _.ceil(amountToSell / (1 - takerCommission), LOT_SIZE.precision);
-
-                  // Check if calculation is correct
-                  if (amountToSell * sellPrice * (1 - takerCommission) < amountToBuy * buyPrice) throw new Error("amountToSell * sellPrice < amountToBuy * buyPrice");
-                  if (amountToBuy * (1 - makerCommission) < amountToSell) throw new Error("amountToBuy < amountToSell");
                   break;
               }
               break;
@@ -144,7 +137,10 @@ binance
           let slot1 = priceToSlot(sellPrice, gridStep);
           let slot2 = priceToSlot(buyPrice, gridStep);
 
-          if (openOrders[slot1] !== undefined || openOrders[slot2] !== undefined) throw new Error(`Slots are full!`);
+          if (openOrders[slot1] !== undefined || openOrders[slot2] !== undefined) {
+            console.log(`slot1: ${slot1} / slot2: ${slot2}`);
+            throw new Error(`Slots are full!`);
+          }
 
           switch (side) {
             case "buy":
