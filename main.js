@@ -125,7 +125,7 @@ binance
           switch (side) {
             case "buy":
               buyPrice = higherPrice;
-              sellPrice = _.round(buyPrice * (1 + interest), PRICE_FILTER.precision);
+              sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
               amountToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
 
@@ -140,7 +140,7 @@ binance
               break;
             case "sell":
               sellPrice = lowerPrice;
-              buyPrice = _.round(sellPrice / (1 + interest), PRICE_FILTER.precision);
+              buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
               switch (earn) {
                 case "base": // EARNS BASE Asset
