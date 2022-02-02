@@ -1,5 +1,5 @@
 const _ = require("lodash");
-const { baseAsset, quoteAsset, gridStep, interest, minNotional, interval, side, earn } = require("./modules/argv");
+let { baseAsset, quoteAsset, gridStep, interest, minNotional, interval, side, earn, program } = require("./modules/argv");
 
 require("dotenv").config({
   path: `${__dirname}/.env.${(process.env.NODE_ENV = process.env.NODE_ENV || "development")}`,
@@ -100,6 +100,27 @@ binance
           console.log(`lowerPrice: ${lowerPrice} - slot: ${priceToSlot(lowerPrice, gridStep)}`);
           console.log(`price: ${price} - slot: ${priceToSlot(price, gridStep)}`);
           console.log(`higherPrice: ${higherPrice} - slot: ${priceToSlot(higherPrice, gridStep)}`);
+
+          // SET THE LOGIC
+          switch (program) {
+            case "manual":
+              // MANUAL
+              console.log(`Program: ${program}`);
+              break;
+            case "automatic":
+              console.log(`Program: ${program}`);
+
+              if (balances[quoteAsset].free >= minNotional) {
+                side = "buy";
+                console.log(`Program side set to ${side}`);
+              } else if (balances[baseAsset].free * price >= minNotional) {
+                side = "sell";
+                console.log(`Program side set to ${side}`);
+              } else {
+                throw new Error("No balance to trade.");
+              }
+              break;
+          }
 
           switch (side) {
             case "buy":
