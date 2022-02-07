@@ -158,7 +158,7 @@ binance
           let slot1 = priceToSlot(sellPrice, gridStep);
           let slot2 = priceToSlot(buyPrice, gridStep);
 
-          if (openOrders[slot1] !== undefined || openOrders[slot2] !== undefined) {
+          if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
             console.log(`slot1: ${slot1} / slot2: ${slot2}`);
             throw new Error(`Slots are full!`);
           }
