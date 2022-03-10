@@ -61,6 +61,27 @@ binance
 
           balances = binance.getBalances(account.data.balances);
 
+          // SET THE LOGIC
+          switch (program) {
+            case "manual":
+              // MANUAL
+              console.log(`Program: ${program}`);
+              break;
+            case "automatic":
+              console.log(`Program: ${program}`);
+
+              if (balances[quoteAsset].free >= minNotional) {
+                side = "buy";
+                console.log(`Program side set to ${side}`);
+              } else if (balances[baseAsset].free * price >= minNotional) {
+                side = "sell";
+                console.log(`Program side set to ${side}`);
+              } else {
+                throw new Error("No balance to trade.");
+              }
+              break;
+          }
+
           return binance.openOrders(baseAsset, quoteAsset);
         })
         .then(orders => {
@@ -100,27 +121,6 @@ binance
           console.log(`lowerPrice: ${lowerPrice} - slot: ${priceToSlot(lowerPrice, gridStep)}`);
           console.log(`price: ${price} - slot: ${priceToSlot(price, gridStep)}`);
           console.log(`higherPrice: ${higherPrice} - slot: ${priceToSlot(higherPrice, gridStep)}`);
-
-          // SET THE LOGIC
-          switch (program) {
-            case "manual":
-              // MANUAL
-              console.log(`Program: ${program}`);
-              break;
-            case "automatic":
-              console.log(`Program: ${program}`);
-
-              if (balances[quoteAsset].free >= minNotional) {
-                side = "buy";
-                console.log(`Program side set to ${side}`);
-              } else if (balances[baseAsset].free * price >= minNotional) {
-                side = "sell";
-                console.log(`Program side set to ${side}`);
-              } else {
-                throw new Error("No balance to trade.");
-              }
-              break;
-          }
 
           switch (side) {
             case "buy":
