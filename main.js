@@ -61,26 +61,6 @@ binance
 
           balances = binance.getBalances(account.data.balances);
 
-          console.log(`Program: ${program}`);
-
-          // SET THE LOGIC
-          switch (program) {
-            case "manual":
-              //
-              break;
-            case "automatic":
-              if (balances[quoteAsset].free >= minNotional) {
-                side = "buy";
-                console.log(`Program side set to ${side}`);
-              } else if (balances[baseAsset].free * price >= minNotional) {
-                side = "sell";
-                console.log(`Program side set to ${side}`);
-              } else {
-                throw new Error("No balance to trade.");
-              }
-              break;
-          }
-
           return binance.openOrders(baseAsset, quoteAsset);
         })
         .then(orders => {
@@ -114,6 +94,27 @@ binance
         })
         .then(ticker => {
           let price = ticker.data.price;
+
+          console.log(`Program: ${program}`);
+
+          // SET THE LOGIC
+          switch (program) {
+            case "manual":
+              //
+              break;
+            case "automatic":
+              if (balances[quoteAsset].free >= minNotional) {
+                side = "buy";
+                console.log(`Program side set to ${side}`);
+              } else if (balances[baseAsset].free * price >= minNotional) {
+                side = "sell";
+                console.log(`Program side set to ${side}`);
+              } else {
+                throw new Error("No balance to trade.");
+              }
+              break;
+          }
+
           let lowerPrice = _.ceil(slotToPrice(priceToSlot(price, gridStep), gridStep), PRICE_FILTER.precision);
           let higherPrice = _.floor(slotToPrice(priceToSlot(price, gridStep) + 1, gridStep), PRICE_FILTER.precision);
 
