@@ -61,14 +61,14 @@ binance
 
           balances = binance.getBalances(account.data.balances);
 
+          console.log(`Program: ${program}`);
+
           // SET THE LOGIC
           switch (program) {
             case "manual":
-              console.log(`Program: ${program}`);
+              //
               break;
             case "automatic":
-              console.log(`Program: ${program}`);
-
               if (balances[quoteAsset].free >= minNotional) {
                 side = "buy";
                 console.log(`Program side set to ${side}`);
