@@ -64,7 +64,6 @@ binance
           // SET THE LOGIC
           switch (program) {
             case "manual":
-              // MANUAL
               console.log(`Program: ${program}`);
               break;
             case "automatic":
