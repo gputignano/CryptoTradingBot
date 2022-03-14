@@ -14,6 +14,7 @@ require("./modules/db"); // Connect to MongoDB
 const TradeModel = require("./models/Trade"); // Trade Model
 
 let balances = {};
+let exchangeOrders;
 let openOrders;
 let amountToBuy;
 let amountToSell;
@@ -64,6 +65,7 @@ binance
           return binance.openOrders(baseAsset, quoteAsset);
         })
         .then(orders => {
+          exchangeOrders = orders;
           console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
           // Sort orders array by price
@@ -87,8 +89,6 @@ binance
                   .catch(error => console.error(error));
               });
           }
-
-          openOrders = getOpenOrders(orders.data);
 
           return binance.tickerPrice(baseAsset, quoteAsset);
         })
@@ -157,6 +157,8 @@ binance
 
           let slot1 = priceToSlot(sellPrice, gridStep);
           let slot2 = priceToSlot(buyPrice, gridStep);
+
+          openOrders = getOpenOrders(exchangeOrders.data);
 
           if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
             console.log(`slot1: ${slot1} / slot2: ${slot2}`);
