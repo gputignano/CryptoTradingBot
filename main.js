@@ -1,5 +1,5 @@
 const _ = require("lodash");
-let { baseAsset, quoteAsset, gridStep, interest, minNotional, interval, side, earn, program } = require("./modules/argv");
+let { baseAsset, quoteAsset, gridBuy, gridSell, interest, minNotional, interval, side, earn, program } = require("./modules/argv");
 
 require("dotenv").config({
   path: `${__dirname}/.env.${(process.env.NODE_ENV = process.env.NODE_ENV || "development")}`,
@@ -106,9 +106,13 @@ binance
               if (balances[quoteAsset].free >= minNotional) {
                 side = "buy";
                 console.log(`Program side set to ${side}`);
+                gridStep = gridBuy;
+                console.log(`gridStep set to ${gridBuy}`);
               } else if (balances[baseAsset].free * price >= minNotional) {
                 side = "sell";
                 console.log(`Program side set to ${side}`);
+                gridStep = gridSell;
+                console.log(`gridStep set to ${gridSell}`);
               } else {
                 throw new Error("No balance to trade.");
               }

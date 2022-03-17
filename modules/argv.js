@@ -11,9 +11,13 @@ const argv = yargs
     demandOption: true,
     type: "string",
   })
-  .option("grid", {
-    describe: "Grid",
-    demandOption: true,
+  .option("gridBuy", {
+    describe: "Grid Buy",
+    type: "number",
+    default: 1.0,
+  })
+  .option("gridSell", {
+    describe: "Grid Sell",
     type: "number",
     default: 1.0,
   })
@@ -51,7 +55,8 @@ const argv = yargs
 
 console.log(`base = ${argv.base}`);
 console.log(`quote = ${argv.quote}`);
-console.log(`grid = ${argv.grid}`);
+console.log(`gridBuy = ${argv.gridBuy}`);
+console.log(`gridSell = ${argv.gridSell}`);
 console.log(`interest = ${argv.interest}%`);
 console.log(`minNotional = ${argv.minNotional}`);
 console.log(`interval = ${argv.interval}`);
@@ -62,7 +67,8 @@ console.log(`program = ${argv.program}`);
 module.exports = {
   baseAsset: argv.base,
   quoteAsset: argv.quote,
-  gridStep: argv.grid,
+  gridBuy: argv.gridBuy,
+  gridSell: argv.gridSell,
   interest: argv.interest / 100,
   minNotional: argv.minNotional,
   interval: argv.interval,
