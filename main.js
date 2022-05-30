@@ -37,6 +37,7 @@ binance
       MIN_NOTIONAL, // filterType, minNotional, applyToMarket, avgPriceMins
       ICEBERG_PARTS, // filterType, limit
       MARKET_LOT_SIZE, // filterType, minQty, maxQty, stepSize
+      TRAILING_DELTA, // minTrailingAboveDelta, maxTrailingAboveDelta, minTrailingBelowDelta, maxTrailingBelowDelta
       MAX_NUM_ORDERS, // filterType, maxNumOrders
       MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
     ] = symbol.filters;
