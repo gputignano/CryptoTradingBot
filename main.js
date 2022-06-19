@@ -104,12 +104,12 @@ binance
               //
               break;
             case "automatic":
-              if (balances[quoteAsset].free >= minNotional) {
+              if (balances[quoteAsset] != undefined && balances[quoteAsset].free >= minNotional) {
                 side = "buy";
                 console.log(`Program side set to ${side}`);
                 gridStep = gridBuy;
                 console.log(`gridStep set to ${gridBuy}`);
-              } else if (balances[baseAsset].free * price >= minNotional) {
+              } else if (balances[baseAsset] != undefined && balances[baseAsset].free * price >= minNotional) {
                 side = "sell";
                 console.log(`Program side set to ${side}`);
                 gridStep = gridSell;
