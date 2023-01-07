@@ -32,12 +32,12 @@ binance
 
     [
       PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
-      PERCENT_PRICE, // filterType, multiplierUp, multiplierDown, avgPriceMins
       LOT_SIZE, // filterType, minQty, maxQty, stepSize
       MIN_NOTIONAL, // filterType, minNotional, applyToMarket, avgPriceMins
       ICEBERG_PARTS, // filterType, limit
       MARKET_LOT_SIZE, // filterType, minQty, maxQty, stepSize
       TRAILING_DELTA, // minTrailingAboveDelta, maxTrailingAboveDelta, minTrailingBelowDelta, maxTrailingBelowDelta
+      PERCENT_PRICE_BY_SIDE, // bidMultiplierUp, bidMultiplierDown, askMultiplierUp, askMultiplierDown, avgPriceMins
       MAX_NUM_ORDERS, // filterType, maxNumOrders
       MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
     ] = symbol.filters;
