@@ -130,7 +130,7 @@ binance
           switch (side) {
             case "buy":
               buyPrice = higherPrice;
-              sellPrice = _.ceil(buyPrice * (1 + interest), PRICE_FILTER.precision);
+              sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
               amountToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
 
