@@ -69,3 +69,36 @@ module.exports.getBalances = arrayBalances => {
 
   return objectBalances;
 };
+
+module.exports.priceToSlot = (price, gridStep) => Math.floor(Math.log10(price) / Math.log10(1 + gridStep / 100));
+module.exports.slotToPrice = (slot, gridStep) => Math.pow(1 + gridStep / 100, slot);
+
+// module.exports.reduceFills = data => {
+//   let fills = data.reduce(
+//     (prev, curr) => {
+//       prev.total += Number(curr.price * (curr.qty - curr.commission));
+//       prev.qty += Number(curr.qty);
+//       prev.commission += Number(curr.commission);
+//       return prev;
+//     },
+//     {
+//       total: 0,
+//       qty: 0,
+//       commission: 0,
+//     }
+//   );
+
+//   console.log(fills);
+
+//   return fills;
+// };
+
+module.exports.getOpenOrders = orders => {
+  let openOrders = {};
+
+  orders.forEach(order => {
+    openOrders[this.priceToSlot(order.price, gridStep)] = true;
+  });
+
+  return openOrders;
+};

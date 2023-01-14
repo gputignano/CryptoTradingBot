@@ -120,12 +120,12 @@ binance
               break;
           }
 
-          let lowerPrice = _.ceil(slotToPrice(priceToSlot(price, gridStep), gridStep), PRICE_FILTER.precision);
-          let higherPrice = _.floor(slotToPrice(priceToSlot(price, gridStep) + 1, gridStep), PRICE_FILTER.precision);
+          let lowerPrice = _.ceil(binance.slotToPrice(binance.priceToSlot(price, gridStep), gridStep), PRICE_FILTER.precision);
+          let higherPrice = _.floor(binance.slotToPrice(binance.priceToSlot(price, gridStep) + 1, gridStep), PRICE_FILTER.precision);
 
-          console.log(`lowerPrice: ${lowerPrice} - slot: ${priceToSlot(lowerPrice, gridStep)}`);
-          console.log(`price: ${price} - slot: ${priceToSlot(price, gridStep)}`);
-          console.log(`higherPrice: ${higherPrice} - slot: ${priceToSlot(higherPrice, gridStep)}`);
+          console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, gridStep)}`);
+          console.log(`price: ${price} - slot: ${binance.priceToSlot(price, gridStep)}`);
+          console.log(`higherPrice: ${higherPrice} - slot: ${binance.priceToSlot(higherPrice, gridStep)}`);
 
           switch (side) {
             case "buy":
@@ -160,10 +160,10 @@ binance
               break;
           }
 
-          let slot1 = priceToSlot(sellPrice, gridStep);
-          let slot2 = priceToSlot(buyPrice, gridStep);
+          let slot1 = binance.priceToSlot(sellPrice, gridStep);
+          let slot2 = binance.priceToSlot(buyPrice, gridStep);
 
-          openOrders = getOpenOrders(exchangeOrders.data);
+          openOrders = binance.getOpenOrders(exchangeOrders.data);
 
           if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
             console.log(`slot1: ${slot1} / slot2: ${slot2}`);
@@ -245,36 +245,3 @@ binance
 process.on("SIGINT", () => {
   kill = true;
 });
-
-priceToSlot = (price, gridStep) => Math.floor(Math.log10(price) / Math.log10(1 + gridStep / 100));
-slotToPrice = (slot, gridStep) => Math.pow(1 + gridStep / 100, slot);
-
-reduceFills = data => {
-  let fills = data.reduce(
-    (prev, curr) => {
-      prev.total += Number(curr.price * (curr.qty - curr.commission));
-      prev.qty += Number(curr.qty);
-      prev.commission += Number(curr.commission);
-      return prev;
-    },
-    {
-      total: 0,
-      qty: 0,
-      commission: 0,
-    }
-  );
-
-  console.log(fills);
-
-  return fills;
-};
-
-getOpenOrders = orders => {
-  let openOrders = {};
-
-  orders.forEach(order => {
-    openOrders[priceToSlot(order.price, gridStep)] = true;
-  });
-
-  return openOrders;
-};
