@@ -31,6 +31,7 @@ binance
     [symbol] = exchangeInfo.data.symbols;
 
     [
+      // Use DESTRUCTURING ASSIGNMENT
       PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
       LOT_SIZE, // filterType, minQty, maxQty, stepSize
       MIN_NOTIONAL, // filterType, minNotional, applyToMarket, avgPriceMins
