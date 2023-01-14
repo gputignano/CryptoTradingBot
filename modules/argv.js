@@ -46,11 +46,6 @@ const argv = yargs
     demandOption: true,
     type: "string",
     default: "base",
-  })
-  .option("program", {
-    describe: "",
-    type: "string",
-    default: "manual",
   }).argv;
 
 console.log(`base = ${argv.base}`);
@@ -62,7 +57,6 @@ console.log(`minNotional = ${argv.minNotional}`);
 console.log(`interval = ${argv.interval}`);
 console.log(`side = ${argv.side}`);
 console.log(`earn = ${argv.earn}`);
-console.log(`program = ${argv.program}`);
 
 module.exports = {
   baseAsset: argv.base,
@@ -74,5 +68,4 @@ module.exports = {
   interval: argv.interval,
   side: argv.side,
   earn: argv.earn,
-  program: argv.program,
 };

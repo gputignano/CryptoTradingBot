@@ -1,5 +1,5 @@
 const _ = require("lodash");
-let { baseAsset, quoteAsset, gridBuy, gridSell, interest, minNotional, interval, side, earn, program } = require("./modules/argv");
+let { baseAsset, quoteAsset, gridBuy, gridSell, interest, minNotional, interval, side, earn } = require("./modules/argv");
 
 require("dotenv").config({
   path: `${__dirname}/.env.${(process.env.NODE_ENV = process.env.NODE_ENV || "development")}`,
@@ -97,28 +97,17 @@ binance
         .then(ticker => {
           let price = ticker.data.price;
 
-          console.log(`Program: ${program}`);
-
           // SET THE LOGIC
-          switch (program) {
-            case "manual":
-              //
-              break;
-            case "automatic":
-              if (balances[quoteAsset] != undefined && balances[quoteAsset].free >= minNotional) {
-                side = "buy";
-                console.log(`Program side set to ${side}`);
-                gridStep = gridBuy;
-                console.log(`gridStep set to ${gridBuy}`);
-              } else if (balances[baseAsset] != undefined && balances[baseAsset].free * price >= minNotional) {
-                side = "sell";
-                console.log(`Program side set to ${side}`);
-                gridStep = gridSell;
-                console.log(`gridStep set to ${gridSell}`);
-              } else {
-                throw new Error("No balance to trade.");
-              }
-              break;
+          if (balances[quoteAsset] != undefined && balances[quoteAsset].free >= minNotional) {
+            side = "buy";
+            gridStep = gridBuy;
+            console.log(`gridStep set to ${gridBuy}`);
+          } else if (balances[baseAsset] != undefined && balances[baseAsset].free * price >= minNotional) {
+            side = "sell";
+            gridStep = gridSell;
+            console.log(`gridStep set to ${gridSell}`);
+          } else {
+            throw new Error("No balance to trade.");
           }
 
           let lowerPrice = _.ceil(binance.slotToPrice(binance.priceToSlot(price, gridStep), gridStep), PRICE_FILTER.precision);
