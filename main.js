@@ -20,8 +20,6 @@ let amountToBuy;
 let amountToSell;
 let buyPrice;
 let sellPrice;
-let makerCommission;
-let takerCommission;
 let kill = false;
 
 // READS FILTERS
