@@ -56,7 +56,7 @@ console.log(`interest = ${argv.interest}%`);
 console.log(`minNotional = ${argv.minNotional}`);
 console.log(`interval = ${argv.interval}`);
 console.log(`side = ${argv.side}`);
-console.log(`earn = ${argv.earn}`);
+console.log(`earn = ${argv.earn == "base" ? argv.base : argv.quote}`);
 
 module.exports = {
   baseAsset: argv.base,
