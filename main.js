@@ -57,10 +57,7 @@ binance
         .then(account => {
           console.log(`=======================================`);
 
-          makerCommission = account.data.makerCommission / 10000;
-          takerCommission = account.data.takerCommission / 10000;
-
-          console.log(`makerCommission: ${makerCommission} / takerCommission: ${takerCommission}`);
+          [makerCommission, takerCommission] = binance.calculateCommissions(account.data);
 
           balances = binance.getBalances(account.data.balances);
 

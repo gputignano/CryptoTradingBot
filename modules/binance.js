@@ -102,3 +102,11 @@ module.exports.getOpenOrders = orders => {
 
   return openOrders;
 };
+
+module.exports.calculateCommissions = data => {
+  [makerCommission, takerCommission] = [data.makerCommission / 10000, data.takerCommission / 10000];
+
+  console.log(`makerCommission: ${makerCommission} / takerCommission: ${takerCommission}`);
+
+  return [makerCommission, takerCommission];
+};
