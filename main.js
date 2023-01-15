@@ -26,7 +26,7 @@ let kill = false;
 binance
   .exchangeInfo(baseAsset, quoteAsset)
   .then(exchangeInfo => {
-    [symbol] = exchangeInfo.data.symbols;
+    [symbols] = exchangeInfo.data.symbols;
 
     [
       // Use DESTRUCTURING ASSIGNMENT
@@ -39,7 +39,7 @@ binance
       PERCENT_PRICE_BY_SIDE, // bidMultiplierUp, bidMultiplierDown, askMultiplierUp, askMultiplierDown, avgPriceMins
       MAX_NUM_ORDERS, // filterType, maxNumOrders
       MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
-    ] = symbol.filters;
+    ] = symbols.filters;
 
     PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
     LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
