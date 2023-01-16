@@ -70,8 +70,8 @@ module.exports.getBalances = arrayBalances => {
   return objectBalances;
 };
 
-module.exports.priceToSlot = (price, gridStep) => Math.floor(Math.log10(price) / Math.log10(1 + gridStep / 100));
-module.exports.slotToPrice = (slot, gridStep) => Math.pow(1 + gridStep / 100, slot);
+module.exports.priceToSlot = (price, grid) => Math.floor(Math.log10(price) / Math.log10(1 + grid / 100));
+module.exports.slotToPrice = (slot, grid) => Math.pow(1 + grid / 100, slot);
 
 // module.exports.reduceFills = data => {
 //   let fills = data.reduce(
@@ -93,11 +93,11 @@ module.exports.slotToPrice = (slot, gridStep) => Math.pow(1 + gridStep / 100, sl
 //   return fills;
 // };
 
-module.exports.getOpenOrders = orders => {
+module.exports.getOpenOrders = (orders, grid) => {
   let openOrders = {};
 
   orders.forEach(order => {
-    openOrders[this.priceToSlot(order.price, gridStep)] = true;
+    openOrders[this.priceToSlot(order.price, grid)] = true;
   });
 
   return openOrders;

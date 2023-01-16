@@ -1,5 +1,5 @@
 const _ = require("lodash");
-let { baseAsset, quoteAsset, gridBuy, gridSell, interest, minNotional, interval, side, earn } = require("./modules/argv");
+let { baseAsset, quoteAsset, side, grid, earn, interest, minNotional, interval } = require("./modules/argv");
 
 require("dotenv").config({
   path: `${__dirname}/.env.${(process.env.NODE_ENV = process.env.NODE_ENV || "development")}`,
@@ -92,28 +92,17 @@ binance
         .then(ticker => {
           let price = ticker.data.price;
 
-          // SET THE LOGIC
-          if (balances[quoteAsset] != undefined && balances[quoteAsset].free >= minNotional) {
-            side = "buy";
-            gridStep = gridBuy;
-            console.log(`gridStep set to ${gridBuy}`);
-          } else if (balances[baseAsset] != undefined && balances[baseAsset].free * price >= minNotional) {
-            side = "sell";
-            gridStep = gridSell;
-            console.log(`gridStep set to ${gridSell}`);
-          } else {
-            throw new Error("No balance to trade.");
-          }
+          let lowerPrice = _.ceil(binance.slotToPrice(binance.priceToSlot(price, grid), grid), PRICE_FILTER.precision);
+          let higherPrice = _.floor(binance.slotToPrice(binance.priceToSlot(price, grid) + 1, grid), PRICE_FILTER.precision);
 
-          let lowerPrice = _.ceil(binance.slotToPrice(binance.priceToSlot(price, gridStep), gridStep), PRICE_FILTER.precision);
-          let higherPrice = _.floor(binance.slotToPrice(binance.priceToSlot(price, gridStep) + 1, gridStep), PRICE_FILTER.precision);
-
-          console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, gridStep)}`);
-          console.log(`price: ${price} - slot: ${binance.priceToSlot(price, gridStep)}`);
-          console.log(`higherPrice: ${higherPrice} - slot: ${binance.priceToSlot(higherPrice, gridStep)}`);
+          console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, grid)}`);
+          console.log(`price: ${price} - slot: ${binance.priceToSlot(price, grid)}`);
+          console.log(`higherPrice: ${higherPrice} - slot: ${binance.priceToSlot(higherPrice, grid)}`);
 
           switch (side) {
             case "buy":
+              if (balances[quoteAsset] === undefined || balances[quoteAsset].free < minNotional) throw new Error("No BUY balance to trade.");
+
               buyPrice = higherPrice;
               sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
@@ -129,6 +118,8 @@ binance
               }
               break;
             case "sell":
+              if (balances[baseAsset] === undefined || balances[baseAsset].free * price < minNotional) throw new Error("No SELL balance to trade.");
+
               sellPrice = lowerPrice;
               buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
@@ -145,10 +136,10 @@ binance
               break;
           }
 
-          let slot1 = binance.priceToSlot(sellPrice, gridStep);
-          let slot2 = binance.priceToSlot(buyPrice, gridStep);
+          let slot1 = binance.priceToSlot(sellPrice, grid);
+          let slot2 = binance.priceToSlot(buyPrice, grid);
 
-          openOrders = binance.getOpenOrders(exchangeOrders.data);
+          openOrders = binance.getOpenOrders(exchangeOrders.data, grid);
 
           if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
             console.log(`slot1: ${slot1} / slot2: ${slot2}`);
