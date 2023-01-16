@@ -110,7 +110,7 @@ binance
 
               switch (earn) {
                 case "base": // Earns BASE Asset (BTC)
-                  amountToSell = _.floor(minNotional / (1 - takerCommission) / sellPrice, LOT_SIZE.precision);
+                  amountToSell = _.ceil((buyPrice * amountToBuy) / (1 - takerCommission) / sellPrice, LOT_SIZE.precision);
                   break;
                 case "quote": // Earns QUOTE Asset (USDT)
                   amountToSell = _.floor(amountToBuy * (1 - takerCommission), LOT_SIZE.precision);
