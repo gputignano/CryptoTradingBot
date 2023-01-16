@@ -3,8 +3,6 @@ const axios = require("axios");
 const _ = require("lodash");
 
 const url = process.env.SPOT_API_URL;
-// const query = `symbol=${global.baseAsset}${global.quoteAsset}&timestamp=${Date.now()}`;
-// module.exports.url = `${url}${endPoint}?${query}&signature=${signature(query)}`;
 
 let headers = {
   headers: {
