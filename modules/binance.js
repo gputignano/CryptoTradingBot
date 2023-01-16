@@ -110,3 +110,11 @@ module.exports.calculateCommissions = data => {
 
   return [makerCommission, takerCommission];
 };
+
+module.exports.getLowerPrice = (price, grid, precision) => {
+  return _.ceil(this.slotToPrice(this.priceToSlot(price, grid), grid), precision);
+};
+
+module.exports.getHigherPrice = (price, grid, precision) => {
+  return _.floor(this.slotToPrice(this.priceToSlot(price, grid) + 1, grid), precision);
+};

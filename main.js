@@ -92,8 +92,8 @@ binance
         .then(ticker => {
           let price = ticker.data.price;
 
-          let lowerPrice = _.ceil(binance.slotToPrice(binance.priceToSlot(price, grid), grid), PRICE_FILTER.precision);
-          let higherPrice = _.floor(binance.slotToPrice(binance.priceToSlot(price, grid) + 1, grid), PRICE_FILTER.precision);
+          let lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+          let higherPrice = binance.higherPrice(price, grid, PRICE_FILTER.precision);
 
           console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, grid)}`);
           console.log(`price: ${price} - slot: ${binance.priceToSlot(price, grid)}`);
