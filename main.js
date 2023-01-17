@@ -113,7 +113,7 @@ binance
                   amountToSell = _.ceil((buyPrice * amountToBuy) / (1 - takerCommission) / sellPrice, LOT_SIZE.precision);
                   break;
                 case "quote": // Earns QUOTE Asset (USDT)
-                  amountToSell = _.floor(amountToBuy * (1 - takerCommission), LOT_SIZE.precision);
+                  amountToSell = _.ceil(amountToBuy * (1 - takerCommission), LOT_SIZE.precision);
                   break;
               }
               break;
