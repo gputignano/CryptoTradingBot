@@ -83,7 +83,9 @@ binance
                   .then(trade => {
                     console.log(`Order ADDED TO DATABASE: ${trade.orderId}`);
                   })
-                  .catch(error => console.error(error));
+                  .catch(error => {
+                    console.error(error);
+                  });
               });
           }
 
@@ -174,10 +176,16 @@ binance
                       })
                       .then(sellOrder => {
                         console.log(sellOrder.data);
+                      })
+                      .catch(error => {
+                        console.error(error);
+                        process.exit(0);
                       });
                   }
                 })
-                .catch(error => console.error(error));
+                .catch(error => {
+                  console.error(error);
+                });
               break;
             case "sell":
               // SELL ORDER
@@ -206,17 +214,27 @@ binance
                       })
                       .then(buyOrder => {
                         console.log(buyOrder.data);
+                      })
+                      .catch(error => {
+                        console.error(error);
+                        process.exit(0);
                       });
                   }
                 })
-                .catch(error => console.error(error));
+                .catch(error => {
+                  console.error(error);
+                });
               break;
           }
         })
-        .catch(error => console.error(error));
+        .catch(error => {
+          console.error(error);
+        });
     }, interval);
   })
-  .catch(error => console.error(error));
+  .catch(error => {
+    console.error(error);
+  });
 
 process.on("SIGINT", () => {
   kill = true;
