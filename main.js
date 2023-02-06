@@ -16,8 +16,12 @@ const TradeModel = require("./models/Trade"); // Trade Model
 let balances = {};
 let exchangeOrders;
 let openOrders;
-let amountToBuy;
-let amountToSell;
+let baseToBuy;
+let baseAvailable;
+let baseToSell;
+let buyNotional;
+let sellNotional;
+let sellNotionalAvailable;
 let buyPrice;
 let sellPrice;
 let kill = false;
@@ -108,16 +112,26 @@ binance
               buyPrice = higherPrice;
               sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-              amountToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
+              if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
-              switch (earn) {
-                case "base": // Earns BASE Asset (BTC)
-                  amountToSell = _.ceil((buyPrice * amountToBuy) / (1 - takerCommission) / sellPrice, LOT_SIZE.precision);
-                  break;
-                case "quote": // Earns QUOTE Asset (USDT)
-                  amountToSell = _.ceil(amountToBuy * (1 - takerCommission), LOT_SIZE.precision);
-                  break;
+              baseToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
+              baseAvailable = baseToBuy * (1 - takerCommission);
+
+              buyNotional = buyPrice * baseToBuy;
+
+              if (earn === "base") {
+                baseToSell = _.ceil(buyNotional / sellPrice / (1 - makerCommission), LOT_SIZE.precision);
+              } else if (earn === "quote") {
+                baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
               }
+
+              if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
+
+              sellNotional = sellPrice * baseToSell;
+              sellNotionalAvailable = sellNotional * (1 - makerCommission);
+
+              if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
+
               break;
             case "sell":
               if (balances[baseAsset] === undefined || balances[baseAsset].free * price < minNotional) throw new Error("No SELL balance to trade.");
@@ -125,16 +139,28 @@ binance
               sellPrice = lowerPrice;
               buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
-              switch (earn) {
-                case "base": // EARNS BASE Asset
-                  amountToSell = _.ceil(minNotional / sellPrice / (1 - takerCommission), LOT_SIZE.precision);
-                  amountToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
-                  break;
-                case "quote": // EARNS QUOTE Asset
-                  amountToSell = _.ceil(minNotional / sellPrice / (1 - interest), LOT_SIZE.precision);
-                  amountToBuy = _.ceil(amountToSell / (1 - takerCommission), LOT_SIZE.precision);
-                  break;
+              if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
+
+              baseToSell = _.ceil(minNotional / sellPrice / (1 - interest) / (1 - takerCommission), LOT_SIZE.precision);
+
+              sellNotional = sellPrice * baseToSell;
+
+              sellNotionalAvailable = sellNotional * (1 - takerCommission);
+
+              if (earn === "base") {
+                baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
+              } else if (earn === "quote") {
+                baseToBuy = _.ceil(baseToSell / (1 - makerCommission), LOT_SIZE.precision);
               }
+
+              baseAvailable = baseToBuy * (1 - makerCommission);
+
+              if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
+
+              buyNotional = buyPrice * baseToBuy;
+
+              if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
+
               break;
           }
 
@@ -157,7 +183,7 @@ binance
                   side: "BUY",
                   type: "LIMIT",
                   timeInForce: "FOK",
-                  quantity: amountToBuy,
+                  quantity: baseToBuy,
                   price: buyPrice,
                 })
                 .then(buyOrder => {
@@ -171,7 +197,7 @@ binance
                         side: "SELL",
                         type: "LIMIT",
                         timeInForce: "GTC",
-                        quantity: amountToSell,
+                        quantity: baseToSell,
                         price: sellPrice,
                       })
                       .then(sellOrder => {
@@ -195,7 +221,7 @@ binance
                   side: "SELL",
                   type: "LIMIT",
                   timeInForce: "FOK",
-                  quantity: amountToSell,
+                  quantity: baseToSell,
                   price: sellPrice,
                 })
                 .then(sellOrder => {
@@ -209,7 +235,7 @@ binance
                         side: "BUY",
                         type: "LIMIT",
                         timeInForce: "GTC",
-                        quantity: amountToBuy,
+                        quantity: baseToBuy,
                         price: buyPrice,
                       })
                       .then(buyOrder => {
