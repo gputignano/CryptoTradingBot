@@ -110,7 +110,7 @@ binance
               if (balances[quoteAsset] === undefined || balances[quoteAsset].free < minNotional) throw new Error("No BUY balance to trade.");
 
               buyPrice = higherPrice;
-              sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
+              sellPrice = _.round(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
               if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
@@ -137,7 +137,7 @@ binance
               if (balances[baseAsset] === undefined || balances[baseAsset].free * price < minNotional) throw new Error("No SELL balance to trade.");
 
               sellPrice = lowerPrice;
-              buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
+              buyPrice = _.round(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
               if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
