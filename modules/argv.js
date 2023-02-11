@@ -35,7 +35,6 @@ const argv = yargs
   .option("minNotional", {
     describe: "minNotional",
     type: "number",
-    default: 10.2,
   })
   .option("interval", {
     describe: "Interval",
@@ -49,7 +48,6 @@ console.log(`side = ${argv.side}`);
 console.log(`grid = ${argv.grid}`);
 console.log(`earn = ${argv.earn == "base" ? argv.base : argv.quote}`);
 console.log(`interest = ${argv.interest}%`);
-console.log(`minNotional = ${argv.minNotional}`);
 console.log(`interval = ${argv.interval}`);
 
 module.exports = {

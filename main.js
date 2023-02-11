@@ -47,6 +47,8 @@ binance
 
     PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
     LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
+    minNotional ||= MIN_NOTIONAL.minNotional;
+    console.log(`minNotional: ${minNotional}`);
 
     console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
