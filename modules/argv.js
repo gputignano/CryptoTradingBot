@@ -32,6 +32,10 @@ const argv = yargs
     type: "number",
     default: 1,
   })
+  .option("trigger", {
+    describe: "trigger",
+    type: "number",
+  })
   .option("minNotional", {
     describe: "minNotional",
     type: "number",
@@ -48,6 +52,7 @@ console.log(`side = ${argv.side}`);
 console.log(`grid = ${argv.grid}`);
 console.log(`earn = ${argv.earn == "base" ? argv.base : argv.quote}`);
 console.log(`interest = ${argv.interest}%`);
+console.log(`trigger = ${argv.trigger}`);
 console.log(`interval = ${argv.interval}`);
 
 module.exports = {
@@ -57,6 +62,7 @@ module.exports = {
   grid: argv.grid,
   earn: argv.earn,
   interest: argv.interest / 100,
+  trigger: argv.trigger,
   minNotional: argv.minNotional,
   interval: argv.interval,
 };

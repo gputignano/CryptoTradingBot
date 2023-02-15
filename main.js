@@ -1,5 +1,5 @@
 const _ = require("lodash");
-let { baseAsset, quoteAsset, side, grid, earn, interest, minNotional, interval } = require("./modules/argv");
+let { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } = require("./modules/argv");
 
 require("dotenv").config({
   path: `${__dirname}/.env.${(process.env.NODE_ENV = process.env.NODE_ENV || "development")}`,
@@ -99,6 +99,12 @@ binance
         })
         .then(ticker => {
           let price = ticker.data.price;
+
+          if (trigger !== undefined) {
+            if ((side === "buy" && price >= trigger) || (side === "sell" && price <= trigger)) {
+              throw new Error("Trigger active");
+            }
+          } else console.log("Triger NOT active");
 
           let lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
           let higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
