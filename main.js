@@ -101,7 +101,7 @@ binance
           let price = ticker.data.price;
 
           if (trigger !== undefined) {
-            if ((side === "buy" && price >= trigger) || (side === "sell" && price <= trigger)) {
+            if ((side === "buy" && price >= trigger / (1 + interest)) || (side === "sell" && price <= trigger * (1 + interest))) {
               throw new Error("Trigger active");
             }
           } else console.log("Triger NOT active");
