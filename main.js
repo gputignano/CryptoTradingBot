@@ -100,12 +100,6 @@ binance
         .then(ticker => {
           let price = ticker.data.price;
 
-          if (trigger !== undefined) {
-            if ((side === "buy" && price >= trigger * (1 + interest)) || (side === "sell" && price <= trigger / (1 + interest))) {
-              throw new Error("Trigger active");
-            }
-          } else console.log("Triger NOT active");
-
           let lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
           let higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
@@ -119,6 +113,10 @@ binance
 
               buyPrice = higherPrice;
               sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
+
+              if (trigger !== undefined && sellPrice >= trigger) {
+                throw new Error("sellPrice >= trigger");
+              } else console.log("Trigger NOT active!");
 
               if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
@@ -146,6 +144,10 @@ binance
 
               sellPrice = lowerPrice;
               buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
+
+              if (trigger !== undefined && buyPrice <= trigger) {
+                throw new Error("buyPrice <= trigger");
+              } else console.log("Trigger NOT active!");
 
               if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
