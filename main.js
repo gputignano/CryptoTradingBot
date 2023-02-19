@@ -123,7 +123,7 @@ binance
 
               buyNotional = buyPrice * baseToBuy;
 
-              if (balances[quoteAsset] === undefined || balances[quoteAsset].free < bunNotional) throw new Error("No BUY balance to trade.");
+              if (balances[quoteAsset] === undefined || balances[quoteAsset].free < buyNotional) throw new Error("No BUY balance to trade.");
 
               if (earn === "base") {
                 baseToSell = _.ceil(buyNotional / sellPrice / (1 - makerCommission), LOT_SIZE.precision);
@@ -153,7 +153,7 @@ binance
 
               sellNotional = sellPrice * baseToSell;
 
-              if (balances[baseAsset] === undefined || balances[baseAsset].free * price < sellNotional) throw new Error("No SELL balance to trade.");
+              if (balances[baseAsset] === undefined || balances[baseAsset].free * sellPrice < sellNotional) throw new Error("No SELL balance to trade.");
 
               sellNotionalAvailable = sellNotional * (1 - takerCommission);
 
