@@ -109,8 +109,6 @@ binance
 
           switch (side) {
             case "buy":
-              if (balances[quoteAsset] === undefined || balances[quoteAsset].free < minNotional) throw new Error("No BUY balance to trade.");
-
               buyPrice = higherPrice;
               sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
@@ -124,6 +122,8 @@ binance
               baseAvailable = baseToBuy * (1 - takerCommission);
 
               buyNotional = buyPrice * baseToBuy;
+
+              if (balances[quoteAsset] === undefined || balances[quoteAsset].free < bunNotional) throw new Error("No BUY balance to trade.");
 
               if (earn === "base") {
                 baseToSell = _.ceil(buyNotional / sellPrice / (1 - makerCommission), LOT_SIZE.precision);
@@ -140,8 +140,6 @@ binance
 
               break;
             case "sell":
-              if (balances[baseAsset] === undefined || balances[baseAsset].free * price < minNotional) throw new Error("No SELL balance to trade.");
-
               sellPrice = lowerPrice;
               buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
@@ -154,6 +152,8 @@ binance
               baseToSell = _.ceil(minNotional / sellPrice / (1 - interest) / (1 - takerCommission), LOT_SIZE.precision);
 
               sellNotional = sellPrice * baseToSell;
+
+              if (balances[baseAsset] === undefined || balances[baseAsset].free * price < sellNotional) throw new Error("No SELL balance to trade.");
 
               sellNotionalAvailable = sellNotional * (1 - takerCommission);
 
