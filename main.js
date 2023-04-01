@@ -2,7 +2,7 @@ const _ = require("lodash");
 let { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } = require("./modules/argv");
 
 require("dotenv").config({
-  path: `${__dirname}/.env.${(process.env.NODE_ENV = process.env.NODE_ENV || "development")}`,
+  path: `${__dirname}/.env.${(process.env.NODE_ENV ??= "development")}`,
 });
 
 console.log(`${process.env.NODE_ENV} mode.`);
