@@ -1,11 +1,13 @@
 const _ = require("lodash");
 let { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } = require("./modules/argv");
 
+const NODE_ENV = process.env.NODE_ENV || "development";
+
 require("dotenv").config({
-  path: `${__dirname}/.env.${(process.env.NODE_ENV ??= "development")}`,
+  path: `${__dirname}/.env.${(NODE_ENV)}`,
 });
 
-console.log(`${process.env.NODE_ENV} mode.`);
+console.log(`${NODE_ENV} mode.`);
 
 const binance = require("./modules/binance");
 
