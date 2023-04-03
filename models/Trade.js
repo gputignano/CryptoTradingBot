@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const TradeSchema = new mongoose.Schema({
   symbol: String,
   origClientOrderId: String,
@@ -15,6 +15,4 @@ const TradeSchema = new mongoose.Schema({
   side: String,
 });
 
-const TradeModel = mongoose.model("TradeModel", TradeSchema);
-
-module.exports = TradeModel;
+export const TradeModel = mongoose.model("TradeModel", TradeSchema);

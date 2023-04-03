@@ -1,19 +1,8 @@
-const _ = require("lodash");
-let { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } = require("./modules/argv");
-
-const NODE_ENV = process.env.NODE_ENV || "development";
-
-require("dotenv").config({
-  path: `${__dirname}/.env.${(NODE_ENV)}`,
-});
-
-console.log(`${NODE_ENV} mode.`);
-
-const binance = require("./modules/binance");
-
-require("./modules/db"); // Connect to MongoDB
-
-const TradeModel = require("./models/Trade"); // Trade Model
+import _ from "lodash";
+import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } from "./modules/argv.js";
+import * as binance from "./modules/binance.js";
+import "./modules/db.js"; // Connect to MongoDB
+import { TradeModel } from "./models/Trade.js"; // Trade Model
 
 let balances = {};
 let exchangeOrders;
@@ -32,9 +21,9 @@ let kill = false;
 binance
   .exchangeInfo(baseAsset, quoteAsset)
   .then(exchangeInfo => {
-    [symbols] = exchangeInfo.data.symbols;
+    const [symbols] = exchangeInfo.data.symbols;
 
-    [
+    const [
       // Use DESTRUCTURING ASSIGNMENT
       PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
       LOT_SIZE, // filterType, minQty, maxQty, stepSize
@@ -49,10 +38,12 @@ binance
 
     PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
     LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
-    minNotional ||= MIN_NOTIONAL.minNotional;
-    console.log(`minNotional: ${minNotional}`);
+    const notional = minNotional || MIN_NOTIONAL.minNotional;
+    console.log(`notional: ${notional}`);
 
     console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
+
+    let makerCommission, takerCommission;
 
     setInterval(() => {
       if (kill) process.exit(0);
@@ -120,7 +111,7 @@ binance
 
               if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
-              baseToBuy = _.ceil(minNotional / buyPrice, LOT_SIZE.precision);
+              baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
               baseAvailable = baseToBuy * (1 - takerCommission);
 
               buyNotional = buyPrice * baseToBuy;
@@ -151,7 +142,7 @@ binance
 
               if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
-              baseToSell = _.ceil(minNotional / sellPrice / (1 - interest) / (1 - takerCommission), LOT_SIZE.precision);
+              baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - takerCommission), LOT_SIZE.precision);
 
               sellNotional = sellPrice * baseToSell;
 

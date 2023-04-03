@@ -1,6 +1,16 @@
-const crypto = require("crypto");
-const axios = require("axios");
-const _ = require("lodash");
+import crypto from "crypto";
+import axios from "axios";
+import path from "path";
+import _ from "lodash";
+import * as dotenv from "dotenv";
+
+const NODE_ENV = process.env.NODE_ENV || "development";
+
+dotenv.config({
+  path: path.resolve(process.cwd(), `.env.${NODE_ENV}`)
+});
+
+console.log(`${NODE_ENV} mode.`);
 
 const url = process.env.SPOT_API_URL;
 
@@ -10,49 +20,43 @@ let headers = {
   },
 };
 
-signature = query_string => {
-  return crypto.createHmac("sha256", process.env.API_SECRET).update(query_string).digest("hex");
-};
+const signature = query_string => crypto.createHmac("sha256", process.env.API_SECRET).update(query_string).digest("hex");
 
-module.exports.ping = () => {
-  return axios.get(`${url}api/v3/ping`);
-};
+export const ping = () => axios.get(`${url}api/v3/ping`);
 
-module.exports.exchangeInfo = (baseAsset, quoteAsset) => {
-  return axios.get(`${url}api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
-};
+export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${url}api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
-module.exports.account = () => {
+export const account = () => {
   const query = `timestamp=${Date.now()}`;
 
   return axios.get(`${url}api/v3/account?${query}&signature=${signature(query)}`, headers);
 };
 
-module.exports.openOrders = (baseAsset, quoteAsset) => {
+export const openOrders = (baseAsset, quoteAsset) => {
   const query = `symbol=${baseAsset}${quoteAsset}&timestamp=${Date.now()}`;
 
   return axios.get(`${url}api/v3/openOrders?${query}&signature=${signature(query)}`, headers);
 };
 
-module.exports.tickerPrice = (baseAsset, quoteAsset) => {
+export const tickerPrice = (baseAsset, quoteAsset) => {
   const query = `symbol=${baseAsset}${quoteAsset}`;
 
   return axios.get(`${url}api/v3/ticker/price?${query}`);
 };
 
-module.exports.order = params => {
+export const order = params => {
   const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
 
   return axios.post(`${url}api/v3/order?${query}&signature=${signature(query)}`, "", headers);
 };
 
-module.exports.cancelOrder = params => {
+export const cancelOrder = params => {
   const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
 
   return axios.delete(`${url}api/v3/order?${query}&signature=${signature(query)}`, headers);
 };
 
-module.exports.getBalances = arrayBalances => {
+export const getBalances = arrayBalances => {
   let objectBalances = {};
 
   arrayBalances.forEach(balance => {
@@ -68,51 +72,28 @@ module.exports.getBalances = arrayBalances => {
   return objectBalances;
 };
 
-module.exports.priceToSlot = (price, grid) => Math.floor(Math.log10(price) / Math.log10(1 + grid / 100));
-module.exports.slotToPrice = (slot, grid) => Math.pow(1 + grid / 100, slot);
+export const priceToSlot = (price, grid) => Math.floor(Math.log10(price) / Math.log10(1 + grid / 100));
 
-// module.exports.reduceFills = data => {
-//   let fills = data.reduce(
-//     (prev, curr) => {
-//       prev.total += Number(curr.price * (curr.qty - curr.commission));
-//       prev.qty += Number(curr.qty);
-//       prev.commission += Number(curr.commission);
-//       return prev;
-//     },
-//     {
-//       total: 0,
-//       qty: 0,
-//       commission: 0,
-//     }
-//   );
+const slotToPrice = (slot, grid) => Math.pow(1 + grid / 100, slot);
 
-//   console.log(fills);
-
-//   return fills;
-// };
-
-module.exports.getOpenOrders = (orders, grid) => {
+export const getOpenOrders = (orders, grid) => {
   let openOrders = {};
 
   orders.forEach(order => {
-    openOrders[this.priceToSlot(order.price, grid)] = true;
+    openOrders[priceToSlot(order.price, grid)] = true;
   });
 
   return openOrders;
 };
 
-module.exports.calculateCommissions = data => {
-  [makerCommission, takerCommission] = [data.makerCommission / 10000, data.takerCommission / 10000];
+export const calculateCommissions = data => {
+  const [makerCommission, takerCommission] = [data.makerCommission / 10000, data.takerCommission / 10000];
 
   console.log(`makerCommission: ${makerCommission} / takerCommission: ${takerCommission}`);
 
   return [makerCommission, takerCommission];
 };
 
-module.exports.getLowerPrice = (price, grid, precision) => {
-  return _.ceil(this.slotToPrice(this.priceToSlot(price, grid), grid), precision);
-};
+export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(priceToSlot(price, grid), grid), precision);
 
-module.exports.getHigherPrice = (price, grid, precision) => {
-  return _.floor(this.slotToPrice(this.priceToSlot(price, grid) + 1, grid), precision);
-};
+export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);

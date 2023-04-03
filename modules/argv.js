@@ -1,6 +1,7 @@
-const yargs = require("yargs");
+import yargs from "yargs";
+import { hideBin } from 'yargs/helpers';
 
-const argv = yargs
+const argv = yargs(hideBin(process.argv))
   .option("base", {
     describe: "Base asset",
     demandOption: true,
@@ -55,14 +56,12 @@ console.log(`interest = ${argv.interest}%`);
 console.log(`trigger = ${argv.trigger}`);
 console.log(`interval = ${argv.interval}`);
 
-module.exports = {
-  baseAsset: argv.base,
-  quoteAsset: argv.quote,
-  side: argv.side,
-  grid: argv.grid,
-  earn: argv.earn,
-  interest: argv.interest / 100,
-  trigger: argv.trigger,
-  minNotional: argv.minNotional,
-  interval: argv.interval,
-};
+export const baseAsset = argv.base;
+export const quoteAsset = argv.quote;
+export const side = argv.side;
+export const grid = argv.grid;
+export const earn = argv.earn;
+export const interest = argv.interest / 100;
+export const trigger = argv.trigger;
+export const minNotional = argv.minNotional;
+export const interval = argv.interval;
