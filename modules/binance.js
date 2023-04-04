@@ -12,48 +12,48 @@ dotenv.config({
 
 console.log(`${NODE_ENV} mode.`);
 
-const url = process.env.SPOT_API_URL;
+const { SPOT_API_URL, API_KEY, API_SECRET } = process.env;
 
 let headers = {
   headers: {
-    "X-MBX-APIKEY": process.env.API_KEY,
+    "X-MBX-APIKEY": API_KEY,
   },
 };
 
-const signature = query_string => crypto.createHmac("sha256", process.env.API_SECRET).update(query_string).digest("hex");
+const signature = query_string => crypto.createHmac("sha256", API_SECRET).update(query_string).digest("hex");
 
-export const ping = () => axios.get(`${url}api/v3/ping`);
+export const ping = () => axios.get(`${SPOT_API_URL}api/v3/ping`);
 
-export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${url}api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
+export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${SPOT_API_URL}api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
 export const account = () => {
   const query = `timestamp=${Date.now()}`;
 
-  return axios.get(`${url}api/v3/account?${query}&signature=${signature(query)}`, headers);
+  return axios.get(`${SPOT_API_URL}api/v3/account?${query}&signature=${signature(query)}`, headers);
 };
 
 export const openOrders = (baseAsset, quoteAsset) => {
   const query = `symbol=${baseAsset}${quoteAsset}&timestamp=${Date.now()}`;
 
-  return axios.get(`${url}api/v3/openOrders?${query}&signature=${signature(query)}`, headers);
+  return axios.get(`${SPOT_API_URL}api/v3/openOrders?${query}&signature=${signature(query)}`, headers);
 };
 
 export const tickerPrice = (baseAsset, quoteAsset) => {
   const query = `symbol=${baseAsset}${quoteAsset}`;
 
-  return axios.get(`${url}api/v3/ticker/price?${query}`);
+  return axios.get(`${SPOT_API_URL}api/v3/ticker/price?${query}`);
 };
 
 export const order = params => {
   const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
 
-  return axios.post(`${url}api/v3/order?${query}&signature=${signature(query)}`, "", headers);
+  return axios.post(`${SPOT_API_URL}api/v3/order?${query}&signature=${signature(query)}`, "", headers);
 };
 
 export const cancelOrder = params => {
   const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
 
-  return axios.delete(`${url}api/v3/order?${query}&signature=${signature(query)}`, headers);
+  return axios.delete(`${SPOT_API_URL}api/v3/order?${query}&signature=${signature(query)}`, headers);
 };
 
 export const getBalances = arrayBalances => {
