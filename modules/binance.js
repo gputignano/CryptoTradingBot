@@ -22,38 +22,38 @@ const CONFIGS = {
 
 const signature = query_string => crypto.createHmac("sha256", API_SECRET).update(query_string).digest("hex");
 
-export const ping = () => axios.get(`${SPOT_API_URL}api/v3/ping`);
+export const ping = () => axios.get(`${SPOT_API_URL}/api/v3/ping`);
 
-export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${SPOT_API_URL}api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
+export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${SPOT_API_URL}/api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
 export const account = () => {
   const query = `timestamp=${Date.now()}`;
 
-  return axios.get(`${SPOT_API_URL}api/v3/account?${query}&signature=${signature(query)}`, CONFIGS);
+  return axios.get(`${SPOT_API_URL}/api/v3/account?${query}&signature=${signature(query)}`, CONFIGS);
 };
 
 export const openOrders = (baseAsset, quoteAsset) => {
   const query = `symbol=${baseAsset}${quoteAsset}&timestamp=${Date.now()}`;
 
-  return axios.get(`${SPOT_API_URL}api/v3/openOrders?${query}&signature=${signature(query)}`, CONFIGS);
+  return axios.get(`${SPOT_API_URL}/api/v3/openOrders?${query}&signature=${signature(query)}`, CONFIGS);
 };
 
 export const tickerPrice = (baseAsset, quoteAsset) => {
   const query = `symbol=${baseAsset}${quoteAsset}`;
 
-  return axios.get(`${SPOT_API_URL}api/v3/ticker/price?${query}`);
+  return axios.get(`${SPOT_API_URL}/api/v3/ticker/price?${query}`);
 };
 
 export const order = params => {
   const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
 
-  return axios.post(`${SPOT_API_URL}api/v3/order?${query}&signature=${signature(query)}`, "", CONFIGS);
+  return axios.post(`${SPOT_API_URL}/api/v3/order?${query}&signature=${signature(query)}`, "", CONFIGS);
 };
 
 export const cancelOrder = params => {
   const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
 
-  return axios.delete(`${SPOT_API_URL}api/v3/order?${query}&signature=${signature(query)}`, CONFIGS);
+  return axios.delete(`${SPOT_API_URL}/api/v3/order?${query}&signature=${signature(query)}`, CONFIGS);
 };
 
 export const getBalances = arrayBalances => {
