@@ -2,7 +2,6 @@ import _ from "lodash";
 import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 import "./modules/db.js"; // Connect to MongoDB
-import { TradeModel } from "./models/Trade.js"; // Trade Model
 
 let balances = {};
 let exchangeOrders;
@@ -63,30 +62,6 @@ binance
         .then(orders => {
           exchangeOrders = orders;
           console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
-
-          // Sort orders array by price
-          orders.data.sort((a, b) => a.price - b.price);
-
-          // Cancel an order if array length >= MAX_NUM_ORDERS.maxNumOrders
-          if (orders.data.length >= MAX_NUM_ORDERS.maxNumOrders) {
-            const pos = side === "buy" ? orders.data.length - 1 : 0;
-
-            binance
-              .cancelOrder({
-                symbol: baseAsset + quoteAsset,
-                orderId: orders.data[pos].orderId,
-              })
-              .then(canceledOrder => {
-                console.log(`Order CANCELED: ${canceledOrder.data.orderId}`);
-                TradeModel.create(canceledOrder.data)
-                  .then(trade => {
-                    console.log(`Order ADDED TO DATABASE: ${trade.orderId}`);
-                  })
-                  .catch(error => {
-                    console.error(error);
-                  });
-              });
-          }
 
           return binance.tickerPrice(baseAsset, quoteAsset);
         })
