@@ -27,33 +27,43 @@ export const ping = () => axios.get(`${SPOT_API_URL}/api/v3/ping`);
 export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${SPOT_API_URL}/api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
 export const account = () => {
-  const query = `timestamp=${Date.now()}`;
+  const timestamp = Date.now();
+  const query = new URLSearchParams({ timestamp });
+  const query_string = query.toString();
 
-  return axios.get(`${SPOT_API_URL}/api/v3/account?${query}&signature=${signature(query)}`, CONFIGS);
+  return axios.get(`${SPOT_API_URL}/api/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const openOrders = (baseAsset, quoteAsset) => {
-  const query = `symbol=${baseAsset}${quoteAsset}&timestamp=${Date.now()}`;
+  const timestamp = Date.now();
+  const query = new URLSearchParams({ symbol: baseAsset + quoteAsset, timestamp });
+  const query_string = query.toString();
 
-  return axios.get(`${SPOT_API_URL}/api/v3/openOrders?${query}&signature=${signature(query)}`, CONFIGS);
+  return axios.get(`${SPOT_API_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const tickerPrice = (baseAsset, quoteAsset) => {
-  const query = `symbol=${baseAsset}${quoteAsset}`;
+  const timestamp = Date.now();
+  const query = new URLSearchParams({ symbol: baseAsset + quoteAsset });
+  const query_string = query.toString();
 
   return axios.get(`${SPOT_API_URL}/api/v3/ticker/price?${query}`);
 };
 
 export const order = params => {
-  const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
+  const timestamp = Date.now();
+  const query = new URLSearchParams({ ...params, timestamp });
+  const query_string = query.toString();
 
-  return axios.post(`${SPOT_API_URL}/api/v3/order?${query}&signature=${signature(query)}`, "", CONFIGS);
+  return axios.post(`${SPOT_API_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, null, CONFIGS);
 };
 
 export const cancelOrder = params => {
-  const query = `${new URLSearchParams(params).toString()}&timestamp=${Date.now()}`;
+  const timestamp = Date.now();
+  const query = new URLSearchParams({ ...params, timestamp });
+  const query_string = query.toString();
 
-  return axios.delete(`${SPOT_API_URL}/api/v3/order?${query}&signature=${signature(query)}`, CONFIGS);
+  return axios.delete(`${SPOT_API_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const getBalances = arrayBalances => {
