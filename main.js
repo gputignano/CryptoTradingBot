@@ -3,7 +3,6 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional
 import * as binance from "./modules/binance.js";
 import "./modules/db.js"; // Connect to MongoDB
 
-let openOrders;
 let baseToBuy;
 let baseAvailable;
 let baseToSell;
@@ -139,7 +138,7 @@ setInterval(async () => {
   let slot1 = binance.priceToSlot(sellPrice, grid);
   let slot2 = binance.priceToSlot(buyPrice, grid);
 
-  openOrders = binance.getOpenOrders(exchangeOrders.data, grid);
+  const openOrders = binance.getOpenOrders(exchangeOrders.data, grid);
 
   if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
     console.log(`slot1: ${slot1} / slot2: ${slot2}`);
