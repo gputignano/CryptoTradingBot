@@ -3,9 +3,6 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional
 import * as binance from "./modules/binance.js";
 import "./modules/db.js"; // Connect to MongoDB
 
-let baseToBuy;
-let baseAvailable;
-let baseToSell;
 let buyNotional;
 let sellNotional;
 let sellNotionalAvailable;
@@ -39,6 +36,10 @@ console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precis
 
 setInterval(async () => {
   if (kill) process.exit(0);
+
+  let baseToBuy;
+  let baseAvailable;
+  let baseToSell;
 
   // READS BALANCES
   const account = await binance.account();
