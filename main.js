@@ -3,7 +3,6 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional
 import * as binance from "./modules/binance.js";
 import "./modules/db.js"; // Connect to MongoDB
 
-let balances = {};
 let exchangeOrders;
 let openOrders;
 let baseToBuy;
@@ -49,7 +48,7 @@ setInterval(async () => {
 
   const [makerCommission, takerCommission] = binance.calculateCommissions(account.data);
 
-  balances = binance.getBalances(account.data.balances);
+  const balances = binance.getBalances(account.data.balances);
 
   const orders = await binance.openOrders(baseAsset, quoteAsset);
   exchangeOrders = orders;
