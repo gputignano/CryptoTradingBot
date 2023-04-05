@@ -17,228 +17,191 @@ let sellPrice;
 let kill = false;
 
 // READS FILTERS
-binance
-  .exchangeInfo(baseAsset, quoteAsset)
-  .then(exchangeInfo => {
-    const [symbols] = exchangeInfo.data.symbols;
+const exchangeInfo = await binance.exchangeInfo(baseAsset, quoteAsset);
+const [symbols] = exchangeInfo.data.symbols;
 
-    const [
-      // Use DESTRUCTURING ASSIGNMENT
-      PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
-      LOT_SIZE, // filterType, minQty, maxQty, stepSize
-      MIN_NOTIONAL, // filterType, minNotional, applyToMarket, avgPriceMins
-      ICEBERG_PARTS, // filterType, limit
-      MARKET_LOT_SIZE, // filterType, minQty, maxQty, stepSize
-      TRAILING_DELTA, // minTrailingAboveDelta, maxTrailingAboveDelta, minTrailingBelowDelta, maxTrailingBelowDelta
-      PERCENT_PRICE_BY_SIDE, // bidMultiplierUp, bidMultiplierDown, askMultiplierUp, askMultiplierDown, avgPriceMins
-      MAX_NUM_ORDERS, // filterType, maxNumOrders
-      MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
-    ] = symbols.filters;
+const [
+  // Use DESTRUCTURING ASSIGNMENT
+  PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
+  LOT_SIZE, // filterType, minQty, maxQty, stepSize
+  MIN_NOTIONAL, // filterType, minNotional, applyToMarket, avgPriceMins
+  ICEBERG_PARTS, // filterType, limit
+  MARKET_LOT_SIZE, // filterType, minQty, maxQty, stepSize
+  TRAILING_DELTA, // minTrailingAboveDelta, maxTrailingAboveDelta, minTrailingBelowDelta, maxTrailingBelowDelta
+  PERCENT_PRICE_BY_SIDE, // bidMultiplierUp, bidMultiplierDown, askMultiplierUp, askMultiplierDown, avgPriceMins
+  MAX_NUM_ORDERS, // filterType, maxNumOrders
+  MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
+] = symbols.filters;
 
-    PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
-    LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
-    const notional = minNotional || MIN_NOTIONAL.minNotional;
-    console.log(`notional: ${notional}`);
+PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
+LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
+const notional = minNotional || MIN_NOTIONAL.minNotional;
+console.log(`notional: ${notional}`);
 
-    console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
+console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
-    let makerCommission, takerCommission;
+let makerCommission, takerCommission;
 
-    setInterval(() => {
-      if (kill) process.exit(0);
+setInterval(async () => {
+  if (kill) process.exit(0);
 
-      // READS BALANCES
-      binance
-        .account()
-        .then(account => {
-          console.log(`=======================================`);
+  // READS BALANCES
+  const account = await binance.account();
+  console.log(`=======================================`);
 
-          [makerCommission, takerCommission] = binance.calculateCommissions(account.data);
+  [makerCommission, takerCommission] = binance.calculateCommissions(account.data);
 
-          balances = binance.getBalances(account.data.balances);
+  balances = binance.getBalances(account.data.balances);
 
-          return binance.openOrders(baseAsset, quoteAsset);
-        })
-        .then(orders => {
-          exchangeOrders = orders;
-          console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
+  const orders = await binance.openOrders(baseAsset, quoteAsset);
+  exchangeOrders = orders;
+  console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
-          return binance.tickerPrice(baseAsset, quoteAsset);
-        })
-        .then(ticker => {
-          let price = ticker.data.price;
+  const ticker = await binance.tickerPrice(baseAsset, quoteAsset);
 
-          let lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-          let higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
+  let price = ticker.data.price;
 
-          console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, grid)}`);
-          console.log(`price: ${price} - slot: ${binance.priceToSlot(price, grid)}`);
-          console.log(`higherPrice: ${higherPrice} - slot: ${binance.priceToSlot(higherPrice, grid)}`);
+  let lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+  let higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
-          switch (side) {
-            case "buy":
-              buyPrice = higherPrice;
-              sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
+  console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, grid)}`);
+  console.log(`price: ${price} - slot: ${binance.priceToSlot(price, grid)}`);
+  console.log(`higherPrice: ${higherPrice} - slot: ${binance.priceToSlot(higherPrice, grid)}`);
 
-              if (trigger !== undefined && sellPrice >= trigger) {
-                throw new Error("sellPrice >= trigger");
-              } else console.log("Trigger NOT active!");
+  try {
+    switch (side) {
+      case "buy":
+        buyPrice = higherPrice;
+        sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-              if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
+        if (trigger !== undefined && sellPrice >= trigger) {
+          throw new Error("sellPrice >= trigger");
+        } else console.log("Trigger NOT active!");
 
-              baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
-              baseAvailable = baseToBuy * (1 - takerCommission);
+        if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
-              buyNotional = buyPrice * baseToBuy;
+        baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
+        baseAvailable = baseToBuy * (1 - takerCommission);
 
-              if (balances[quoteAsset] === undefined || balances[quoteAsset].free < buyNotional) throw new Error("No BUY balance to trade.");
+        buyNotional = buyPrice * baseToBuy;
 
-              if (earn === "base") {
-                baseToSell = _.ceil(buyNotional / sellPrice / (1 - makerCommission), LOT_SIZE.precision);
-              } else if (earn === "quote") {
-                baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
-              }
+        if (balances[quoteAsset] === undefined || balances[quoteAsset].free < buyNotional) throw new Error("No BUY balance to trade.");
 
-              if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
+        if (earn === "base") {
+          baseToSell = _.ceil(buyNotional / sellPrice / (1 - makerCommission), LOT_SIZE.precision);
+        } else if (earn === "quote") {
+          baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
+        }
 
-              sellNotional = sellPrice * baseToSell;
-              sellNotionalAvailable = sellNotional * (1 - makerCommission);
+        if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
 
-              if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
+        sellNotional = sellPrice * baseToSell;
+        sellNotionalAvailable = sellNotional * (1 - makerCommission);
 
-              break;
-            case "sell":
-              sellPrice = lowerPrice;
-              buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
+        if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
 
-              if (trigger !== undefined && buyPrice <= trigger) {
-                throw new Error("buyPrice <= trigger");
-              } else console.log("Trigger NOT active!");
+        break;
+      case "sell":
+        sellPrice = lowerPrice;
+        buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
-              if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
+        if (trigger !== undefined && buyPrice <= trigger) {
+          throw new Error("buyPrice <= trigger");
+        } else console.log("Trigger NOT active!");
 
-              baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - takerCommission), LOT_SIZE.precision);
+        if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
-              sellNotional = sellPrice * baseToSell;
+        baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - takerCommission), LOT_SIZE.precision);
 
-              if (balances[baseAsset] === undefined || balances[baseAsset].free * sellPrice < sellNotional) throw new Error("No SELL balance to trade.");
+        sellNotional = sellPrice * baseToSell;
 
-              sellNotionalAvailable = sellNotional * (1 - takerCommission);
+        if (balances[baseAsset] === undefined || balances[baseAsset].free * sellPrice < sellNotional) throw new Error("No SELL balance to trade.");
 
-              if (earn === "base") {
-                baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
-              } else if (earn === "quote") {
-                baseToBuy = _.ceil(baseToSell / (1 - makerCommission), LOT_SIZE.precision);
-              }
+        sellNotionalAvailable = sellNotional * (1 - takerCommission);
 
-              baseAvailable = baseToBuy * (1 - makerCommission);
+        if (earn === "base") {
+          baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
+        } else if (earn === "quote") {
+          baseToBuy = _.ceil(baseToSell / (1 - makerCommission), LOT_SIZE.precision);
+        }
 
-              if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
+        baseAvailable = baseToBuy * (1 - makerCommission);
 
-              buyNotional = buyPrice * baseToBuy;
+        if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
 
-              if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
+        buyNotional = buyPrice * baseToBuy;
 
-              break;
-          }
+        if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
 
-          let slot1 = binance.priceToSlot(sellPrice, grid);
-          let slot2 = binance.priceToSlot(buyPrice, grid);
-
-          openOrders = binance.getOpenOrders(exchangeOrders.data, grid);
-
-          if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
-            console.log(`slot1: ${slot1} / slot2: ${slot2}`);
-            throw new Error(`Slots are full!`);
-          }
-
-          switch (side) {
-            case "buy":
-              // BUY ORDER
-              binance
-                .order({
-                  symbol: baseAsset + quoteAsset,
-                  side: "BUY",
-                  type: "LIMIT",
-                  timeInForce: "FOK",
-                  quantity: baseToBuy,
-                  price: buyPrice,
-                })
-                .then(buyOrder => {
-                  console.log(buyOrder.data);
-
-                  if (buyOrder.data.status === "FILLED") {
-                    // SELL ORDER
-                    binance
-                      .order({
-                        symbol: baseAsset + quoteAsset,
-                        side: "SELL",
-                        type: "LIMIT",
-                        timeInForce: "GTC",
-                        quantity: baseToSell,
-                        price: sellPrice,
-                      })
-                      .then(sellOrder => {
-                        console.log(sellOrder.data);
-                      })
-                      .catch(error => {
-                        console.error(error);
-                        process.exit(0);
-                      });
-                  }
-                })
-                .catch(error => {
-                  console.error(error);
-                });
-              break;
-            case "sell":
-              // SELL ORDER
-              binance
-                .order({
-                  symbol: baseAsset + quoteAsset,
-                  side: "SELL",
-                  type: "LIMIT",
-                  timeInForce: "FOK",
-                  quantity: baseToSell,
-                  price: sellPrice,
-                })
-                .then(sellOrder => {
-                  console.log(sellOrder.data);
-
-                  if (sellOrder.data.status === "FILLED") {
-                    // BUY ORDER
-                    binance
-                      .order({
-                        symbol: baseAsset + quoteAsset,
-                        side: "BUY",
-                        type: "LIMIT",
-                        timeInForce: "GTC",
-                        quantity: baseToBuy,
-                        price: buyPrice,
-                      })
-                      .then(buyOrder => {
-                        console.log(buyOrder.data);
-                      })
-                      .catch(error => {
-                        console.error(error);
-                        process.exit(0);
-                      });
-                  }
-                })
-                .catch(error => {
-                  console.error(error);
-                });
-              break;
-          }
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    }, interval);
-  })
-  .catch(error => {
+        break;
+    }
+  } catch (error) {
     console.error(error);
-  });
+    return;
+  }
+
+  let slot1 = binance.priceToSlot(sellPrice, grid);
+  let slot2 = binance.priceToSlot(buyPrice, grid);
+
+  openOrders = binance.getOpenOrders(exchangeOrders.data, grid);
+
+  if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
+    console.log(`slot1: ${slot1} / slot2: ${slot2}`);
+    return;
+  }
+
+  switch (side) {
+    case "buy":
+      // BUY ORDER
+      const buyOrder = await binance.order({
+        symbol: baseAsset + quoteAsset,
+        side: "BUY",
+        type: "LIMIT",
+        timeInForce: "FOK",
+        quantity: baseToBuy,
+        price: buyPrice,
+      });
+      console.log(buyOrder.data);
+
+      if (buyOrder.data.status === "FILLED") {
+        // SELL ORDER
+        const sellOrder = await binance.order({
+          symbol: baseAsset + quoteAsset,
+          side: "SELL",
+          type: "LIMIT",
+          timeInForce: "GTC",
+          quantity: baseToSell,
+          price: sellPrice,
+        });
+      }
+      break;
+    case "sell":
+      // SELL ORDER
+      const sellOrder = await binance.order({
+        symbol: baseAsset + quoteAsset,
+        side: "SELL",
+        type: "LIMIT",
+        timeInForce: "FOK",
+        quantity: baseToSell,
+        price: sellPrice,
+      });
+      console.log(sellOrder.data);
+
+      if (sellOrder.data.status === "FILLED") {
+        // BUY ORDER
+        const buyOrder = await binance.order({
+          symbol: baseAsset + quoteAsset,
+          side: "BUY",
+          type: "LIMIT",
+          timeInForce: "GTC",
+          quantity: baseToBuy,
+          price: buyPrice,
+        });
+        console.log(buyOrder.data);
+      }
+      break;
+  }
+}, interval);
 
 process.on("SIGINT", () => {
   kill = true;
