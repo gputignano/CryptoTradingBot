@@ -40,8 +40,6 @@ console.log(`notional: ${notional}`);
 
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
-let makerCommission, takerCommission;
-
 setInterval(async () => {
   if (kill) process.exit(0);
 
@@ -49,7 +47,7 @@ setInterval(async () => {
   const account = await binance.account();
   console.log(`=======================================`);
 
-  [makerCommission, takerCommission] = binance.calculateCommissions(account.data);
+  const [makerCommission, takerCommission] = binance.calculateCommissions(account.data);
 
   balances = binance.getBalances(account.data.balances);
 
