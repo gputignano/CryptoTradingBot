@@ -3,7 +3,6 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional
 import * as binance from "./modules/binance.js";
 import "./modules/db.js"; // Connect to MongoDB
 
-let exchangeOrders;
 let openOrders;
 let baseToBuy;
 let baseAvailable;
@@ -51,7 +50,7 @@ setInterval(async () => {
   const balances = binance.getBalances(account.data.balances);
 
   const orders = await binance.openOrders(baseAsset, quoteAsset);
-  exchangeOrders = orders;
+  const exchangeOrders = orders;
   console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
   const ticker = await binance.tickerPrice(baseAsset, quoteAsset);
