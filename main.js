@@ -24,7 +24,7 @@ const [
 
 PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
 LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
-const notional = minNotional || MIN_NOTIONAL.minNotional;
+const notional = Math.max(minNotional || MIN_NOTIONAL.minNotional, MIN_NOTIONAL.minNotional);
 console.log(`notional: ${notional}`);
 
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
