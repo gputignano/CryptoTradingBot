@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
-import "./modules/db.js"; // Connect to MongoDB
 
 let kill = false;
 
