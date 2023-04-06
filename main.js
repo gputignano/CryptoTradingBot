@@ -50,7 +50,6 @@ setInterval(async () => {
   const balances = binance.getBalances(account.data.balances);
 
   const orders = await binance.openOrders(baseAsset, quoteAsset);
-  const exchangeOrders = orders;
   console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
   const ticker = await binance.tickerPrice(baseAsset, quoteAsset);
@@ -139,7 +138,7 @@ setInterval(async () => {
   let slot1 = binance.priceToSlot(sellPrice, grid);
   let slot2 = binance.priceToSlot(buyPrice, grid);
 
-  const openOrders = binance.getOpenOrders(exchangeOrders.data, grid);
+  const openOrders = binance.getOpenOrders(orders.data, grid);
 
   if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
     console.log(`slot1: ${slot1} / slot2: ${slot2}`);
