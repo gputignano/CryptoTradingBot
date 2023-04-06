@@ -55,8 +55,8 @@ setInterval(async () => {
 
   const price = ticker.data.price;
 
-  let lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-  let higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
+  const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+  const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
   console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, grid)}`);
   console.log(`price: ${price} - slot: ${binance.priceToSlot(price, grid)}`);
