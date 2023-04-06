@@ -130,8 +130,8 @@ setInterval(async () => {
     return;
   }
 
-  let slot1 = binance.priceToSlot(sellPrice, grid);
-  let slot2 = binance.priceToSlot(buyPrice, grid);
+  const slot1 = binance.priceToSlot(sellPrice, grid);
+  const slot2 = binance.priceToSlot(buyPrice, grid);
 
   const openOrders = binance.getOpenOrders(orders.data, grid);
 
