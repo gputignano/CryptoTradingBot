@@ -54,7 +54,7 @@ setInterval(async () => {
 
   const ticker = await binance.tickerPrice(baseAsset, quoteAsset);
 
-  let price = ticker.data.price;
+  const price = ticker.data.price;
 
   let lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
   let higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
@@ -168,6 +168,7 @@ setInterval(async () => {
           quantity: baseToSell,
           price: sellPrice,
         });
+        console.log(sellOrder.data);
       }
       break;
     case "sell":
