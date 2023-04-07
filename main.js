@@ -123,54 +123,59 @@ setInterval(async () => {
     return;
   }
 
-  if (side === "buy") {
-    // BUY ORDER
-    const buyOrder = await binance.order({
-      symbol: baseAsset + quoteAsset,
-      side: "BUY",
-      type: "LIMIT",
-      timeInForce: "FOK",
-      quantity: baseToBuy,
-      price: buyPrice,
-    });
-    console.log(buyOrder.data);
-
-    if (buyOrder.data.status === "FILLED") {
-      // SELL ORDER
-      const sellOrder = await binance.order({
-        symbol: baseAsset + quoteAsset,
-        side: "SELL",
-        type: "LIMIT",
-        timeInForce: "GTC",
-        quantity: baseToSell,
-        price: sellPrice,
-      });
-      console.log(sellOrder.data);
-    }
-  } else if (side === "sell") {
-    // SELL ORDER
-    const sellOrder = await binance.order({
-      symbol: baseAsset + quoteAsset,
-      side: "SELL",
-      type: "LIMIT",
-      timeInForce: "FOK",
-      quantity: baseToSell,
-      price: sellPrice,
-    });
-    console.log(sellOrder.data);
-
-    if (sellOrder.data.status === "FILLED") {
+  try {
+    if (side === "buy") {
       // BUY ORDER
       const buyOrder = await binance.order({
         symbol: baseAsset + quoteAsset,
         side: "BUY",
         type: "LIMIT",
-        timeInForce: "GTC",
+        timeInForce: "FOK",
         quantity: baseToBuy,
         price: buyPrice,
       });
       console.log(buyOrder.data);
+
+      if (buyOrder.data.status === "FILLED") {
+        // SELL ORDER
+        const sellOrder = await binance.order({
+          symbol: baseAsset + quoteAsset,
+          side: "SELL",
+          type: "LIMIT",
+          timeInForce: "GTC",
+          quantity: baseToSell,
+          price: sellPrice,
+        });
+        console.log(sellOrder.data);
+      }
+    } else if (side === "sell") {
+      // SELL ORDER
+      const sellOrder = await binance.order({
+        symbol: baseAsset + quoteAsset,
+        side: "SELL",
+        type: "LIMIT",
+        timeInForce: "FOK",
+        quantity: baseToSell,
+        price: sellPrice,
+      });
+      console.log(sellOrder.data);
+
+      if (sellOrder.data.status === "FILLED") {
+        // BUY ORDER
+        const buyOrder = await binance.order({
+          symbol: baseAsset + quoteAsset,
+          side: "BUY",
+          type: "LIMIT",
+          timeInForce: "GTC",
+          quantity: baseToBuy,
+          price: buyPrice,
+        });
+        console.log(buyOrder.data);
+      }
     }
+  } catch (error) {
+    console.error(error);
+    process.exit(0);
   }
 
 }, interval);
