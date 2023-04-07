@@ -12,7 +12,7 @@ dotenv.config({
 
 console.log(`${NODE_ENV} mode.`);
 
-const { SPOT_API_URL, API_KEY, API_SECRET } = process.env;
+const { API_BASE_URL, API_KEY, API_SECRET } = process.env;
 
 const CONFIGS = {
   headers: {
@@ -22,9 +22,9 @@ const CONFIGS = {
 
 const signature = query_string => crypto.createHmac("sha256", API_SECRET).update(query_string).digest("hex");
 
-export const ping = () => axios.get(`${SPOT_API_URL}/api/v3/ping`);
+export const ping = () => axios.get(`${API_BASE_URL}/api/v3/ping`);
 
-const getExchangeInfo = (baseAsset, quoteAsset) => axios.get(`${SPOT_API_URL}/api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
+const getExchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_BASE_URL}/api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
 export const getExchangeInfoFilters = async (baseAsset, quoteAsset) => {
   const exchangeInfo = await getExchangeInfo(baseAsset, quoteAsset);
@@ -52,7 +52,7 @@ export const account = () => {
   const query = new URLSearchParams({ timestamp });
   const query_string = query.toString();
 
-  return axios.get(`${SPOT_API_URL}/api/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  return axios.get(`${API_BASE_URL}/api/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const openOrders = (baseAsset, quoteAsset) => {
@@ -60,7 +60,7 @@ export const openOrders = (baseAsset, quoteAsset) => {
   const query = new URLSearchParams({ symbol: baseAsset + quoteAsset, timestamp });
   const query_string = query.toString();
 
-  return axios.get(`${SPOT_API_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  return axios.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const tickerPrice = (baseAsset, quoteAsset) => {
@@ -68,7 +68,7 @@ export const tickerPrice = (baseAsset, quoteAsset) => {
   const query = new URLSearchParams({ symbol: baseAsset + quoteAsset });
   const query_string = query.toString();
 
-  return axios.get(`${SPOT_API_URL}/api/v3/ticker/price?${query}`);
+  return axios.get(`${API_BASE_URL}/api/v3/ticker/price?${query}`);
 };
 
 export const order = params => {
@@ -76,7 +76,7 @@ export const order = params => {
   const query = new URLSearchParams({ ...params, timestamp });
   const query_string = query.toString();
 
-  return axios.post(`${SPOT_API_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, null, CONFIGS);
+  return axios.post(`${API_BASE_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, null, CONFIGS);
 };
 
 export const cancelOrder = params => {
@@ -84,7 +84,7 @@ export const cancelOrder = params => {
   const query = new URLSearchParams({ ...params, timestamp });
   const query_string = query.toString();
 
-  return axios.delete(`${SPOT_API_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  return axios.delete(`${API_BASE_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const getBalances = arrayBalances => {
