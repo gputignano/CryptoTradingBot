@@ -12,7 +12,7 @@ dotenv.config({
 
 console.log(`${NODE_ENV} mode.`);
 
-const { API_BASE_URL, API_KEY, API_SECRET } = process.env;
+export const { API_BASE_URL, WEBSOCkET_STREAM_BASE_URL, API_KEY, API_SECRET } = process.env;
 
 const CONFIGS = {
   headers: {
@@ -61,14 +61,6 @@ export const openOrders = (baseAsset, quoteAsset) => {
   const query_string = query.toString();
 
   return axios.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
-};
-
-export const tickerPrice = (baseAsset, quoteAsset) => {
-  const timestamp = Date.now();
-  const query = new URLSearchParams({ symbol: baseAsset + quoteAsset });
-  const query_string = query.toString();
-
-  return axios.get(`${API_BASE_URL}/api/v3/ticker/price?${query}`);
 };
 
 export const order = params => {

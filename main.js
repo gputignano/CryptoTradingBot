@@ -1,8 +1,10 @@
 import _ from "lodash";
+import WebSocket from "ws";
 import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 let kill = false;
+let price;
 
 const [PRICE_FILTER, LOT_SIZE, MIN_NOTIONAL, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
 
@@ -10,6 +12,30 @@ const notional = Math.max(minNotional || MIN_NOTIONAL.minNotional, MIN_NOTIONAL.
 console.log(`notional: ${notional}`);
 
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
+
+const ws_market_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`);
+
+ws_market_stream.on("error", error => console.error(error.message));
+ws_market_stream.on("open", () => {
+  ws_market_stream.send(
+    JSON.stringify({
+      method: "SUBSCRIBE",
+      params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@trade"],
+      id: 1,
+    })
+  );
+});
+ws_market_stream.on("close", () => { });
+ws_market_stream.on("ping", data => ws_market_stream.pong());
+ws_market_stream.on("pong", data => { });
+ws_market_stream.on("message", data => {
+  const currentPrice = JSON.parse(data).p;
+
+  if (currentPrice !== price) {
+    price = currentPrice;
+    console.log(price);
+  };
+});
 
 setInterval(async () => {
   if (kill) process.exit(0);
@@ -33,10 +59,6 @@ setInterval(async () => {
 
   const orders = await binance.openOrders(baseAsset, quoteAsset);
   console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
-
-  const ticker = await binance.tickerPrice(baseAsset, quoteAsset);
-
-  const price = ticker.data.price;
 
   const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
   const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
@@ -174,7 +196,7 @@ setInterval(async () => {
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(error.response.data);
     process.exit(0);
   }
 
