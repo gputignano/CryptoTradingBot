@@ -5,6 +5,7 @@ import * as binance from "./modules/binance.js";
 
 let kill = false;
 let price;
+let orders;
 
 const [PRICE_FILTER, LOT_SIZE, MIN_NOTIONAL, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
 
@@ -59,7 +60,7 @@ setInterval(async () => {
 
   const balances = binance.getBalances(account.data.balances);
 
-  const orders = await binance.openOrders(baseAsset, quoteAsset);
+  orders = await binance.openOrders(baseAsset, quoteAsset);
   console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
   const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
