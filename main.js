@@ -40,6 +40,8 @@ ws_market_stream.on("message", data => {
 setInterval(async () => {
   if (kill) process.exit(0);
 
+  if (!price) return;
+
   let baseToBuy;
   let baseAvailable;
   let baseToSell;
