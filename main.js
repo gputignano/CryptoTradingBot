@@ -19,6 +19,7 @@ const ws_market_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`
 ws_market_stream.on("error", error => console.error(error.message));
 ws_market_stream.on("open", async () => {
   price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+  orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
 
   ws_market_stream.send(
     JSON.stringify({
