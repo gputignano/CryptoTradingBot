@@ -59,8 +59,8 @@ setInterval(async () => {
 
   const balances = binance.getBalances(account.data.balances);
 
-  orders = await binance.openOrders(baseAsset, quoteAsset);
-  console.log(`There are ${orders.data.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
+  orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+  console.log(`There are ${orders.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
   const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
   const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
@@ -140,7 +140,7 @@ setInterval(async () => {
   const slot1 = binance.priceToSlot(sellPrice, grid);
   const slot2 = binance.priceToSlot(buyPrice, grid);
 
-  const openOrders = binance.getOpenOrders(orders.data, grid);
+  const openOrders = binance.getOpenOrders(orders, grid);
 
   if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
     console.log(`slot1: ${slot1} / slot2: ${slot2}`);
