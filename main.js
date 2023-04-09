@@ -17,7 +17,9 @@ console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precis
 const ws_market_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`);
 
 ws_market_stream.on("error", error => console.error(error.message));
-ws_market_stream.on("open", () => {
+ws_market_stream.on("open", async () => {
+  price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+
   ws_market_stream.send(
     JSON.stringify({
       method: "SUBSCRIBE",
@@ -30,18 +32,15 @@ ws_market_stream.on("close", () => { });
 ws_market_stream.on("ping", data => ws_market_stream.pong());
 ws_market_stream.on("pong", data => { });
 ws_market_stream.on("message", data => {
-  const currentPrice = JSON.parse(data).p;
+  const currentPrice = JSON.parse(data).p || price;
 
   if (currentPrice !== price) {
     price = currentPrice;
-    console.log(price);
   };
 });
 
 setInterval(async () => {
   if (kill) process.exit(0);
-
-  if (!price) return;
 
   let baseToBuy;
   let baseAvailable;
