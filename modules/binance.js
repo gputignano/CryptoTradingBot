@@ -63,6 +63,14 @@ export const openOrders = (baseAsset, quoteAsset) => {
   return axios.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
+export const tickerPrice = (baseAsset, quoteAsset) => {
+  const timestamp = Date.now();
+  const query = new URLSearchParams({ symbol: baseAsset + quoteAsset });
+  const query_string = query.toString();
+
+  return axios.get(`${API_BASE_URL}/api/v3/ticker/price?${query}`);
+};
+
 export const order = params => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ ...params, timestamp });
