@@ -128,3 +128,9 @@ export const calculateCommissions = data => {
 export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(priceToSlot(price, grid), grid), precision);
 
 export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);
+
+export const postApiV3UserDataStream = async () => (await axios.post(`https://api.binance.com/api/v3/userDataStream`, null, CONFIGS)).data;
+
+export const putApiV3UserDataStream = async listenKey => (await axios.put(`https://api.binance.com/api/v3/userDataStream?listenKey=${listenKey}`, null, CONFIGS)).data;
+
+export const deleteApiV3UserDataStream = async () => (await axios.delete(`https://api.binance.com/api/v3/userDataStream?listenKey=${listenKey}`, CONFIGS)).data;
