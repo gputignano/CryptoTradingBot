@@ -5,11 +5,10 @@ import * as binance from "./modules/binance.js";
 
 let kill = false;
 let price;
-let orders;
 let account;
+let orders;
 
 const [PRICE_FILTER, LOT_SIZE, MIN_NOTIONAL, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
-
 const notional = Math.max(minNotional || MIN_NOTIONAL.minNotional, MIN_NOTIONAL.minNotional);
 console.log(`notional: ${notional}`);
 
@@ -20,8 +19,8 @@ const ws_market_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`
 
 ws_market_stream.on("error", error => console.error(error.message));
 ws_market_stream.on("open", async () => {
-  account = (await binance.account()).data;
   price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+  account = (await binance.account()).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
 
   ws_market_stream.send(
