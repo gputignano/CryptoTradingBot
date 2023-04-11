@@ -70,7 +70,6 @@ setInterval(async () => {
 
   // READS BALANCES
   account = (await binance.account()).data;
-  console.log(`=======================================`);
 
   const [makerCommission, takerCommission] = binance.calculateCommissions(account);
 
