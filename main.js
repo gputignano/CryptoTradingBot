@@ -54,7 +54,26 @@ ws_user_data_stream.on("open", () => {
   }, 30 * 60 * 1000);
 });
 ws_user_data_stream.on("close", () => { });
-ws_user_data_stream.on("message", data => console.log(JSON.parse(data.toString())));
+ws_user_data_stream.on("message", data => {
+  const payload = JSON.parse(data.toString());
+
+  switch (payload.e) {
+    case "outboundAccountPosition":
+      // Account Update
+      break;
+    case "balanceUpdate":
+      // Balance Update
+      break;
+    case "executionReport":
+      // Order Update
+      break;
+    default:
+      console.log(`${payload.e}`);
+      process.exit(0);
+      break;
+  }
+  process.exit(0);
+});
 
 setInterval(async () => {
   if (kill) process.exit(0);
