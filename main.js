@@ -68,11 +68,9 @@ ws_user_data_stream.on("message", data => {
       // Order Update
       break;
     default:
-      console.log(`${payload.e}`);
-      process.exit(0);
+      //
       break;
   }
-  process.exit(0);
 });
 
 setInterval(async () => {
