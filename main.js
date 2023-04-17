@@ -55,7 +55,7 @@ ws_user_data_stream.on("open", async () => {
   }, 30 * 60 * 1000);
 });
 ws_user_data_stream.on("close", () => { });
-ws_user_data_stream.on("message", data => {
+ws_user_data_stream.on("message", async data => {
   const payload = JSON.parse(data.toString());
 
   if (payload.s !== baseAsset + quoteAsset) return;
@@ -69,6 +69,7 @@ ws_user_data_stream.on("message", data => {
       break;
     case "executionReport":
       // Order Update
+      orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
       break;
     default:
       //
@@ -95,7 +96,6 @@ setInterval(async () => {
 
   const balances = binance.getBalances(account.balances);
 
-  orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
   console.log(`There are ${orders.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
   const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
