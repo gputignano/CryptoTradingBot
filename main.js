@@ -74,9 +74,6 @@ ws_user_data_stream.on("message", async data => {
       console.log(`EVENT: executionReport`);
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
       break;
-    default:
-      //
-      break;
   }
 });
 
