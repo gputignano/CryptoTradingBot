@@ -57,6 +57,8 @@ ws_user_data_stream.on("close", () => { });
 ws_user_data_stream.on("message", data => {
   const payload = JSON.parse(data.toString());
 
+  if (payload.s !== baseAsset + quoteAsset) return;
+
   switch (payload.e) {
     case "outboundAccountPosition":
       // Account Update
