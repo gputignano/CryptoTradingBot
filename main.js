@@ -63,7 +63,7 @@ ws_user_data_stream.on("message", async data => {
   switch (payload.e) {
     case "outboundAccountPosition":
       // Account Update
-      console.log(`EVEMT: outboundAccountPosition`);
+      console.log(`EVENT: outboundAccountPosition`);
       break;
     case "balanceUpdate":
       // Balance Update
