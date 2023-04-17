@@ -63,12 +63,15 @@ ws_user_data_stream.on("message", async data => {
   switch (payload.e) {
     case "outboundAccountPosition":
       // Account Update
+      console.log(`EVEMT: outboundAccountPosition`);
       break;
     case "balanceUpdate":
       // Balance Update
+      console.log(`EVENT: balanceUpdate`);
       break;
     case "executionReport":
       // Order Update
+      console.log(`EVENT: executionReport`);
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
       break;
     default:
