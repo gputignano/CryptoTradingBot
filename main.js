@@ -125,9 +125,7 @@ setInterval(async () => {
       sellPrice = lowerPrice;
       buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
-      if (trigger !== undefined && buyPrice <= trigger) {
-        throw new Error("buyPrice <= trigger");
-      } else console.log("Trigger NOT active!");
+      if (trigger !== undefined && buyPrice <= trigger) throw new Error("buyPrice <= trigger");
 
       if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
