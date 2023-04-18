@@ -46,7 +46,7 @@ const ws_user_data_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/
 
 ws_user_data_stream.on("error", error => console.error(error.message));
 ws_user_data_stream.on("open", async () => {
-  account = (await binance.account()).data;
+  account = (await binance.account(baseAsset, quoteAsset)).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
 
   setInterval(async () => await binance.putApiV3UserDataStream(listenKey), 30 * 60 * 1000);
@@ -87,9 +87,7 @@ setInterval(async () => {
   let sellPrice;
 
   // READS BALANCES
-  account = (await binance.account()).data;
-
-  const balances = binance.getBalances(account.balances);
+  account = (await binance.account(baseAsset, quoteAsset)).data;
 
   console.log(`There are ${orders.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
 
@@ -116,7 +114,7 @@ setInterval(async () => {
 
       buyNotional = buyPrice * baseToBuy;
 
-      if (balances[quoteAsset] === undefined || balances[quoteAsset].free < buyNotional) throw new Error("No BUY balance to trade.");
+      if (account.balances[quoteAsset] === undefined || account.balances[quoteAsset].free < buyNotional) throw new Error("No BUY balance to trade.");
 
       if (earn === "base") {
         baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.makerCommission), LOT_SIZE.precision);
@@ -145,7 +143,7 @@ setInterval(async () => {
 
       sellNotional = sellPrice * baseToSell;
 
-      if (balances[baseAsset] === undefined || balances[baseAsset].free * sellPrice < sellNotional) throw new Error("No SELL balance to trade.");
+      if (account.balances[baseAsset] === undefined || account.balances[baseAsset].free * sellPrice < sellNotional) throw new Error("No SELL balance to trade.");
 
       sellNotionalAvailable = sellNotional * (1 - account.takerCommission);
 

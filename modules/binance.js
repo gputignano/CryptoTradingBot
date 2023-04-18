@@ -46,16 +46,30 @@ export const getExchangeInfoFilters = async (baseAsset, quoteAsset) => {
   return [PRICE_FILTER, LOT_SIZE, MIN_NOTIONAL, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS];
 };
 
-export const account = () => {
+export const account = (baseAsset, quoteAsset) => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ timestamp });
   const query_string = query.toString();
   const instance = axios.create({});
+
   instance.interceptors.response.use(response => {
     // DIVIDE ACCOUNT MAKER/TAKER COMMISSION BY 10000
     response.data.makerCommission /= 10000;
     response.data.takerCommission /= 10000;
-    console.log(response.data);
+
+    // FILTER ONLY BALANCES FOR BASE/QUOTE ASSETS
+    const filtered = response.data.balances.filter(element => {
+      return element.asset === baseAsset || element.asset === quoteAsset;
+    });
+
+    // EMPTY BALANCES
+    response.data.balances = {};
+
+    // FROM ARRAY TO OBJECT
+    filtered.forEach(element => {
+      response.data.balances[element.asset] = element;
+    });
+
     return response;
   });
 
@@ -92,22 +106,6 @@ export const cancelOrder = params => {
   const query_string = query.toString();
 
   return axios.delete(`${API_BASE_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, CONFIGS);
-};
-
-export const getBalances = arrayBalances => {
-  let objectBalances = {};
-
-  arrayBalances.forEach(balance => {
-    if (balance.free == 0 && balance.locked == 0) return;
-    objectBalances[balance.asset] = {
-      free: balance.free,
-      locked: balance.locked,
-    };
-  });
-
-  console.table(objectBalances);
-
-  return objectBalances;
 };
 
 export const priceToSlot = (price, grid) => Math.floor(Math.log10(price) / Math.log10(1 + grid / 100));
