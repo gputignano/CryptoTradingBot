@@ -51,8 +51,16 @@ export const account = () => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ timestamp });
   const query_string = query.toString();
+  const instance = axios.create({});
+  instance.interceptors.response.use(response => {
+    // DIVIDE ACCOUNT MAKER/TAKER COMMISSION BY 10000
+    response.data.makerCommission /= 10000;
+    response.data.takerCommission /= 10000;
+    console.log(response.data);
+    return response;
+  });
 
-  return axios.get(`${API_BASE_URL}/api/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  return instance.get(`${API_BASE_URL}/api/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const openOrders = (baseAsset, quoteAsset) => {
@@ -115,14 +123,6 @@ export const getOpenOrders = (orders, grid) => {
   });
 
   return openOrders;
-};
-
-export const calculateCommissions = data => {
-  const [makerCommission, takerCommission] = [data.makerCommission / 10000, data.takerCommission / 10000];
-
-  console.log(`makerCommission: ${makerCommission} / takerCommission: ${takerCommission}`);
-
-  return [makerCommission, takerCommission];
 };
 
 export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(priceToSlot(price, grid), grid), precision);

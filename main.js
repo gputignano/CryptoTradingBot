@@ -89,8 +89,6 @@ setInterval(async () => {
   // READS BALANCES
   account = (await binance.account()).data;
 
-  const [makerCommission, takerCommission] = binance.calculateCommissions(account);
-
   const balances = binance.getBalances(account.balances);
 
   console.log(`There are ${orders.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
@@ -114,14 +112,14 @@ setInterval(async () => {
       if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
       baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
-      baseAvailable = baseToBuy * (1 - takerCommission);
+      baseAvailable = baseToBuy * (1 - account.takerCommission);
 
       buyNotional = buyPrice * baseToBuy;
 
       if (balances[quoteAsset] === undefined || balances[quoteAsset].free < buyNotional) throw new Error("No BUY balance to trade.");
 
       if (earn === "base") {
-        baseToSell = _.ceil(buyNotional / sellPrice / (1 - makerCommission), LOT_SIZE.precision);
+        baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.makerCommission), LOT_SIZE.precision);
       } else if (earn === "quote") {
         baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
       }
@@ -129,7 +127,7 @@ setInterval(async () => {
       if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
 
       sellNotional = sellPrice * baseToSell;
-      sellNotionalAvailable = sellNotional * (1 - makerCommission);
+      sellNotionalAvailable = sellNotional * (1 - account.makerCommission);
 
       if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
 
@@ -143,21 +141,21 @@ setInterval(async () => {
 
       if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
-      baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - takerCommission), LOT_SIZE.precision);
+      baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.takerCommission), LOT_SIZE.precision);
 
       sellNotional = sellPrice * baseToSell;
 
       if (balances[baseAsset] === undefined || balances[baseAsset].free * sellPrice < sellNotional) throw new Error("No SELL balance to trade.");
 
-      sellNotionalAvailable = sellNotional * (1 - takerCommission);
+      sellNotionalAvailable = sellNotional * (1 - account.takerCommission);
 
       if (earn === "base") {
         baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
       } else if (earn === "quote") {
-        baseToBuy = _.ceil(baseToSell / (1 - makerCommission), LOT_SIZE.precision);
+        baseToBuy = _.ceil(baseToSell / (1 - account.makerCommission), LOT_SIZE.precision);
       }
 
-      baseAvailable = baseToBuy * (1 - makerCommission);
+      baseAvailable = baseToBuy * (1 - account.makerCommission);
 
       if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
 
