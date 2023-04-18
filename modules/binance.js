@@ -38,7 +38,6 @@ export const getExchangeInfoFilters = async (baseAsset, quoteAsset) => {
     PERCENT_PRICE_BY_SIDE, // bidMultiplierUp, bidMultiplierDown, askMultiplierUp, askMultiplierDown, avgPriceMins
     MAX_NUM_ORDERS, // filterType, maxNumOrders
     MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
-    // ] = symbols.filters;
   ] = exchangeInfo.data.symbols[0].filters;
 
   PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
