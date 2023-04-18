@@ -89,23 +89,15 @@ setInterval(async () => {
   // READS BALANCES
   account = (await binance.account(baseAsset, quoteAsset)).data;
 
-  console.log(`There are ${orders.length} of ${MAX_NUM_ORDERS.maxNumOrders} orders open.`);
-
   const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
   const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
-
-  console.log(`lowerPrice: ${lowerPrice} - slot: ${binance.priceToSlot(lowerPrice, grid)}`);
-  console.log(`price: ${price} - slot: ${binance.priceToSlot(price, grid)}`);
-  console.log(`higherPrice: ${higherPrice} - slot: ${binance.priceToSlot(higherPrice, grid)}`);
 
   try {
     if (side === "buy") {
       buyPrice = higherPrice;
       sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-      if (trigger !== undefined && sellPrice >= trigger) {
-        throw new Error("sellPrice >= trigger");
-      } else console.log("Trigger NOT active!");
+      if (trigger !== undefined && sellPrice >= trigger) throw new Error("sellPrice >= trigger");
 
       if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
 
@@ -171,10 +163,7 @@ setInterval(async () => {
 
   const openOrders = binance.getOpenOrders(orders, grid);
 
-  if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) {
-    console.log(`slot1: ${slot1} / slot2: ${slot2}`);
-    return;
-  }
+  if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) return;
 
   try {
     if (side === "buy") {
