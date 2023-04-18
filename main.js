@@ -49,10 +49,7 @@ ws_user_data_stream.on("open", async () => {
   account = (await binance.account()).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
 
-  setInterval(async () => {
-    const response = await binance.putApiV3UserDataStream(listenKey);
-    console.log(response);
-  }, 30 * 60 * 1000);
+  setInterval(async () => await binance.putApiV3UserDataStream(listenKey), 30 * 60 * 1000);
 });
 ws_user_data_stream.on("close", () => { });
 ws_user_data_stream.on("message", async data => {
