@@ -60,6 +60,9 @@ ws_user_data_stream.on("message", async data => {
     case "outboundAccountPosition":
       // Account Update
       console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, B: ${JSON.stringify(payload.B)}`);
+
+      // UPDATE BALANCES
+      account = (await binance.account(baseAsset, quoteAsset)).data;
       break;
     case "balanceUpdate":
       // Balance Update
@@ -87,9 +90,6 @@ setInterval(async () => {
   let sellNotionalAvailable;
   let buyPrice;
   let sellPrice;
-
-  // READS BALANCES
-  account = (await binance.account(baseAsset, quoteAsset)).data;
 
   const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
   const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
