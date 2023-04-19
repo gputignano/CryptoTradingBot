@@ -54,21 +54,23 @@ ws_user_data_stream.on("open", async () => {
 ws_user_data_stream.on("close", () => { });
 ws_user_data_stream.on("message", async data => {
   const payload = JSON.parse(data.toString());
-
-  if (payload.s !== baseAsset + quoteAsset) return;
+  const dateTime = new Date(payload.E);
 
   switch (payload.e) {
     case "outboundAccountPosition":
       // Account Update
-      console.log(`EVENT: outboundAccountPosition`);
+      console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, B: ${JSON.stringify(payload.B)}`);
       break;
     case "balanceUpdate":
       // Balance Update
-      console.log(`EVENT: balanceUpdate`);
+      console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, a: ${payload.a}, d: ${payload.d}`);
       break;
     case "executionReport":
       // Order Update
-      console.log(`EVENT: executionReport`);
+      if (payload.s !== (baseAsset + quoteAsset)) return;
+
+      console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
+
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
       break;
   }
