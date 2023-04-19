@@ -174,7 +174,7 @@ setInterval(async () => {
         quantity: baseToBuy,
         price: buyPrice,
       });
-      console.log(buyOrder.data);
+      // console.log(buyOrder.data);
 
       if (buyOrder.data.status === "FILLED") {
         // SELL ORDER
@@ -186,7 +186,7 @@ setInterval(async () => {
           quantity: baseToSell,
           price: sellPrice,
         });
-        console.log(sellOrder.data);
+        // console.log(sellOrder.data);
       }
     } else if (side === "sell") {
       // SELL ORDER
@@ -198,7 +198,7 @@ setInterval(async () => {
         quantity: baseToSell,
         price: sellPrice,
       });
-      console.log(sellOrder.data);
+      // console.log(sellOrder.data);
 
       if (sellOrder.data.status === "FILLED") {
         // BUY ORDER
@@ -210,7 +210,7 @@ setInterval(async () => {
           quantity: baseToBuy,
           price: buyPrice,
         });
-        console.log(buyOrder.data);
+        // console.log(buyOrder.data);
       }
     }
   } catch (error) {
