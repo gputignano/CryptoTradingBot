@@ -31,11 +31,11 @@ export const getExchangeInfoFilters = async (baseAsset, quoteAsset) => {
   const [
     PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
     LOT_SIZE, // filterType, minQty, maxQty, stepSize
-    MIN_NOTIONAL, // filterType, minNotional, applyToMarket, avgPriceMins
     ICEBERG_PARTS, // filterType, limit
     MARKET_LOT_SIZE, // filterType, minQty, maxQty, stepSize
     TRAILING_DELTA, // minTrailingAboveDelta, maxTrailingAboveDelta, minTrailingBelowDelta, maxTrailingBelowDelta
     PERCENT_PRICE_BY_SIDE, // bidMultiplierUp, bidMultiplierDown, askMultiplierUp, askMultiplierDown, avgPriceMins
+    NOTIONAL, // filterType, minNotional, applyMinToMarket, maxNotional, applyMaxToMarket, avgPriceMins
     MAX_NUM_ORDERS, // filterType, maxNumOrders
     MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
   ] = exchangeInfo.data.symbols[0].filters;
@@ -43,7 +43,7 @@ export const getExchangeInfoFilters = async (baseAsset, quoteAsset) => {
   PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
   LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
 
-  return [PRICE_FILTER, LOT_SIZE, MIN_NOTIONAL, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS];
+  return [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS];
 };
 
 export const account = (baseAsset, quoteAsset) => {
