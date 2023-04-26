@@ -41,7 +41,7 @@ ws_market_stream.on("message", data => {
 });
 
 // WEBSOCKET USER DATA STREAM
-const listenKey = (await binance.postApiV3UserDataStream()).listenKey;
+const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
 const ws_user_data_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws/${listenKey}`);
 
 ws_user_data_stream.on("error", error => console.error(error.message));
@@ -49,7 +49,7 @@ ws_user_data_stream.on("open", async () => {
   account = (await binance.account(baseAsset, quoteAsset)).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
 
-  setInterval(async () => await binance.putApiV3UserDataStream(listenKey), 30 * 60 * 1000);
+  setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
 });
 ws_user_data_stream.on("close", () => { });
 ws_user_data_stream.on("message", async data => {
