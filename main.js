@@ -62,7 +62,11 @@ ws_user_data_stream.on("message", async data => {
       console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, B: ${JSON.stringify(payload.B)}`);
 
       // UPDATE BALANCES
-      account = (await binance.account(baseAsset, quoteAsset)).data;
+      payload.B.filter(asset => [baseAsset, quoteAsset].includes(asset.a)).forEach(b => {
+        account.balances[b.a].free = b.f;
+        account.balances[b.a].locked = b.l;
+      });
+      console.log(account.balances);
       break;
     case "balanceUpdate":
       // Balance Update
