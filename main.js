@@ -7,6 +7,7 @@ let kill = false;
 let price;
 let account;
 let orders;
+let openOrders;
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
 const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
@@ -48,6 +49,7 @@ ws_user_data_stream.on("error", error => console.error(error.message));
 ws_user_data_stream.on("open", async () => {
   account = (await binance.account(baseAsset, quoteAsset)).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+  openOrders = binance.getOpenOrders(orders, grid);
 
   setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
 });
@@ -79,6 +81,7 @@ ws_user_data_stream.on("message", async data => {
       console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
 
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+      openOrders = binance.getOpenOrders(orders, grid);
       break;
   }
 });
@@ -164,8 +167,6 @@ setInterval(async () => {
 
   const slot1 = binance.priceToSlot(sellPrice, grid);
   const slot2 = binance.priceToSlot(buyPrice, grid);
-
-  const openOrders = binance.getOpenOrders(orders, grid);
 
   if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) return;
 
