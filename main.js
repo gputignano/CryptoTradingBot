@@ -74,6 +74,8 @@ ws_user_data_stream.on("message", async data => {
     case "balanceUpdate":
       // Balance Update
       console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, a: ${payload.a}, d: ${payload.d}`);
+
+      if (payload.a === baseAsset || payload.a === quoteAsset) account.balances[payload.a].free += payload.d;
       break;
     case "executionReport":
       // Order Update
