@@ -49,6 +49,7 @@ ws_user_data_stream.on("error", error => console.error(error.message));
 ws_user_data_stream.on("open", async () => {
   account = (await binance.account(baseAsset, quoteAsset)).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+  console.log(`orders: ${orders.length}`);
   openOrders = binance.getOpenOrders(orders, grid);
 
   setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
@@ -81,6 +82,7 @@ ws_user_data_stream.on("message", async data => {
       console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
 
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+      console.log(`orders: ${orders.length}`);
       openOrders = binance.getOpenOrders(orders, grid);
       break;
   }
