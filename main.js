@@ -29,10 +29,12 @@ ws_market_stream.on("open", async () => {
       id: 1,
     })
   );
+
+  setInterval(() => ws_market_stream.ping(), 3 * 60 * 1000);
 });
 ws_market_stream.on("close", () => { });
-ws_market_stream.on("ping", data => ws_market_stream.pong());
-ws_market_stream.on("pong", data => { });
+ws_market_stream.on("ping", data => { });
+ws_market_stream.on("pong", () => { console.log(`${(new Date()).toLocaleTimeString()} pong`); });
 ws_market_stream.on("message", data => {
   const currentPrice = JSON.parse(data).p || price;
 
