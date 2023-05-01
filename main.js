@@ -16,13 +16,13 @@ console.log(`notional: ${notional}`);
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
 // WEBSOCKET MARKET STREAM
-const ws_market_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`);
+const ws_market_data_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`);
 
-ws_market_stream.on("error", error => console.error(error.message));
-ws_market_stream.on("open", async () => {
+ws_market_data_stream.on("error", error => console.error(error.message));
+ws_market_data_stream.on("open", async () => {
   price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
 
-  ws_market_stream.send(
+  ws_market_data_stream.send(
     JSON.stringify({
       method: "SUBSCRIBE",
       params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@trade"],
@@ -30,14 +30,14 @@ ws_market_stream.on("open", async () => {
     })
   );
 
-  setInterval(() => ws_market_stream.ping(), 3 * 60 * 1000);
+  setInterval(() => ws_market_data_stream.ping(), 3 * 60 * 1000);
 });
-ws_market_stream.on("close", () => {
+ws_market_data_stream.on("close", () => {
   console.log(`Connection closed!`);
 });
-ws_market_stream.on("ping", data => { });
-ws_market_stream.on("pong", () => { console.log(`${(new Date()).toLocaleTimeString()} pong`); });
-ws_market_stream.on("message", data => {
+ws_market_data_stream.on("ping", data => { });
+ws_market_data_stream.on("pong", () => { console.log(`${(new Date()).toLocaleTimeString()} pong`); });
+ws_market_data_stream.on("message", data => {
   const currentPrice = JSON.parse(data).p || price;
 
   if (currentPrice !== price) {
