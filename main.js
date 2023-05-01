@@ -176,7 +176,7 @@ setInterval(async () => {
   const slot1 = binance.priceToSlot(sellPrice, grid);
   const slot2 = binance.priceToSlot(buyPrice, grid);
 
-  if ((side === "buy" && openOrders[slot1] !== undefined) || (side === "sell" && openOrders[slot2] !== undefined)) return;
+  if ((side === "buy" && openOrders.has(slot1) !== undefined) || (side === "sell" && openOrders.has(slot2) !== undefined)) return;
 
   try {
     if (side === "buy") {
