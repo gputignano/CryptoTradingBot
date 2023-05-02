@@ -8,6 +8,8 @@ let price;
 let account;
 let orders;
 let openOrders;
+let lowerPrice;
+let higherPrice;
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
 const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
@@ -21,6 +23,9 @@ const ws_market_data_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL
 ws_market_data_stream.on("error", error => console.error(error.message));
 ws_market_data_stream.on("open", async () => {
   price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+
+  lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+  higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
   ws_market_data_stream.send(
     JSON.stringify({
@@ -42,6 +47,9 @@ ws_market_data_stream.on("message", data => {
 
   if (currentPrice !== price) {
     price = currentPrice;
+
+    lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+    higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
   };
 });
 
@@ -105,9 +113,6 @@ setInterval(async () => {
   let sellNotionalAvailable;
   let buyPrice;
   let sellPrice;
-
-  const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-  const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
   try {
     if (side === "buy") {
