@@ -42,6 +42,8 @@ ws_market_data_stream.on("message", data => {
 
   if (currentPrice !== price) {
     price = currentPrice;
+
+    trade();
   };
 });
 
@@ -94,8 +96,10 @@ ws_user_data_stream.on("message", async data => {
   }
 });
 
-setInterval(async () => {
+const trade = async () => {
   if (kill) process.exit(0);
+
+  console.log(`Trading at ${price}`);
 
   let baseToBuy;
   let baseAvailable;
@@ -200,7 +204,7 @@ setInterval(async () => {
           quantity: baseToSell,
           price: sellPrice,
         });
-      }
+      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 200);;
     } else if (side === "sell") {
       // SELL ORDER
       const sellOrder = await binance.order({
@@ -222,14 +226,14 @@ setInterval(async () => {
           quantity: baseToBuy,
           price: buyPrice,
         });
-      }
+      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200);;
     }
   } catch (error) {
     console.error(error.response.data || error);
     process.exit(0);
   }
 
-}, interval);
+};
 
 process.on("SIGINT", () => {
   kill = true;
