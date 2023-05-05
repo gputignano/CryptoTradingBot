@@ -37,13 +37,13 @@ ws_market_data_stream.on("close", () => {
 });
 ws_market_data_stream.on("ping", data => { });
 ws_market_data_stream.on("pong", () => { console.log(`${(new Date()).toLocaleTimeString()} pong`); });
-ws_market_data_stream.on("message", data => {
+ws_market_data_stream.on("message", async data => {
   const currentPrice = JSON.parse(data).p || price;
 
   if (currentPrice !== price) {
     price = currentPrice;
 
-    trade();
+    await trade();
   };
 });
 
