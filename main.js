@@ -8,6 +8,7 @@ let price;
 let account;
 let orders;
 let openOrders;
+const openTrades = new Set();
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
 const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
@@ -42,8 +43,13 @@ ws_market_data_stream.on("message", async data => {
 
   if (currentPrice !== price) {
     price = currentPrice;
+    const slot = binance.priceToSlot(price, grid);
 
-    await trade();
+    if (!openTrades.has(slot)) {
+      openTrades.add(slot);
+      await trade();
+      openTrades.delete(slot);
+    }
   };
 });
 
