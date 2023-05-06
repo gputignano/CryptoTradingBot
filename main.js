@@ -45,11 +45,8 @@ ws_market_data_stream.on("message", async data => {
     price = currentPrice;
     const slot = binance.priceToSlot(price, grid);
 
-    if (!openTrades.has(slot)) {
-      openTrades.add(slot);
-      await trade();
-      openTrades.delete(slot);
-    }
+    if (!openTrades.has(slot)) await trade();
+    else console.log(`has slot: ${slot}`);
   };
 });
 
@@ -189,6 +186,10 @@ const trade = async () => {
   if ((side === "buy" && openOrders.has(slot1)) || (side === "sell" && openOrders.has(slot2))) return;
 
   try {
+    const slot = binance.priceToSlot(price, grid);
+
+    openTrades.add(slot);
+
     if (side === "buy") {
       // BUY ORDER
       const buyOrder = await binance.order({
@@ -210,7 +211,7 @@ const trade = async () => {
           quantity: baseToSell,
           price: sellPrice,
         });
-      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 200);;
+      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 200);
     } else if (side === "sell") {
       // SELL ORDER
       const sellOrder = await binance.order({
@@ -232,13 +233,14 @@ const trade = async () => {
           quantity: baseToBuy,
           price: buyPrice,
         });
-      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200);;
+      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200);
     }
+    openTrades.delete(slot);
   } catch (error) {
     console.error(error.response.data || error);
+    openTrades.delete(slot);
     process.exit(0);
   }
-
 };
 
 process.on("SIGINT", () => {
