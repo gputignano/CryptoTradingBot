@@ -1,6 +1,6 @@
 import _ from "lodash";
 import WebSocket from "ws";
-import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional, interval } from "./modules/argv.js";
+import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 let kill = false;
