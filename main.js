@@ -45,7 +45,7 @@ ws_market_data_stream.on("message", async data => {
     price = currentPrice;
     const slot = binance.priceToSlot(price, grid);
 
-    if (!openTrades.has(slot)) await trade();
+    if (!openTrades.has(slot)) await trade(price);
     else console.log(`has slot: ${slot}`);
   };
 });
@@ -99,10 +99,10 @@ ws_user_data_stream.on("message", async data => {
   }
 });
 
-const trade = async () => {
+const trade = async tradingPrice => {
   if (kill) process.exit(0);
 
-  console.log(`Trading at ${price}`);
+  console.log(`Trading at ${tradingPrice}`);
 
   let baseToBuy;
   let baseAvailable;
@@ -113,8 +113,8 @@ const trade = async () => {
   let buyPrice;
   let sellPrice;
 
-  const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-  const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
+  const lowerPrice = binance.getLowerPrice(tradingPrice, grid, PRICE_FILTER.precision);
+  const higherPrice = binance.getHigherPrice(tradingPrice, grid, PRICE_FILTER.precision);
 
   try {
     if (side === "buy") {
@@ -186,7 +186,7 @@ const trade = async () => {
   if ((side === "buy" && openOrders.has(slot1)) || (side === "sell" && openOrders.has(slot2))) return;
 
   try {
-    const slot = binance.priceToSlot(price, grid);
+    const slot = binance.priceToSlot(tradingPrice, grid);
 
     openTrades.add(slot);
 
@@ -211,7 +211,7 @@ const trade = async () => {
           quantity: baseToSell,
           price: sellPrice,
         });
-      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 200);
+      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 200, tradingPrice);
     } else if (side === "sell") {
       // SELL ORDER
       const sellOrder = await binance.order({
@@ -233,7 +233,7 @@ const trade = async () => {
           quantity: baseToBuy,
           price: buyPrice,
         });
-      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200);
+      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200, tradingPrice);
     }
     openTrades.delete(slot);
   } catch (error) {
