@@ -33,10 +33,6 @@ const argv = yargs(hideBin(process.argv))
     type: "number",
     default: 1,
   })
-  .option("trigger", {
-    describe: "trigger",
-    type: "number",
-  })
   .option("minNotional", {
     describe: "minNotional",
     type: "number",
@@ -48,7 +44,6 @@ console.log(`side = ${argv.side}`);
 console.log(`grid = ${argv.grid}`);
 console.log(`earn = ${argv.earn == "base" ? argv.base : argv.quote}`);
 console.log(`interest = ${argv.interest}%`);
-console.log(`trigger = ${argv.trigger}`);
 
 export const baseAsset = argv.base;
 export const quoteAsset = argv.quote;
@@ -56,5 +51,4 @@ export const side = argv.side;
 export const grid = argv.grid;
 export const earn = argv.earn;
 export const interest = argv.interest / 100;
-export const trigger = argv.trigger;
 export const minNotional = argv.minNotional;

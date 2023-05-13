@@ -1,6 +1,6 @@
 import _ from "lodash";
 import WebSocket from "ws";
-import { baseAsset, quoteAsset, side, grid, earn, interest, trigger, minNotional } from "./modules/argv.js";
+import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 let kill = false;
@@ -124,11 +124,6 @@ const trade = async tradingPrice => {
     buyPrice = higherPrice;
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-    if (trigger !== undefined && sellPrice >= trigger) {
-      console.error("sellPrice >= trigger");
-      return;
-    }
-
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
       return;
@@ -166,11 +161,6 @@ const trade = async tradingPrice => {
   } else if (side === "sell") {
     sellPrice = lowerPrice;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
-
-    if (trigger !== undefined && buyPrice <= trigger) {
-      console.error("buyPrice <= trigger");
-      return;
-    }
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
