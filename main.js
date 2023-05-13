@@ -102,6 +102,10 @@ ws_user_data_stream.on("message", async data => {
 const trade = async tradingPrice => {
   if (kill) process.exit(0);
 
+  const slot = binance.priceToSlot(tradingPrice, grid);
+
+  openTrades.add(slot);
+
   console.log(`Trading at ${tradingPrice}`);
 
   let baseToBuy;
@@ -186,10 +190,6 @@ const trade = async tradingPrice => {
   if ((side === "buy" && openOrders.has(slot1)) || (side === "sell" && openOrders.has(slot2))) return;
 
   try {
-    const slot = binance.priceToSlot(tradingPrice, grid);
-
-    openTrades.add(slot);
-
     if (side === "buy") {
       // BUY ORDER
       const buyOrder = await binance.order({
