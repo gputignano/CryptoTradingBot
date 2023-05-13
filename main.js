@@ -120,69 +120,95 @@ const trade = async tradingPrice => {
   const lowerPrice = binance.getLowerPrice(tradingPrice, grid, PRICE_FILTER.precision);
   const higherPrice = binance.getHigherPrice(tradingPrice, grid, PRICE_FILTER.precision);
 
-  try {
-    if (side === "buy") {
-      buyPrice = higherPrice;
-      sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
+  if (side === "buy") {
+    buyPrice = higherPrice;
+    sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-      if (trigger !== undefined && sellPrice >= trigger) throw new Error("sellPrice >= trigger");
-
-      if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
-
-      baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
-      baseAvailable = baseToBuy * (1 - account.takerCommission);
-
-      buyNotional = buyPrice * baseToBuy;
-
-      if (account.balances[quoteAsset] === undefined || account.balances[quoteAsset].free < buyNotional) throw new Error("No BUY balance to trade.");
-
-      if (earn === "base") {
-        baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.makerCommission), LOT_SIZE.precision);
-      } else if (earn === "quote") {
-        baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
-      }
-
-      if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
-
-      sellNotional = sellPrice * baseToSell;
-      sellNotionalAvailable = sellNotional * (1 - account.makerCommission);
-
-      if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
-
-    } else if (side === "sell") {
-      sellPrice = lowerPrice;
-      buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
-
-      if (trigger !== undefined && buyPrice <= trigger) throw new Error("buyPrice <= trigger");
-
-      if (buyPrice === sellPrice) throw new Error("buyPrice === sellPrice");
-
-      baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.takerCommission), LOT_SIZE.precision);
-
-      sellNotional = sellPrice * baseToSell;
-
-      if (account.balances[baseAsset] === undefined || account.balances[baseAsset].free * sellPrice < sellNotional) throw new Error("No SELL balance to trade.");
-
-      sellNotionalAvailable = sellNotional * (1 - account.takerCommission);
-
-      if (earn === "base") {
-        baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
-      } else if (earn === "quote") {
-        baseToBuy = _.ceil(baseToSell / (1 - account.makerCommission), LOT_SIZE.precision);
-      }
-
-      baseAvailable = baseToBuy * (1 - account.makerCommission);
-
-      if (baseAvailable - baseToSell < 0) throw new Error("baseAvailable - baseToSell < 0");
-
-      buyNotional = buyPrice * baseToBuy;
-
-      if (sellNotionalAvailable - buyNotional < 0) throw new Error("sellNotionalAvailable - buyNotional < 0");
+    if (trigger !== undefined && sellPrice >= trigger) {
+      console.error("sellPrice >= trigger");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    return;
+
+    if (buyPrice === sellPrice) {
+      console.error("buyPrice === sellPrice");
+      return;
+    }
+
+    baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
+    baseAvailable = baseToBuy * (1 - account.takerCommission);
+
+    buyNotional = buyPrice * baseToBuy;
+
+    if (account.balances[quoteAsset] === undefined || account.balances[quoteAsset].free < buyNotional) {
+      console.error("No BUY balance to trade.");
+      return;
+    }
+
+    if (earn === "base") {
+      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.makerCommission), LOT_SIZE.precision);
+    } else if (earn === "quote") {
+      baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
+    }
+
+    if (baseAvailable - baseToSell < 0) {
+      console.error("baseAvailable - baseToSell < 0");
+      return;
+    }
+
+    sellNotional = sellPrice * baseToSell;
+    sellNotionalAvailable = sellNotional * (1 - account.makerCommission);
+
+    if (sellNotionalAvailable - buyNotional < 0) {
+      console.error("sellNotionalAvailable - buyNotional < 0");
+      return;
+    }
+
+  } else if (side === "sell") {
+    sellPrice = lowerPrice;
+    buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
+
+    if (trigger !== undefined && buyPrice <= trigger) {
+      console.error("buyPrice <= trigger");
+      return;
+    }
+
+    if (buyPrice === sellPrice) {
+      console.error("buyPrice === sellPrice");
+      return;
+    }
+
+    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.takerCommission), LOT_SIZE.precision);
+
+    sellNotional = sellPrice * baseToSell;
+
+    if (account.balances[baseAsset] === undefined || account.balances[baseAsset].free * sellPrice < sellNotional) {
+      console.error("No SELL balance to trade.");
+      return;
+    }
+
+    sellNotionalAvailable = sellNotional * (1 - account.takerCommission);
+
+    if (earn === "base") {
+      baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
+    } else if (earn === "quote") {
+      baseToBuy = _.ceil(baseToSell / (1 - account.makerCommission), LOT_SIZE.precision);
+    }
+
+    baseAvailable = baseToBuy * (1 - account.makerCommission);
+
+    if (baseAvailable - baseToSell < 0) {
+      console.error("baseAvailable - baseToSell < 0");
+      return;
+    }
+
+    buyNotional = buyPrice * baseToBuy;
+
+    if (sellNotionalAvailable - buyNotional < 0) {
+      console.error("sellNotionalAvailable - buyNotional < 0");
+      return;
+    }
   }
+
 
   const slot1 = binance.priceToSlot(sellPrice, grid);
   const slot2 = binance.priceToSlot(buyPrice, grid);
