@@ -45,7 +45,7 @@ ws_market_data_stream.on("message", async data => {
     price = currentPrice;
     const slot = binance.priceToSlot(price, grid);
 
-    if (!openTrades.has(slot)) await trade(price, slot);
+    if (!openTrades.has(slot)) trade(price, slot);
     else console.log(`has slot: ${slot}`);
   };
 });
