@@ -199,7 +199,6 @@ const trade = async tradingPrice => {
     }
   }
 
-
   const slot1 = binance.priceToSlot(sellPrice, grid);
   const slot2 = binance.priceToSlot(buyPrice, grid);
 
