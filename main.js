@@ -235,10 +235,10 @@ const trade = async tradingPrice => {
         });
       } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200, tradingPrice);
     }
-    openTrades.delete(slot);
+    // openTrades.delete(slot);
   } catch (error) {
     console.error(error.response.data || error);
-    openTrades.delete(slot);
+    // openTrades.delete(slot);
     process.exit(0);
   }
 };
