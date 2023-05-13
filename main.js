@@ -124,6 +124,11 @@ const trade = async (tradingPrice, slot) => {
     buyPrice = higherPrice;
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
+    if (openOrders.has(binance.priceToSlot(sellPrice, grid))) {
+      openTrades.delete(slot);
+      return;
+    }
+
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
       return;
@@ -162,6 +167,11 @@ const trade = async (tradingPrice, slot) => {
     sellPrice = lowerPrice;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
+    if (openOrders.has(binance.priceToSlot(buyPrice, grid))) {
+      openTrades.delete(slot);
+      return;
+    }
+
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
       return;
@@ -197,14 +207,6 @@ const trade = async (tradingPrice, slot) => {
       console.error("sellNotionalAvailable - buyNotional < 0");
       return;
     }
-  }
-
-  const slot1 = binance.priceToSlot(sellPrice, grid);
-  const slot2 = binance.priceToSlot(buyPrice, grid);
-
-  if ((side === "buy" && openOrders.has(slot1)) || (side === "sell" && openOrders.has(slot2))) {
-    openTrades.delete(slot);
-    return;
   }
 
   try {
