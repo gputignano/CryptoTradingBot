@@ -213,7 +213,10 @@ const trade = async tradingPrice => {
   const slot1 = binance.priceToSlot(sellPrice, grid);
   const slot2 = binance.priceToSlot(buyPrice, grid);
 
-  if ((side === "buy" && openOrders.has(slot1)) || (side === "sell" && openOrders.has(slot2))) return;
+  if ((side === "buy" && openOrders.has(slot1)) || (side === "sell" && openOrders.has(slot2))) {
+    openTrades.delete(slot);
+    return;
+  }
 
   try {
     if (side === "buy") {
