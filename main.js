@@ -102,11 +102,11 @@ ws_user_data_stream.on("message", async data => {
 const trade = async tradingPrice => {
   if (kill) process.exit(0);
 
+  console.log(`Trading at ${tradingPrice}`);
+
   const slot = binance.priceToSlot(tradingPrice, grid);
 
   openTrades.add(slot);
-
-  console.log(`Trading at ${tradingPrice}`);
 
   let baseToBuy;
   let baseAvailable;
