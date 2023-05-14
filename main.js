@@ -143,6 +143,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (account.balances[quoteAsset] === undefined || account.balances[quoteAsset].free < buyNotional) {
       console.error("No BUY balance to trade.");
+      openTrades.delete(slot);
       return;
     }
 
@@ -187,6 +188,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (account.balances[baseAsset] === undefined || account.balances[baseAsset].free * sellPrice < sellNotional) {
       console.error("No SELL balance to trade.");
+      openTrades.delete(slot);
       return;
     }
 
