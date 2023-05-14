@@ -241,6 +241,9 @@ const trade = async (tradingPrice, slot) => {
           quantity: baseToSell,
           price: sellPrice,
         });
+
+        openTrades.delete(slot);
+
       } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 200, tradingPrice, slot);
     } else if (side === "sell") {
       // SELL ORDER
@@ -263,6 +266,9 @@ const trade = async (tradingPrice, slot) => {
           quantity: baseToBuy,
           price: buyPrice,
         });
+
+        openTrades.delete(slot);
+
       } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200, tradingPrice, slot);
     }
   } catch (error) {
