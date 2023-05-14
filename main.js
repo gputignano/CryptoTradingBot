@@ -125,6 +125,7 @@ const trade = async (tradingPrice, slot) => {
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
     if (openOrders.has(binance.priceToSlot(sellPrice, grid))) {
+      console.log(`Slot full`);
       openTrades.delete(slot);
       return;
     }
@@ -168,6 +169,7 @@ const trade = async (tradingPrice, slot) => {
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
     if (openOrders.has(binance.priceToSlot(buyPrice, grid))) {
+      console.log(`Slot full`);
       openTrades.delete(slot);
       return;
     }
