@@ -132,6 +132,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
+      openTrades.delete(slot);
       return;
     }
 
@@ -176,6 +177,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
+      openTrades.delete(slot);
       return;
     }
 
