@@ -164,6 +164,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (sellNotionalAvailable - buyNotional < 0) {
       console.error("sellNotionalAvailable - buyNotional < 0");
+      openTrades.delete(slot);
       return;
     }
 
@@ -213,6 +214,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (sellNotionalAvailable - buyNotional < 0) {
       console.error("sellNotionalAvailable - buyNotional < 0");
+      openTrades.delete(slot);
       return;
     }
   }
