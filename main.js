@@ -39,6 +39,8 @@ ws_market_data_stream.on("close", () => {
 ws_market_data_stream.on("ping", data => { });
 ws_market_data_stream.on("pong", () => { console.log(`${(new Date()).toLocaleTimeString()} pong`); });
 ws_market_data_stream.on("message", async data => {
+  if (kill) process.exit(0);
+
   const currentPrice = JSON.parse(data).p || price;
 
   if (currentPrice !== price) {
@@ -104,8 +106,6 @@ ws_user_data_stream.on("message", async data => {
 });
 
 const trade = async (tradingPrice, slot) => {
-  if (kill) process.exit(0);
-
   console.log(`Trading at ${tradingPrice}`);
 
   let baseToBuy;
