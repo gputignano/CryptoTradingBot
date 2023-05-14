@@ -155,6 +155,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (baseAvailable - baseToSell < 0) {
       console.error("baseAvailable - baseToSell < 0");
+      openTrades.delete(slot);
       return;
     }
 
@@ -204,6 +205,7 @@ const trade = async (tradingPrice, slot) => {
 
     if (baseAvailable - baseToSell < 0) {
       console.error("baseAvailable - baseToSell < 0");
+      openTrades.delete(slot);
       return;
     }
 
