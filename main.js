@@ -257,7 +257,7 @@ const trade = async (tradingPrice, slot) => {
     }
   } catch (error) {
     console.error(error.response.data || error);
-    // openTrades.delete(slot);
+    openTrades.delete(slot);
     process.exit(0);
   }
 };
