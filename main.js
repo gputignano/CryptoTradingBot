@@ -255,7 +255,6 @@ const trade = async (tradingPrice, slot) => {
         });
       } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 200, tradingPrice, slot);
     }
-    // openTrades.delete(slot);
   } catch (error) {
     console.error(error.response.data || error);
     // openTrades.delete(slot);
