@@ -30,14 +30,17 @@ ws_market_data_stream.on("open", async () => {
       id: 1,
     })
   );
-
-  setInterval(() => ws_market_data_stream.ping(), 3 * 60 * 1000);
 });
 ws_market_data_stream.on("close", () => {
   console.log(`Connection closed!`);
 });
-ws_market_data_stream.on("ping", data => { });
-ws_market_data_stream.on("pong", () => { console.log(`${(new Date()).toLocaleTimeString()} pong`); });
+ws_market_data_stream.on("ping", data => {
+  console.log(`ping received`);
+  ws_market_data_stream.pong();
+});
+ws_market_data_stream.on("pong", () => {
+  //
+});
 ws_market_data_stream.on("message", async data => {
   if (kill) process.exit(0);
 
