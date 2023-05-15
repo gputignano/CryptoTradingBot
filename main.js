@@ -16,48 +16,54 @@ console.log(`notional: ${notional}`);
 
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
-// WEBSOCKET MARKET STREAM
-const ws_market_data_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`);
+const startWsMarketDataStream = () => {
+  // WEBSOCKET MARKET STREAM
+  let ws_market_data_stream = new WebSocket(`${binance.WEBSOCkET_STREAM_BASE_URL}/ws`);
 
-ws_market_data_stream.on("error", error => console.error(error.message));
-ws_market_data_stream.on("open", async () => {
-  price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+  ws_market_data_stream.on("error", error => console.error(error.message));
+  ws_market_data_stream.on("open", async () => {
+    price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
 
-  ws_market_data_stream.send(
-    JSON.stringify({
-      method: "SUBSCRIBE",
-      params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@trade"],
-      id: 1,
-    })
-  );
-});
-ws_market_data_stream.on("close", () => {
-  console.log(`Connection closed!`);
-});
-ws_market_data_stream.on("ping", data => {
-  console.log(`ping received`);
-  ws_market_data_stream.pong();
-});
-ws_market_data_stream.on("pong", () => {
-  //
-});
-ws_market_data_stream.on("message", async data => {
-  if (kill) process.exit(0);
+    ws_market_data_stream.send(
+      JSON.stringify({
+        method: "SUBSCRIBE",
+        params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@trade"],
+        id: 1,
+      })
+    );
+  });
+  ws_market_data_stream.on("close", () => {
+    console.log(`Connection closed!`);
+    ws_market_data_stream = null;
+    setTimeout(startWsMarketDataStream, 5000);
+  });
+  ws_market_data_stream.on("ping", data => {
+    console.log(`ping received`);
+    ws_market_data_stream.pong();
+  });
+  ws_market_data_stream.on("pong", () => {
+    //
+  });
+  ws_market_data_stream.on("message", async data => {
+    if (kill) process.exit(0);
 
-  const currentPrice = JSON.parse(data).p || price;
+    const currentPrice = JSON.parse(data).p || price;
 
-  if (currentPrice !== price) {
-    price = currentPrice;
-    const slot = binance.priceToSlot(price, grid);
+    if (currentPrice !== price) {
+      price = currentPrice;
+      const slot = binance.priceToSlot(price, grid);
 
-    if (!openTrades.has(slot)) {
-      openTrades.add(slot);
-      console.log(`added slot ${slot}`);
-      trade(price, slot);
-    }
-    else console.log(`has slot: ${slot}`);
-  };
-});
+      if (!openTrades.has(slot)) {
+        openTrades.add(slot);
+        console.log(`added slot ${slot}`);
+        trade(price, slot);
+      }
+      else console.log(`has slot: ${slot}`);
+    };
+  });
+};
+
+startWsMarketDataStream();
 
 // WEBSOCKET USER DATA STREAM
 const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
