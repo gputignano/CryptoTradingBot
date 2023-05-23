@@ -38,7 +38,6 @@ const startWsMarketDataStream = () => {
     setTimeout(startWsMarketDataStream, 5000);
   });
   ws_market_data_stream.on("ping", data => {
-    console.log(`ping received`);
     ws_market_data_stream.pong();
   });
   ws_market_data_stream.on("pong", () => {
