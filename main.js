@@ -73,7 +73,7 @@ ws_user_data_stream.on("open", async () => {
   account = (await binance.account(baseAsset, quoteAsset)).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
   console.log(`orders: ${orders.length}`);
-  openOrders = binance.getOpenOrders(orders, grid);
+  openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
 
   setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
 });
@@ -108,7 +108,7 @@ ws_user_data_stream.on("message", async data => {
 
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
       console.log(`orders: ${orders.length}`);
-      openOrders = binance.getOpenOrders(orders, grid);
+      openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
       break;
   }
 });
@@ -137,10 +137,12 @@ const trade = async (tradingPrice, slot) => {
       return;
     };
 
-    if (openOrders.has(binance.priceToSlot(sellPrice, grid))) {
-      console.log(`Slot full`);
+    if (openOrders.has(sellPrice)) {
+      console.log(`Open order at sellPrice: ${sellPrice}`);
       openTrades.delete(slot);
       return;
+    } else {
+      console.log(`No open order at sellPrice: ${sellPrice}`);
     }
 
     if (buyPrice === sellPrice) {
@@ -190,10 +192,12 @@ const trade = async (tradingPrice, slot) => {
       return;
     };
 
-    if (openOrders.has(binance.priceToSlot(buyPrice, grid))) {
-      console.log(`Slot full`);
+    if (openOrders.has(buyPrice)) {
+      console.log(`Open order at buyPrice: ${buyPrice}`);
       openTrades.delete(slot);
       return;
+    } else {
+      console.log(`No open order at sellPrice: ${sellPrice}`);
     }
 
     if (buyPrice === sellPrice) {

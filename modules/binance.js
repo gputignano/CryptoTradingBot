@@ -112,10 +112,10 @@ export const priceToSlot = (price, grid) => Math.floor(Math.log10(price) / Math.
 
 const slotToPrice = (slot, grid) => Math.pow(1 + grid / 100, slot);
 
-export const getOpenOrders = (orders, grid) => {
+export const getOpenOrders = (orders, precision) => {
   const openOrders = new Set();
 
-  orders.forEach(order => openOrders.add(priceToSlot(order.price, grid)));
+  orders.forEach(order => openOrders.add(_.round(order.price, precision)));
 
   return openOrders;
 };
