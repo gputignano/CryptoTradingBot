@@ -104,6 +104,8 @@ ws_user_data_stream.on("message", async data => {
       // Order Update
       if (payload.s !== (baseAsset + quoteAsset)) return;
 
+      if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
+
       console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
 
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
@@ -264,8 +266,6 @@ const trade = async (tradingPrice, slot) => {
           price: sellPrice,
         });
 
-        openTrades.delete(slot);
-
       } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 250, tradingPrice, slot);
     } else if (side === "sell") {
       // SELL ORDER
@@ -288,8 +288,6 @@ const trade = async (tradingPrice, slot) => {
           quantity: baseToBuy,
           price: buyPrice,
         });
-
-        openTrades.delete(slot);
 
       } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 250, tradingPrice, slot);
     }
