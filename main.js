@@ -104,13 +104,14 @@ ws_user_data_stream.on("message", async data => {
       // Order Update
       if (payload.s !== (baseAsset + quoteAsset)) return;
 
-      if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
-
       console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
 
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
       console.log(`orders: ${orders.length}`);
       openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
+
+      if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
+
       break;
   }
 });
