@@ -77,7 +77,7 @@ ws_user_data_stream.on("open", async () => {
 
   setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
 });
-ws_user_data_stream.on("close", () => { });
+ws_user_data_stream.on("close", () => console.error(`ws_user_data_stream connection closed`));
 ws_user_data_stream.on("message", async data => {
   const payload = JSON.parse(data.toString());
   const dateTime = new Date(payload.E);
