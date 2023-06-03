@@ -12,7 +12,7 @@ dotenv.config({
 
 console.log(`${NODE_ENV} mode.`);
 
-export const { API_BASE_URL, WEBSOCKET_MARKET_STREAM_URL, API_KEY, API_SECRET } = process.env;
+export const { API_BASE_URL, WS_MARKET_DATA_STREAM, API_KEY, API_SECRET } = process.env;
 
 const CONFIGS = {
   headers: {
