@@ -27,7 +27,7 @@ const startWsMarketDataStream = () => {
     ws_market_data_stream.send(
       JSON.stringify({
         method: "SUBSCRIBE",
-        params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@trade"],
+        params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@aggTrade"],
         id: 1,
       })
     );
