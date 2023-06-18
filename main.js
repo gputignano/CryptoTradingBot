@@ -17,6 +17,8 @@ console.log(`notional: ${notional}`);
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
 const startWsMarketDataStream = () => {
+  console.log(`startWsMarketDataStream called`);
+
   // WEBSOCKET MARKET DATA STREAM
   let ws_market_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws`);
 
