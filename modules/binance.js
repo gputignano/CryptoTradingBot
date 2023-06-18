@@ -126,19 +126,19 @@ export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(pr
 
 export const postApiV3UserDataStream = async () => {
   const response = await axios.post(`https://api.binance.com/api/v3/userDataStream`, null, CONFIGS);
-  if (response.status === 200) {
-    console.log(new Date);
-    console.log(response.data);
-  };
+  // if (response.status === 200) {
+  //   console.log(new Date);
+  //   console.log(response.data);
+  // };
   return response;
 };
 
 export const putApiV3UserDataStream = async listenKey => {
   const response = await axios.put(`https://api.binance.com/api/v3/userDataStream?listenKey=${listenKey}`, null, CONFIGS);
-  if (response.status === 200) {
-    console.log(new Date);
-    console.log(response.data);
-  };
+  // if (response.status === 200) {
+  //   console.log(new Date);
+  //   console.log(response.data);
+  // };
   return response;
 };
 

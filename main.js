@@ -54,10 +54,10 @@ const startWsMarketDataStream = () => {
 
       if (!openTrades.has(slot)) {
         openTrades.add(slot);
-        console.log(`added slot ${slot}`);
+        // console.log(`added slot ${slot}`);
         trade(price, slot);
       }
-      else console.log(`has slot: ${slot}`);
+      // else console.log(`has slot: ${slot}`);
     };
   });
 };
@@ -72,7 +72,7 @@ ws_user_data_stream.on("error", error => console.error(error.message));
 ws_user_data_stream.on("open", async () => {
   account = (await binance.account(baseAsset, quoteAsset)).data;
   orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
-  console.log(`orders: ${orders.length}`);
+  // console.log(`orders: ${orders.length}`);
   openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
 
   setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
@@ -85,18 +85,18 @@ ws_user_data_stream.on("message", async data => {
   switch (payload.e) {
     case "outboundAccountPosition":
       // Account Update
-      console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, B: ${JSON.stringify(payload.B)}`);
+      // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, B: ${JSON.stringify(payload.B)}`);
 
       // UPDATE BALANCES
       payload.B.filter(asset => [baseAsset, quoteAsset].includes(asset.a)).forEach(b => {
         account.balances[b.a].free = b.f;
         account.balances[b.a].locked = b.l;
       });
-      console.log(account.balances);
+      // console.log(account.balances);
       break;
     case "balanceUpdate":
       // Balance Update
-      console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, a: ${payload.a}, d: ${payload.d}`);
+      // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, a: ${payload.a}, d: ${payload.d}`);
 
       if (payload.a === baseAsset || payload.a === quoteAsset) account.balances[payload.a].free += payload.d;
       break;
@@ -104,10 +104,10 @@ ws_user_data_stream.on("message", async data => {
       // Order Update
       if (payload.s !== (baseAsset + quoteAsset)) return;
 
-      console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
+      // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
 
       orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
-      console.log(`orders: ${orders.length}`);
+      // console.log(`orders: ${orders.length}`);
       openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
 
       if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
@@ -117,7 +117,7 @@ ws_user_data_stream.on("message", async data => {
 });
 
 const trade = async (tradingPrice, slot) => {
-  console.log(`Trading at ${tradingPrice}`);
+  // console.log(`Trading at ${tradingPrice}`);
 
   let baseToBuy;
   let baseAvailable;
@@ -141,11 +141,11 @@ const trade = async (tradingPrice, slot) => {
     };
 
     if (openOrders.has(sellPrice)) {
-      console.log(`Open order at sellPrice: ${sellPrice}`);
+      // console.log(`Open order at sellPrice: ${sellPrice}`);
       openTrades.delete(slot);
       return;
     } else {
-      console.log(`No open order at sellPrice: ${sellPrice}`);
+      // console.log(`No open order at sellPrice: ${sellPrice}`);
     }
 
     if (buyPrice === sellPrice) {
@@ -196,11 +196,11 @@ const trade = async (tradingPrice, slot) => {
     };
 
     if (openOrders.has(buyPrice)) {
-      console.log(`Open order at buyPrice: ${buyPrice}`);
+      // console.log(`Open order at buyPrice: ${buyPrice}`);
       openTrades.delete(slot);
       return;
     } else {
-      console.log(`No open order at sellPrice: ${sellPrice}`);
+      // console.log(`No open order at sellPrice: ${sellPrice}`);
     }
 
     if (buyPrice === sellPrice) {
