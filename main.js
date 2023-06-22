@@ -4,7 +4,6 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "
 import * as binance from "./modules/binance.js";
 
 let kill = false;
-let price;
 let account;
 let orders;
 let openOrders;
@@ -17,6 +16,8 @@ console.log(`notional: ${notional}`);
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
 const startWsMarketDataStream = () => {
+  let price;
+
   console.log(`startWsMarketDataStream called`);
 
   // WEBSOCKET MARKET DATA STREAM
