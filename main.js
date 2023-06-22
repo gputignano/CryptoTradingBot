@@ -119,8 +119,8 @@ ws_user_data_stream.on("message", async data => {
   }
 });
 
-const trade = async (price, slot) => {
-  // console.log(`Trading at ${price}`);
+const trade = async (tradingPrice, slot) => {
+  // console.log(`Trading at ${tradingPrice}`);
 
   let baseToBuy;
   let baseAvailable;
@@ -131,8 +131,8 @@ const trade = async (price, slot) => {
   let buyPrice;
   let sellPrice;
 
-  const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-  const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
+  const lowerPrice = binance.getLowerPrice(tradingPrice, grid, PRICE_FILTER.precision);
+  const higherPrice = binance.getHigherPrice(tradingPrice, grid, PRICE_FILTER.precision);
 
   if (side === "buy") {
     buyPrice = higherPrice;
@@ -270,7 +270,7 @@ const trade = async (price, slot) => {
           price: sellPrice,
         });
 
-      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, price, slot);
+      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot);
     } else if (side === "sell") {
       // SELL ORDER
       const sellOrder = await binance.order({
@@ -293,7 +293,7 @@ const trade = async (price, slot) => {
           price: buyPrice,
         });
 
-      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500, price, slot);
+      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot);
     }
   } catch (error) {
     console.error(error.response.data || error);
