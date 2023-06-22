@@ -270,7 +270,7 @@ const trade = async (price, slot) => {
           price: sellPrice,
         });
 
-      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 250, price, slot);
+      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, price, slot);
     } else if (side === "sell") {
       // SELL ORDER
       const sellOrder = await binance.order({
@@ -293,7 +293,7 @@ const trade = async (price, slot) => {
           price: buyPrice,
         });
 
-      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 250, price, slot);
+      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500, price, slot);
     }
   } catch (error) {
     console.error(error.response.data || error);
