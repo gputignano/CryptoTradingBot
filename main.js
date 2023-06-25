@@ -66,57 +66,68 @@ const startWsMarketDataStream = () => {
 
 startWsMarketDataStream();
 
-// WEBSOCKET USER DATA STREAM
-const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
-const ws_user_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws/${listenKey}`);
+const startWsUserDataStream = async () => {
+  console.log(`startWsUserDataStream called`);
 
-ws_user_data_stream.on("error", error => console.error(error.message));
-ws_user_data_stream.on("open", async () => {
-  account = (await binance.account(baseAsset, quoteAsset)).data;
-  orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
-  // console.log(`orders: ${orders.length}`);
-  openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
+  // WEBSOCKET USER DATA STREAM
+  const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
+  const ws_user_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws/${listenKey}`);
 
-  setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
-});
-ws_user_data_stream.on("close", () => console.error(`ws_user_data_stream connection closed`));
-ws_user_data_stream.on("message", async data => {
-  const payload = JSON.parse(data.toString());
-  const dateTime = new Date(payload.E);
+  ws_user_data_stream.on("error", error => console.error(error.message));
+  ws_user_data_stream.on("open", async () => {
+    account = (await binance.account(baseAsset, quoteAsset)).data;
+    orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+    // console.log(`orders: ${orders.length}`);
+    openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
 
-  switch (payload.e) {
-    case "outboundAccountPosition":
-      // Account Update
-      // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, B: ${JSON.stringify(payload.B)}`);
+    setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
+  });
+  ws_user_data_stream.on("close", () => {
+    console.error(`ws_user_data_stream connection closed`);
 
-      // UPDATE BALANCES
-      payload.B.filter(asset => [baseAsset, quoteAsset].includes(asset.a)).forEach(b => {
-        account.balances[b.a].free = b.f;
-        account.balances[b.a].locked = b.l;
-      });
-      // console.log(account.balances);
-      break;
-    case "balanceUpdate":
-      // Balance Update
-      // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, a: ${payload.a}, d: ${payload.d}`);
+    ws_user_data_stream = null;
+    setTimeout(ws_user_data_stream, 5000);
+  });
+  ws_user_data_stream.on("message", async data => {
+    const payload = JSON.parse(data.toString());
+    const dateTime = new Date(payload.E);
 
-      if (payload.a === baseAsset || payload.a === quoteAsset) account.balances[payload.a].free += payload.d;
-      break;
-    case "executionReport":
-      // Order Update
-      if (payload.s !== (baseAsset + quoteAsset)) return;
+    switch (payload.e) {
+      case "outboundAccountPosition":
+        // Account Update
+        // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, B: ${JSON.stringify(payload.B)}`);
 
-      // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
+        // UPDATE BALANCES
+        payload.B.filter(asset => [baseAsset, quoteAsset].includes(asset.a)).forEach(b => {
+          account.balances[b.a].free = b.f;
+          account.balances[b.a].locked = b.l;
+        });
+        // console.log(account.balances);
+        break;
+      case "balanceUpdate":
+        // Balance Update
+        // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, a: ${payload.a}, d: ${payload.d}`);
 
-      orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
-      // console.log(`orders: ${orders.length}`);
-      openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
+        if (payload.a === baseAsset || payload.a === quoteAsset) account.balances[payload.a].free += payload.d;
+        break;
+      case "executionReport":
+        // Order Update
+        if (payload.s !== (baseAsset + quoteAsset)) return;
 
-      if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
+        // console.log(`${dateTime.toLocaleString()}, e: ${payload.e}, s: ${payload.s}, S: ${payload.S}, f: ${payload.f}, x: ${payload.x}, X: ${payload.X}`);
 
-      break;
-  }
-});
+        orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+        // console.log(`orders: ${orders.length}`);
+        openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
+
+        if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
+
+        break;
+    }
+  });
+};
+
+startWsUserDataStream();
 
 const trade = async (tradingPrice, slot) => {
   // console.log(`Trading at ${tradingPrice}`);
