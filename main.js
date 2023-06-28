@@ -48,10 +48,10 @@ const startWsMarketDataStream = () => {
   ws_market_data_stream.on("message", async data => {
     if (kill) process.exit(0);
 
-    const currentPrice = JSON.parse(data).p || price;
+    data = JSON.parse(data);
 
-    if (currentPrice !== price) {
-      price = currentPrice;
+    if (data.p && data.p !== price) {
+      price = data.p;
       const slot = binance.priceToSlot(price, grid);
 
       if (!openTrades.has(slot)) {
