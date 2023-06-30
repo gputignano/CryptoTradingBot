@@ -134,6 +134,8 @@ startWsUserDataStream();
 const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
   // console.log(`Trading at ${tradingPrice}`);
 
+  if (!openTrades.has(slot)) return;
+
   let baseToBuy;
   let baseAvailable;
   let baseToSell;
