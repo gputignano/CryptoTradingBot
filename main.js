@@ -71,7 +71,7 @@ const startWsUserDataStream = async () => {
 
   // WEBSOCKET USER DATA STREAM
   const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
-  const ws_user_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws/${listenKey}`);
+  let ws_user_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws/${listenKey}`);
 
   ws_user_data_stream.on("error", error => console.error(error.message));
   ws_user_data_stream.on("open", async () => {
