@@ -53,11 +53,13 @@ const startWsMarketDataStream = () => {
     if (data.p && data.p !== price) {
       price = data.p;
       const slot = binance.priceToSlot(price, grid);
+      const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+      const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
       if (!openTrades.has(slot)) {
         openTrades.add(slot);
         // console.log(`added slot ${slot}`);
-        trade(price, slot);
+        trade(price, slot, lowerPrice, higherPrice);
       }
       // else console.log(`has slot: ${slot}`);
     };
@@ -129,7 +131,7 @@ const startWsUserDataStream = async () => {
 
 startWsUserDataStream();
 
-const trade = async (tradingPrice, slot) => {
+const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
   // console.log(`Trading at ${tradingPrice}`);
 
   let baseToBuy;
@@ -140,9 +142,6 @@ const trade = async (tradingPrice, slot) => {
   let sellNotionalAvailable;
   let buyPrice;
   let sellPrice;
-
-  const lowerPrice = binance.getLowerPrice(tradingPrice, grid, PRICE_FILTER.precision);
-  const higherPrice = binance.getHigherPrice(tradingPrice, grid, PRICE_FILTER.precision);
 
   if (side === "buy") {
     buyPrice = higherPrice;
@@ -280,7 +279,7 @@ const trade = async (tradingPrice, slot) => {
           price: sellPrice,
         });
 
-      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot);
+      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
     } else if (side === "sell") {
       // SELL ORDER
       const sellOrder = await binance.order({
@@ -303,7 +302,7 @@ const trade = async (tradingPrice, slot) => {
           price: buyPrice,
         });
 
-      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot);
+      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
     }
   } catch (error) {
     console.error(error.response.data || error);
