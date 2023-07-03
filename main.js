@@ -88,7 +88,7 @@ const startWsUserDataStream = async () => {
     console.error(`ws_user_data_stream connection closed`);
 
     ws_user_data_stream = null;
-    setTimeout(ws_user_data_stream, 5000);
+    setTimeout(startWsUserDataStream, 5000);
   });
   ws_user_data_stream.on("message", async data => {
     const payload = JSON.parse(data.toString());
