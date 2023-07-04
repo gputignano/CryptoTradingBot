@@ -53,12 +53,12 @@ const startWsMarketDataStream = () => {
     if (data.p && data.p !== price) {
       price = data.p;
       const slot = binance.priceToSlot(price, grid);
-      const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-      const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
       if (!openTrades.has(slot)) {
         openTrades.add(slot);
         // console.log(`added slot ${slot}`);
+        const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+        const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
         trade(price, slot, lowerPrice, higherPrice);
       }
       // else console.log(`has slot: ${slot}`);
