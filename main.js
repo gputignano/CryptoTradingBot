@@ -271,6 +271,8 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       });
 
       if (buyOrder.data.status === "FILLED") {
+        openOrders.add(sellPrice);
+
         // SELL ORDER
         const sellOrder = await binance.order({
           symbol: baseAsset + quoteAsset,
@@ -294,6 +296,8 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       });
 
       if (sellOrder.data.status === "FILLED") {
+        openOrders.add(buyPrice);
+
         // BUY ORDER
         const buyOrder = await binance.order({
           symbol: baseAsset + quoteAsset,
