@@ -17,13 +17,13 @@ console.log(`notional: ${notional}`);
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
 const startWsMarketDataStream = () => {
-  console.log(`startWsMarketDataStream called`);
-
   // WEBSOCKET MARKET DATA STREAM
   let ws_market_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws`);
 
   ws_market_data_stream.on("error", error => console.error(error.message));
   ws_market_data_stream.on("open", async () => {
+    console.log(`ws_market_data_stream => open`);
+
     price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
 
     ws_market_data_stream.send(
@@ -35,7 +35,7 @@ const startWsMarketDataStream = () => {
     );
   });
   ws_market_data_stream.on("close", () => {
-    console.log(`Connection closed!`);
+    console.log(`ws_market_data_stream => close`);
     ws_market_data_stream = null;
     setTimeout(startWsMarketDataStream, 5000);
   });
@@ -69,14 +69,14 @@ const startWsMarketDataStream = () => {
 startWsMarketDataStream();
 
 const startWsUserDataStream = async () => {
-  console.log(`startWsUserDataStream called`);
-
   // WEBSOCKET USER DATA STREAM
   const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
   let ws_user_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws/${listenKey}`);
 
   ws_user_data_stream.on("error", error => console.error(error.message));
   ws_user_data_stream.on("open", async () => {
+    console.log(`ws_user_data_stream => open`);
+
     account = (await binance.account(baseAsset, quoteAsset)).data;
     orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
     // console.log(`orders: ${orders.length}`);
@@ -85,7 +85,7 @@ const startWsUserDataStream = async () => {
     setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
   });
   ws_user_data_stream.on("close", () => {
-    console.error(`ws_user_data_stream connection closed`);
+    console.log(`ws_user_data_stream => close`);
 
     ws_user_data_stream = null;
     setTimeout(startWsUserDataStream, 5000);
