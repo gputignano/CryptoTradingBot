@@ -260,6 +260,8 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
   try {
     if (side === "buy") {
+      if (openOrders.has(sellPrice)) return;
+
       // BUY ORDER
       const buyOrder = await binance.order({
         symbol: baseAsset + quoteAsset,
@@ -285,6 +287,8 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
       } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
     } else if (side === "sell") {
+      if (openOrders.has(buyPrice)) return;
+
       // SELL ORDER
       const sellOrder = await binance.order({
         symbol: baseAsset + quoteAsset,
