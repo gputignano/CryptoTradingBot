@@ -24,7 +24,9 @@ const startWsMarketDataStream = () => {
   ws_market_data_stream.on("open", async () => {
     console.log(`ws_market_data_stream => open`);
 
-    currentPrice = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+    const data = await binance.tickerPrice(baseAsset, quoteAsset);
+
+    currentPrice = data.data.price;
 
     ws_market_data_stream.send(
       JSON.stringify({
