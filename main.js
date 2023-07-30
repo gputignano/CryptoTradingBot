@@ -4,7 +4,7 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "
 import * as binance from "./modules/binance.js";
 
 let kill = false;
-let price;
+let currentPrice;
 let account;
 let orders;
 let openOrders;
@@ -24,7 +24,7 @@ const startWsMarketDataStream = () => {
   ws_market_data_stream.on("open", async () => {
     console.log(`ws_market_data_stream => open`);
 
-    price = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+    currentPrice = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
 
     ws_market_data_stream.send(
       JSON.stringify({
@@ -50,16 +50,16 @@ const startWsMarketDataStream = () => {
 
     data = JSON.parse(data);
 
-    if (data.p && data.p !== price) {
-      price = data.p;
-      const slot = binance.priceToSlot(price, grid);
+    if (data.p && data.p !== currentPrice) {
+      currentPrice = data.p;
+      const slot = binance.priceToSlot(currentPrice, grid);
 
       if (!openTrades.has(slot)) {
         openTrades.add(slot);
         // console.log(`added slot ${slot}`);
-        const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-        const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
-        trade(price, slot, lowerPrice, higherPrice);
+        const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
+        const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
+        trade(currentPrice, slot, lowerPrice, higherPrice);
       }
       // else console.log(`has slot: ${slot}`);
     };
@@ -149,7 +149,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
     buyPrice = higherPrice;
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-    if (price > buyPrice) {
+    if (currentPrice > buyPrice) {
       openTrades.delete(slot);
       return;
     };
@@ -204,7 +204,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
     sellPrice = lowerPrice;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
-    if (price < sellPrice) {
+    if (currentPrice < sellPrice) {
       openTrades.delete(slot);
       return;
     };
