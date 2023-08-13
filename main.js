@@ -52,17 +52,23 @@ const startWsMarketDataStream = () => {
 
     data = JSON.parse(data);
 
-    if (data.p && data.p !== currentPrice) {
-      currentPrice = data.p;
-      const slot = binance.priceToSlot(currentPrice, grid);
+    switch (data.e) {
+      case "aggTrade":
+        if (data.p && data.p !== currentPrice) {
+          currentPrice = data.p;
+          const slot = binance.priceToSlot(currentPrice, grid);
 
-      if (!openTrades.has(slot)) {
-        openTrades.add(slot);
-        const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
-        const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
-        trade(currentPrice, slot, lowerPrice, higherPrice);
-      }
-    };
+          if (!openTrades.has(slot)) {
+            openTrades.add(slot);
+            const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
+            const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
+            trade(currentPrice, slot, lowerPrice, higherPrice);
+          }
+        };
+        break;
+      default:
+        console.log(data);
+    }
   });
 };
 
