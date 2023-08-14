@@ -18,17 +18,17 @@ console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precis
 
 const startWsMarketDataStream = () => {
   // WEBSOCKET MARKET DATA STREAM
-  let ws_market_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws`);
+  let ws = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws`);
 
-  ws_market_data_stream.on("error", error => console.error(error.message));
-  ws_market_data_stream.on("open", async () => {
+  ws.on("error", error => console.error(error.message));
+  ws.on("open", async () => {
     console.log(`ws_market_data_stream => open`);
 
     const data = await binance.tickerPrice(baseAsset, quoteAsset);
 
     currentPrice = data.data.price;
 
-    ws_market_data_stream.send(
+    ws.send(
       JSON.stringify({
         method: "SUBSCRIBE",
         params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@aggTrade"],
@@ -36,18 +36,18 @@ const startWsMarketDataStream = () => {
       })
     );
   });
-  ws_market_data_stream.on("close", () => {
+  ws.on("close", () => {
     console.log(`ws_market_data_stream => close`);
-    ws_market_data_stream = null;
+    ws = null;
     setTimeout(startWsMarketDataStream, 5000);
   });
-  ws_market_data_stream.on("ping", data => {
-    ws_market_data_stream.pong();
+  ws.on("ping", data => {
+    ws.pong();
   });
-  ws_market_data_stream.on("pong", () => {
+  ws.on("pong", () => {
     //
   });
-  ws_market_data_stream.on("message", async data => {
+  ws.on("message", async data => {
     if (kill) process.exit(0);
 
     data = JSON.parse(data);
@@ -77,10 +77,10 @@ startWsMarketDataStream();
 const startWsUserDataStream = async () => {
   // WEBSOCKET USER DATA STREAM
   const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
-  let ws_user_data_stream = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws/${listenKey}`);
+  let ws = new WebSocket(`${binance.WS_MARKET_DATA_STREAM}/ws/${listenKey}`);
 
-  ws_user_data_stream.on("error", error => console.error(error.message));
-  ws_user_data_stream.on("open", async () => {
+  ws.on("error", error => console.error(error.message));
+  ws.on("open", async () => {
     console.log(`ws_user_data_stream => open`);
 
     account = (await binance.account(baseAsset, quoteAsset)).data;
@@ -89,13 +89,13 @@ const startWsUserDataStream = async () => {
 
     setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
   });
-  ws_user_data_stream.on("close", () => {
+  ws.on("close", () => {
     console.log(`ws_user_data_stream => close`);
 
-    ws_user_data_stream = null;
+    ws = null;
     setTimeout(startWsUserDataStream, 5000);
   });
-  ws_user_data_stream.on("message", async data => {
+  ws.on("message", async data => {
     const payload = JSON.parse(data.toString());
     const dateTime = new Date(payload.E);
 
