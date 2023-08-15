@@ -6,8 +6,7 @@ import * as binance from "./modules/binance.js";
 let kill = false;
 let currentPrice;
 let account;
-let orders;
-let openOrders;
+let openOrders = {};
 const openTrades = new Set();
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
@@ -84,8 +83,10 @@ const startWsUserDataStream = async () => {
     console.log(`ws_user_data_stream => open`);
 
     account = (await binance.account(baseAsset, quoteAsset)).data;
-    orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
-    openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
+    openOrders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+    openOrders.hasPrice = function (price) {
+      return !!this.find(order => parseFloat(order.price) === price);
+    };
 
     setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
   });
@@ -118,8 +119,10 @@ const startWsUserDataStream = async () => {
 
         if (payload.s !== (baseAsset + quoteAsset)) return;
 
-        orders = (await binance.openOrders(baseAsset, quoteAsset)).data;
-        openOrders = binance.getOpenOrders(orders, PRICE_FILTER.precision);
+        openOrders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+        openOrders.hasPrice = function (price) {
+          return !!this.find(order => parseFloat(order.price) === price);
+        };
 
         if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
 
@@ -151,7 +154,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       return;
     };
 
-    if (openOrders.has(sellPrice)) {
+    if (openOrders.hasPrice(sellPrice)) {
       openTrades.delete(slot);
       return;
     }
@@ -203,7 +206,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       return;
     };
 
-    if (openOrders.has(buyPrice)) {
+    if (openOrders.hasPrice(buyPrice)) {
       openTrades.delete(slot);
       return;
     }
@@ -251,7 +254,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
   try {
     if (side === "buy") {
-      if (openOrders.has(sellPrice)) return;
+      if (openOrders.hasPrice(sellPrice)) return;
 
       // BUY ORDER
       const buyOrder = await binance.order({
@@ -264,7 +267,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       });
 
       if (buyOrder.data.status === "FILLED") {
-        openOrders.add(sellPrice);
+        openOrders.push({ price: String(sellPrice) });
 
         // SELL ORDER
         const sellOrder = await binance.order({
@@ -278,7 +281,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
       } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
     } else if (side === "sell") {
-      if (openOrders.has(buyPrice)) return;
+      if (openOrders.hasPrice(buyPrice)) return;
 
       // SELL ORDER
       const sellOrder = await binance.order({
@@ -291,7 +294,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       });
 
       if (sellOrder.data.status === "FILLED") {
-        openOrders.add(buyPrice);
+        openOrders.push({ price: String(buyPrice) });
 
         // BUY ORDER
         const buyOrder = await binance.order({

@@ -112,14 +112,6 @@ export const priceToSlot = (price, grid) => Math.floor(Math.log10(price) / Math.
 
 const slotToPrice = (slot, grid) => Math.pow(1 + grid / 100, slot);
 
-export const getOpenOrders = (orders, precision) => {
-  const openOrders = new Set();
-
-  orders.forEach(order => openOrders.add(_.round(order.price, precision)));
-
-  return openOrders;
-};
-
 export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(priceToSlot(price, grid), grid), precision);
 
 export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);
