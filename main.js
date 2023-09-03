@@ -38,7 +38,7 @@ const startWsMarketDataStream = () => {
   ws.on("close", () => {
     console.log(`ws_market_data_stream => close`);
     ws = null;
-    setTimeout(startWsMarketDataStream, 5000);
+    setImmediate(startWsMarketDataStream);
   });
   ws.on("ping", data => {
     ws.pong();
@@ -94,7 +94,7 @@ const startWsUserDataStream = async () => {
     console.log(`ws_user_data_stream => close`);
 
     ws = null;
-    setTimeout(startWsUserDataStream, 5000);
+    setImmediate(startWsUserDataStream);
   });
   ws.on("message", async data => {
     const payload = JSON.parse(data.toString());
