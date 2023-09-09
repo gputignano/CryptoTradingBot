@@ -4,9 +4,12 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "
 import * as binance from "./modules/binance.js";
 
 let kill = false;
-let currentPrice;
-let account;
-let openOrders = {};
+let currentPrice = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+let account = (await binance.account(baseAsset, quoteAsset)).data;
+let openOrders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+openOrders.hasPrice = function (price) {
+  return !!this.find(order => parseFloat(order.price) === price);
+};
 const openTrades = new Set();
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
@@ -22,10 +25,6 @@ const startWsMarketDataStream = () => {
   ws.on("error", error => console.error(error.message));
   ws.on("open", async () => {
     console.log(`ws_market_data_stream => open`);
-
-    const data = await binance.tickerPrice(baseAsset, quoteAsset);
-
-    currentPrice = data.data.price;
 
     ws.send(
       JSON.stringify({
@@ -81,12 +80,6 @@ const startWsUserDataStream = async () => {
   ws.on("error", error => console.error(error.message));
   ws.on("open", async () => {
     console.log(`ws_user_data_stream => open`);
-
-    account = (await binance.account(baseAsset, quoteAsset)).data;
-    openOrders = (await binance.openOrders(baseAsset, quoteAsset)).data;
-    openOrders.hasPrice = function (price) {
-      return !!this.find(order => parseFloat(order.price) === price);
-    };
 
     setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
   });
