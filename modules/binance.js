@@ -76,12 +76,21 @@ export const account = (baseAsset, quoteAsset) => {
   return instance.get(`${API_BASE_URL}/api/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
-export const openOrders = (baseAsset, quoteAsset) => {
+export const openOrders = (baseAsset, quoteAsset, grid) => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ symbol: baseAsset + quoteAsset, timestamp });
   const query_string = query.toString();
+  const instance = axios.create({});
 
-  return axios.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  instance.interceptors.response.use(response => {
+    response.data.forEach(data => {
+      data.slot = priceToSlot(data.price, grid);
+    });
+
+    return response;
+  });
+
+  return instance.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const tickerPrice = (baseAsset, quoteAsset) => {
