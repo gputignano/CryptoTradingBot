@@ -6,11 +6,10 @@ import * as binance from "./modules/binance.js";
 let kill = false;
 let currentPrice = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
 let account = (await binance.account(baseAsset, quoteAsset)).data;
-let openOrders = (await binance.openOrders(baseAsset, quoteAsset, grid)).data;
-openOrders.hasSlot = function (slot) {
-  return !!this.find(order => parseFloat(order.slot) === slot);
+let openOrders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+openOrders.hasPrice = function (price) {
+  return !!this.find(order => parseFloat(order.price) === price);
 };
-
 const openTrades = new Set();
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
@@ -113,9 +112,9 @@ const startWsUserDataStream = async () => {
 
         if (payload.s !== (baseAsset + quoteAsset)) return;
 
-        openOrders = (await binance.openOrders(baseAsset, quoteAsset, grid)).data;
-        openOrders.hasSlot = function (slot) {
-          return !!this.find(order => parseFloat(order.slot) === slot);
+        openOrders = (await binance.openOrders(baseAsset, quoteAsset)).data;
+        openOrders.hasPrice = function (price) {
+          return !!this.find(order => parseFloat(order.price) === price);
         };
 
         if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
@@ -148,7 +147,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       return;
     };
 
-    if (openOrders.hasSlot(slot)) {
+    if (openOrders.hasPrice(sellPrice)) {
       openTrades.delete(slot);
       return;
     }
@@ -200,7 +199,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       return;
     };
 
-    if (openOrders.hasSlot(slot)) {
+    if (openOrders.hasPrice(buyPrice)) {
       openTrades.delete(slot);
       return;
     }
@@ -248,7 +247,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
   try {
     if (side === "buy") {
-      if (openOrders.hasSlot(slot)) return;
+      if (openOrders.hasPrice(sellPrice)) return;
 
       // BUY ORDER
       const buyOrder = await binance.order({
@@ -275,7 +274,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
       } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
     } else if (side === "sell") {
-      if (openOrders.hasSlot(slot)) return;
+      if (openOrders.hasPrice(buyPrice)) return;
 
       // SELL ORDER
       const sellOrder = await binance.order({
