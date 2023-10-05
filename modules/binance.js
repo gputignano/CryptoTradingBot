@@ -80,8 +80,15 @@ export const openOrders = (baseAsset, quoteAsset) => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ symbol: baseAsset + quoteAsset, timestamp });
   const query_string = query.toString();
+  const instance = axios.create({});
 
-  return axios.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  instance.interceptors.response.use(response => {
+    response.hasPrice = price => !!response.data.find(order => parseFloat(order.price) === price);
+
+    return response;
+  });
+
+  return instance.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const tickerPrice = (baseAsset, quoteAsset) => {
