@@ -153,18 +153,18 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
     }
 
     baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
-    baseAvailable = baseToBuy * (1 - account.data.takerCommission);
+    baseAvailable = baseToBuy * (1 - account.data.commissionRates.taker);
 
     buyNotional = buyPrice * baseToBuy;
 
-    if (account.data.balances[quoteAsset] === undefined || account.databalances[quoteAsset].free < buyNotional) {
+    if (account.data.balances[quoteAsset] === undefined || account.data.balances[quoteAsset].free < buyNotional) {
       console.error("No BUY balance to trade.");
       openTrades.delete(slot);
       return;
     }
 
     if (earn === "base") {
-      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.data.makerCommission), LOT_SIZE.precision);
+      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.data.commissionRates.maker), LOT_SIZE.precision);
     } else if (earn === "quote") {
       baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
     }
@@ -176,7 +176,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
     }
 
     sellNotional = sellPrice * baseToSell;
-    sellNotionalAvailable = sellNotional * (1 - account.data.makerCommission);
+    sellNotionalAvailable = sellNotional * (1 - account.data.commissionRates.maker);
 
     if (sellNotionalAvailable - buyNotional < 0) {
       console.error("sellNotionalAvailable - buyNotional < 0");
@@ -204,7 +204,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       return;
     }
 
-    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.data.takerCommission), LOT_SIZE.precision);
+    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.data.commissionRates.taker), LOT_SIZE.precision);
 
     sellNotional = sellPrice * baseToSell;
 
@@ -214,15 +214,15 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       return;
     }
 
-    sellNotionalAvailable = sellNotional * (1 - account.data.takerCommission);
+    sellNotionalAvailable = sellNotional * (1 - account.data.commissionRates.taker);
 
     if (earn === "base") {
       baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
     } else if (earn === "quote") {
-      baseToBuy = _.ceil(baseToSell / (1 - account.data.makerCommission), LOT_SIZE.precision);
+      baseToBuy = _.ceil(baseToSell / (1 - account.data.commissionRates.maker), LOT_SIZE.precision);
     }
 
-    baseAvailable = baseToBuy * (1 - account.data.makerCommission);
+    baseAvailable = baseToBuy * (1 - account.data.commissionRates.maker);
 
     if (baseAvailable - baseToSell < 0) {
       console.error("baseAvailable - baseToSell < 0");

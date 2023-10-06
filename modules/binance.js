@@ -53,10 +53,6 @@ export const account = (baseAsset, quoteAsset) => {
   const instance = axios.create({});
 
   instance.interceptors.response.use(response => {
-    // DIVIDE ACCOUNT MAKER/TAKER COMMISSION BY 10000
-    response.data.makerCommission /= 10000;
-    response.data.takerCommission /= 10000;
-
     // FILTER ONLY BALANCES FOR BASE/QUOTE ASSETS
     const filtered = response.data.balances.filter(element => {
       return element.asset === baseAsset || element.asset === quoteAsset;
