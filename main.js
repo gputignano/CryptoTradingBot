@@ -5,7 +5,7 @@ import * as binance from "./modules/binance.js";
 
 let kill = false;
 let currentPrice = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
-let account = (await binance.account(baseAsset, quoteAsset)).data;
+let account = (await binance.account(baseAsset, quoteAsset));
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
 
@@ -95,14 +95,14 @@ const startWsUserDataStream = async () => {
         // Account Update
 
         payload.B.filter(asset => [baseAsset, quoteAsset].includes(asset.a)).forEach(b => {
-          account.balances[b.a].free = b.f;
-          account.balances[b.a].locked = b.l;
+          account.data.balances[b.a].free = b.f;
+          account.data.balances[b.a].locked = b.l;
         });
         break;
       case "balanceUpdate":
         // Balance Update
 
-        if (payload.a === baseAsset || payload.a === quoteAsset) account.balances[payload.a].free += payload.d;
+        if (payload.a === baseAsset || payload.a === quoteAsset) account.data.balances[payload.a].free += payload.d;
         break;
       case "executionReport":
         // Order Update
@@ -153,18 +153,18 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
     }
 
     baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
-    baseAvailable = baseToBuy * (1 - account.takerCommission);
+    baseAvailable = baseToBuy * (1 - account.data.takerCommission);
 
     buyNotional = buyPrice * baseToBuy;
 
-    if (account.balances[quoteAsset] === undefined || account.balances[quoteAsset].free < buyNotional) {
+    if (account.data.balances[quoteAsset] === undefined || account.databalances[quoteAsset].free < buyNotional) {
       console.error("No BUY balance to trade.");
       openTrades.delete(slot);
       return;
     }
 
     if (earn === "base") {
-      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.makerCommission), LOT_SIZE.precision);
+      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.data.makerCommission), LOT_SIZE.precision);
     } else if (earn === "quote") {
       baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
     }
@@ -176,7 +176,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
     }
 
     sellNotional = sellPrice * baseToSell;
-    sellNotionalAvailable = sellNotional * (1 - account.makerCommission);
+    sellNotionalAvailable = sellNotional * (1 - account.data.makerCommission);
 
     if (sellNotionalAvailable - buyNotional < 0) {
       console.error("sellNotionalAvailable - buyNotional < 0");
@@ -204,25 +204,25 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       return;
     }
 
-    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.takerCommission), LOT_SIZE.precision);
+    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.data.takerCommission), LOT_SIZE.precision);
 
     sellNotional = sellPrice * baseToSell;
 
-    if (account.balances[baseAsset] === undefined || account.balances[baseAsset].free * sellPrice < sellNotional) {
+    if (account.data.balances[baseAsset] === undefined || account.data.balances[baseAsset].free * sellPrice < sellNotional) {
       console.error("No SELL balance to trade.");
       openTrades.delete(slot);
       return;
     }
 
-    sellNotionalAvailable = sellNotional * (1 - account.takerCommission);
+    sellNotionalAvailable = sellNotional * (1 - account.data.takerCommission);
 
     if (earn === "base") {
       baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
     } else if (earn === "quote") {
-      baseToBuy = _.ceil(baseToSell / (1 - account.makerCommission), LOT_SIZE.precision);
+      baseToBuy = _.ceil(baseToSell / (1 - account.data.makerCommission), LOT_SIZE.precision);
     }
 
-    baseAvailable = baseToBuy * (1 - account.makerCommission);
+    baseAvailable = baseToBuy * (1 - account.data.makerCommission);
 
     if (baseAvailable - baseToSell < 0) {
       console.error("baseAvailable - baseToSell < 0");
