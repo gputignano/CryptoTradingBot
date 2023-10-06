@@ -4,10 +4,11 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "
 import * as binance from "./modules/binance.js";
 
 let kill = false;
-let currentPrice = (await binance.tickerPrice(baseAsset, quoteAsset)).data.price;
+const tickerPrice = (await binance.tickerPrice(baseAsset, quoteAsset));
 let account = (await binance.account(baseAsset, quoteAsset));
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
+let currentPrice = tickerPrice.data.price;
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
 const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
