@@ -24,10 +24,9 @@ const signature = query_string => crypto.createHmac("sha256", API_SECRET).update
 
 export const ping = () => axios.get(`${API_BASE_URL}/api/v3/ping`);
 
-const getExchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_BASE_URL}/api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
+const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_BASE_URL}/api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
 export const getExchangeInfoFilters = async (baseAsset, quoteAsset) => {
-  const exchangeInfo = await getExchangeInfo(baseAsset, quoteAsset);
   const [
     PRICE_FILTER, // filterType, minPrice, maxPrice, tickSize
     LOT_SIZE, // filterType, minQty, maxQty, stepSize
@@ -38,7 +37,7 @@ export const getExchangeInfoFilters = async (baseAsset, quoteAsset) => {
     NOTIONAL, // filterType, minNotional, applyMinToMarket, maxNotional, applyMaxToMarket, avgPriceMins
     MAX_NUM_ORDERS, // filterType, maxNumOrders
     MAX_NUM_ALGO_ORDERS, // filterType, maxNumAlgoOrders
-  ] = exchangeInfo.data.symbols[0].filters;
+  ] = (await exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
 
   PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
   LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
