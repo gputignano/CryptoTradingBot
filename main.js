@@ -10,7 +10,10 @@ let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
 let currentPrice = tickerPrice.data.price;
 
-const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = await binance.getExchangeInfoFilters(baseAsset, quoteAsset);
+const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = (await binance.exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
+PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
+LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
+
 const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
 console.log(`notional: ${notional}`);
 
