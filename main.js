@@ -92,7 +92,6 @@ const startWsUserDataStream = async () => {
   });
   ws.on("message", async data => {
     const payload = JSON.parse(data.toString());
-    const dateTime = new Date(payload.E);
 
     switch (payload.e) {
       case "outboundAccountPosition":
