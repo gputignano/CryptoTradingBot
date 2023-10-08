@@ -261,7 +261,6 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       });
 
       if (buyOrder.data.status === "FILLED") {
-        openOrders.data.push({ price: String(sellPrice) });
 
         // SELL ORDER
         const sellOrder = await binance.order({
@@ -272,6 +271,8 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
           quantity: baseToSell,
           price: sellPrice,
         });
+
+        openOrders.data.push(sellOrder);
 
       } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
     } else if (side === "sell") {
@@ -288,7 +289,6 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
       });
 
       if (sellOrder.data.status === "FILLED") {
-        openOrders.data.push({ price: String(buyPrice) });
 
         // BUY ORDER
         const buyOrder = await binance.order({
@@ -299,6 +299,8 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
           quantity: baseToBuy,
           price: buyPrice,
         });
+
+        openOrders.data.push(buyOrder);
 
       } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
     }
