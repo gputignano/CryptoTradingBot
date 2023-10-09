@@ -12,7 +12,7 @@ dotenv.config({
 
 console.log(`${NODE_ENV} mode.`);
 
-export const { API_BASE_URL, WS_MARKET_DATA_STREAM, API_KEY, API_SECRET } = process.env;
+export const { API_BASE_ENDPOINT, WS_STREAM_ENDPOINT, API_KEY, API_SECRET } = process.env;
 
 const CONFIGS = {
   headers: {
@@ -22,9 +22,9 @@ const CONFIGS = {
 
 const signature = query_string => crypto.createHmac("sha256", API_SECRET).update(query_string).digest("hex");
 
-export const ping = () => axios.get(`${API_BASE_URL}/api/v3/ping`);
+export const ping = () => axios.get(`${API_BASE_ENDPOINT}/v3/ping`);
 
-export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_BASE_URL}/api/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
+export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_BASE_ENDPOINT}/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
 export const account = (baseAsset, quoteAsset) => {
   const timestamp = Date.now();
@@ -49,7 +49,7 @@ export const account = (baseAsset, quoteAsset) => {
     return response;
   });
 
-  return instance.get(`${API_BASE_URL}/api/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  return instance.get(`${API_BASE_ENDPOINT}/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const openOrders = (baseAsset, quoteAsset) => {
@@ -64,7 +64,7 @@ export const openOrders = (baseAsset, quoteAsset) => {
     return response;
   });
 
-  return instance.get(`${API_BASE_URL}/api/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  return instance.get(`${API_BASE_ENDPOINT}/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const tickerPrice = (baseAsset, quoteAsset) => {
@@ -72,7 +72,7 @@ export const tickerPrice = (baseAsset, quoteAsset) => {
   const query = new URLSearchParams({ symbol: baseAsset + quoteAsset });
   const query_string = query.toString();
 
-  return axios.get(`${API_BASE_URL}/api/v3/ticker/price?${query}`);
+  return axios.get(`${API_BASE_ENDPOINT}/v3/ticker/price?${query}`);
 };
 
 export const order = params => {
@@ -80,7 +80,7 @@ export const order = params => {
   const query = new URLSearchParams({ ...params, timestamp });
   const query_string = query.toString();
 
-  return axios.post(`${API_BASE_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, null, CONFIGS);
+  return axios.post(`${API_BASE_ENDPOINT}/v3/order?${query_string}&signature=${signature(query_string)}`, null, CONFIGS);
 };
 
 export const cancelOrder = params => {
@@ -88,7 +88,7 @@ export const cancelOrder = params => {
   const query = new URLSearchParams({ ...params, timestamp });
   const query_string = query.toString();
 
-  return axios.delete(`${API_BASE_URL}/api/v3/order?${query_string}&signature=${signature(query_string)}`, CONFIGS);
+  return axios.delete(`${API_BASE_ENDPOINT}/v3/order?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
 export const priceToSlot = (price, grid) => Math.floor(Math.log10(price) / Math.log10(1 + grid / 100));
