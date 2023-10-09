@@ -9,6 +9,8 @@ let account = (await binance.account(baseAsset, quoteAsset));
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
 let currentPrice = tickerPrice.data.price;
+let slot;
+let lowerPrice, higherPrice;
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = (await binance.exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
 PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
@@ -55,13 +57,13 @@ const startWsMarketDataStream = () => {
       case "aggTrade":
         if (data.p && data.p !== currentPrice) {
           currentPrice = data.p;
-          const slot = binance.priceToSlot(currentPrice, grid);
+          slot = binance.priceToSlot(currentPrice, grid);
+          lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
+          higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
 
           if (!openTrades.has(slot)) {
             openTrades.add(slot);
-            const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
-            const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
-            trade(currentPrice, slot, lowerPrice, higherPrice);
+            trade();
           }
         };
         break;
@@ -127,7 +129,7 @@ const startWsUserDataStream = async () => {
 
 startWsUserDataStream();
 
-const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
+const trade = async () => {
   if (!openTrades.has(slot)) return;
 
   let baseToBuy;
@@ -274,7 +276,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
         openOrders.data.push(sellOrder);
 
-      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
+      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500);
     } else if (side === "sell") {
       if (openOrders.hasPrice(buyPrice)) return;
 
@@ -302,7 +304,7 @@ const trade = async (tradingPrice, slot, lowerPrice, higherPrice) => {
 
         openOrders.data.push(buyOrder);
 
-      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500, tradingPrice, slot, lowerPrice, higherPrice);
+      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500);
     }
   } catch (error) {
     console.error(error.response.data || error);
