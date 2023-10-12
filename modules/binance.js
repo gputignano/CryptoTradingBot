@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import fs from "fs";
 import axios from "axios";
 import path from "path";
 import _ from "lodash";
@@ -20,7 +21,13 @@ const CONFIGS = {
   },
 };
 
-const signature = query_string => crypto.createHmac("sha256", API_SECRET).update(query_string).digest("hex");
+const PRIVATE_KEY = fs.readFileSync("./private_key.pem", { encoding: "utf8" });
+
+const signature = query_string => crypto.sign(null, Buffer.from(query_string), {
+  key: PRIVATE_KEY,
+  padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+  saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST
+}).toString('base64');
 
 export const ping = () => axios.get(`${API_BASE_ENDPOINT}/v3/ping`);
 
