@@ -4,6 +4,7 @@ import axios from "axios";
 import path from "path";
 import _ from "lodash";
 import * as dotenv from "dotenv";
+import { grid } from "./argv.js";
 
 const NODE_ENV = process.env.NODE_ENV || "development";
 
@@ -66,6 +67,7 @@ export const openOrders = (baseAsset, quoteAsset) => {
   const instance = axios.create({});
 
   instance.interceptors.response.use(response => {
+    response.data.forEach(order => order.slot = priceToSlot(order.price, grid));
     response.hasPrice = price => !!response.data.find(order => parseFloat(order.price) === price);
 
     return response;
