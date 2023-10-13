@@ -7,7 +7,6 @@ let kill = false;
 const tickerPrice = (await binance.tickerPrice(baseAsset, quoteAsset));
 let account = (await binance.account(baseAsset, quoteAsset));
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
-const openTrades = new Set();
 let currentPrice = tickerPrice.data.price;
 let slot;
 let lowerPrice, higherPrice;
@@ -61,10 +60,7 @@ const startWsMarketDataStream = () => {
           lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
           higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
 
-          if (!openTrades.has(slot)) {
-            openTrades.add(slot);
-            trade();
-          }
+          trade();
         };
         break;
       default:
@@ -120,8 +116,6 @@ const startWsUserDataStream = async () => {
 
         openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 
-        if (payload.x === "TRADE" && payload.X === "FILLED") openTrades.delete(binance.priceToSlot(payload.p, grid));
-
         break;
     }
   });
@@ -130,8 +124,6 @@ const startWsUserDataStream = async () => {
 startWsUserDataStream();
 
 const trade = async () => {
-  if (!openTrades.has(slot)) return;
-
   let baseToBuy;
   let baseAvailable;
   let baseToSell;
@@ -145,19 +137,12 @@ const trade = async () => {
     buyPrice = higherPrice;
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-    if (currentPrice > buyPrice) {
-      openTrades.delete(slot);
-      return;
-    };
+    if (currentPrice > buyPrice) return;
 
-    if (openOrders.hasPrice(sellPrice)) {
-      openTrades.delete(slot);
-      return;
-    }
+    if (openOrders.hasPrice(sellPrice)) return;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
-      openTrades.delete(slot);
       return;
     }
 
@@ -168,7 +153,6 @@ const trade = async () => {
 
     if (account.data.balances[quoteAsset] === undefined || account.data.balances[quoteAsset].free < buyNotional) {
       console.error("No BUY balance to trade.");
-      openTrades.delete(slot);
       return;
     }
 
@@ -180,7 +164,6 @@ const trade = async () => {
 
     if (baseAvailable - baseToSell < 0) {
       console.error("baseAvailable - baseToSell < 0");
-      openTrades.delete(slot);
       return;
     }
 
@@ -189,7 +172,6 @@ const trade = async () => {
 
     if (sellNotionalAvailable - buyNotional < 0) {
       console.error("sellNotionalAvailable - buyNotional < 0");
-      openTrades.delete(slot);
       return;
     }
 
@@ -197,19 +179,12 @@ const trade = async () => {
     sellPrice = lowerPrice;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
-    if (currentPrice < sellPrice) {
-      openTrades.delete(slot);
-      return;
-    };
+    if (currentPrice < sellPrice) return;
 
-    if (openOrders.hasPrice(buyPrice)) {
-      openTrades.delete(slot);
-      return;
-    }
+    if (openOrders.hasPrice(buyPrice)) return;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
-      openTrades.delete(slot);
       return;
     }
 
@@ -219,7 +194,6 @@ const trade = async () => {
 
     if (account.data.balances[baseAsset] === undefined || account.data.balances[baseAsset].free * sellPrice < sellNotional) {
       console.error("No SELL balance to trade.");
-      openTrades.delete(slot);
       return;
     }
 
@@ -235,7 +209,6 @@ const trade = async () => {
 
     if (baseAvailable - baseToSell < 0) {
       console.error("baseAvailable - baseToSell < 0");
-      openTrades.delete(slot);
       return;
     }
 
@@ -243,7 +216,6 @@ const trade = async () => {
 
     if (sellNotionalAvailable - buyNotional < 0) {
       console.error("sellNotionalAvailable - buyNotional < 0");
-      openTrades.delete(slot);
       return;
     }
   }
@@ -308,7 +280,6 @@ const trade = async () => {
     }
   } catch (error) {
     console.error(error.response.data || error);
-    openTrades.delete(slot);
     process.exit(0);
   }
 };
