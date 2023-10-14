@@ -248,7 +248,8 @@ const trade = async () => {
 
         openOrders.data.push(sellOrder);
 
-      } else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500);
+      }
+      // else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500);
     } else if (side === "sell") {
       if (openOrders.hasPrice(buyPrice)) return;
 
@@ -276,7 +277,8 @@ const trade = async () => {
 
         openOrders.data.push(buyOrder);
 
-      } else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500);
+      }
+      // else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500);
     }
   } catch (error) {
     console.error(error.response.data || error);
