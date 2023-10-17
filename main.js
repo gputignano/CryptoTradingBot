@@ -279,8 +279,7 @@ const trade = async () => {
         };
 
 
-      }
-      // else if (buyOrder.data.status === "EXPIRED") setTimeout(trade, 500);
+      } else if (buyOrder.data.status === "EXPIRED") openTrades.delete(slot);
     } else if (side === "sell") {
       if (openOrders.hasPrice(buyPrice)) {
         openTrades.delete(slot);
@@ -314,8 +313,7 @@ const trade = async () => {
           openTrades.delete(slot);
         }
 
-      }
-      // else if (sellOrder.data.status === "EXPIRED") setTimeout(trade, 500);
+      } else if (sellOrder.data.status === "EXPIRED") openTrades.delete(slot);
     }
   } catch (error) {
     console.error(error.response.data || error);
