@@ -51,6 +51,8 @@ const startWsMarketDataStream = () => {
   ws.on("message", async data => {
     if (kill) process.exit(0);
 
+    console.log(openTrades);
+
     data = JSON.parse(data);
 
     switch (data.e) {
