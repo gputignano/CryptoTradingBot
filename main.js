@@ -51,6 +51,8 @@ const startWsMarketDataStream = () => {
   ws.on("message", async data => {
     if (kill) process.exit(0);
 
+    console.log(openTrades);
+
     data = JSON.parse(data);
 
     switch (data.e) {
@@ -63,7 +65,7 @@ const startWsMarketDataStream = () => {
 
           if (!openTrades.has(slot)) {
             openTrades.add(slot);
-            trade();
+            trade(currentPrice, slot, lowerPrice, higherPrice);
           }
         };
         break;
@@ -127,7 +129,7 @@ const startWsUserDataStream = async () => {
 
 startWsUserDataStream();
 
-const trade = async () => {
+const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
   let baseToBuy;
   let baseAvailable;
   let baseToSell;
