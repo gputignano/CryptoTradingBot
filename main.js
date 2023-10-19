@@ -53,7 +53,7 @@ const startWsMarketDataStream = () => {
 
     data = JSON.parse(data);
 
-    if (!data.result) return;
+    if (data.result === null) return;
 
     switch (data.e) {
       case "aggTrade":
