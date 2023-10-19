@@ -7,8 +7,6 @@ let kill = false;
 let account = (await binance.account(baseAsset, quoteAsset));
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
-let slot;
-let lowerPrice, higherPrice;
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = (await binance.exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
 PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
@@ -56,9 +54,9 @@ const startWsMarketDataStream = () => {
     switch (data.e) {
       case "aggTrade":
         const currentPrice = data.p;
-        slot = binance.priceToSlot(currentPrice, grid);
-        lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
-        higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
+        const slot = binance.priceToSlot(currentPrice, grid);
+        const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
+        const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
 
         if (!openTrades.has(slot)) {
           openTrades.add(slot);
