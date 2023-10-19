@@ -97,24 +97,17 @@ const startWsUserDataStream = async () => {
 
         account = (await binance.account(baseAsset, quoteAsset));
 
-        // payload.B.filter(asset => [baseAsset, quoteAsset].includes(asset.a)).forEach(b => {
-        //   account.data.balances[b.a].free = b.f;
-        //   account.data.balances[b.a].locked = b.l;
-        // });
         break;
       case "balanceUpdate":
         // Balance Update
 
         account = (await binance.account(baseAsset, quoteAsset));
 
-        // if (payload.a === baseAsset || payload.a === quoteAsset) account.data.balances[payload.a].free += payload.d;
         break;
       case "executionReport":
         // Order Update
 
         if (payload.s !== (baseAsset + quoteAsset)) return;
-
-        // openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 
         break;
     }
