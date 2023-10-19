@@ -4,11 +4,9 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "
 import * as binance from "./modules/binance.js";
 
 let kill = false;
-const tickerPrice = (await binance.tickerPrice(baseAsset, quoteAsset));
 let account = (await binance.account(baseAsset, quoteAsset));
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
-let currentPrice = tickerPrice.data.price;
 let slot;
 let lowerPrice, higherPrice;
 
@@ -57,17 +55,15 @@ const startWsMarketDataStream = () => {
 
     switch (data.e) {
       case "aggTrade":
-        if (data.p && data.p !== currentPrice) {
-          currentPrice = data.p;
-          slot = binance.priceToSlot(currentPrice, grid);
-          lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
-          higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
+        const currentPrice = data.p;
+        slot = binance.priceToSlot(currentPrice, grid);
+        lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
+        higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
 
-          if (!openTrades.has(slot)) {
-            openTrades.add(slot);
-            trade(currentPrice, slot, lowerPrice, higherPrice);
-          }
-        };
+        if (!openTrades.has(slot)) {
+          openTrades.add(slot);
+          trade(currentPrice, slot, lowerPrice, higherPrice);
+        }
         break;
       default:
         console.log(data);
