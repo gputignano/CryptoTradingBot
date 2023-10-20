@@ -136,7 +136,7 @@ const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
     }
 
     if (openOrders.hasPrice(sellPrice)) {
-      console.log(`openOrders.hasPrice(${sellPrice})`);
+      // console.log(`openOrders.hasPrice(${sellPrice})`);
       return slot;
     }
 
@@ -184,7 +184,7 @@ const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
     }
 
     if (openOrders.hasPrice(buyPrice)) {
-      console.log(`openOrders.hasPrice(${buyPrice})`);
+      // console.log(`openOrders.hasPrice(${buyPrice})`);
       return slot;
     }
 
@@ -228,6 +228,7 @@ const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
   try {
     if (side === "buy") {
       if (openOrders.hasPrice(sellPrice)) {
+        // console.log(`openOrders.hasPrice(${sellPrice})`);
         return slot;
       }
 
@@ -253,6 +254,8 @@ const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
           price: sellPrice,
         });
 
+        console.log(`buy ${baseToBuy} at ${buyPrice} - sell ${baseToSell} at ${sellPrice}`);
+
         if (sellOrder.data.status === "NEW") {
           openOrders = (await binance.openOrders(baseAsset, quoteAsset));
           console.log("updating openOrders");
@@ -266,7 +269,7 @@ const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
       };
     } else if (side === "sell") {
       if (openOrders.hasPrice(buyPrice)) {
-        console.log(`openOrders.hasPrice(${buyPrice})`);
+        // console.log(`openOrders.hasPrice(${buyPrice})`);
         return slot;
       }
 
@@ -291,6 +294,8 @@ const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
           quantity: baseToBuy,
           price: buyPrice,
         });
+
+        console.log(`sell ${baseToSell} at ${sellPrice} - buy ${baseToBuy} at ${buyPrice}`);
 
         if (buyOrder.data.status === "NEW") {
           openOrders = (await binance.openOrders(baseAsset, quoteAsset));
