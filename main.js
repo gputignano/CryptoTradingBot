@@ -60,10 +60,7 @@ const startWsMarketDataStream = () => {
 
         if (!openTrades.has(slot)) {
           openTrades.add(slot);
-          console.log(openTrades);
           openTrades.delete(await trade(currentPrice, slot, lowerPrice, higherPrice));
-          console.log(openTrades);
-          console.log("===========================");
         }
         break;
       default:
