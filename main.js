@@ -58,6 +58,7 @@ const startWsMarketDataStream = () => {
         const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
         const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
 
+        console.log(openTrades);
         if (!openTrades.has(slot)) {
           openTrades.add(slot);
           console.log(openTrades);
