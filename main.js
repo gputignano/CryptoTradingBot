@@ -109,6 +109,8 @@ const startWsUserDataStream = async () => {
 
         if (payload.s !== (baseAsset + quoteAsset)) return;
 
+        openOrders = (await binance.openOrders(baseAsset, quoteAsset));
+
         break;
     }
   });
