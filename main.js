@@ -95,7 +95,14 @@ const startWsUserDataStream = async () => {
       case "outboundAccountPosition":
         // Account Update
 
-        account = (await binance.account(baseAsset, quoteAsset));
+        payload.B.forEach(element => {
+          if (account.data.balances[element.a]) {
+            account.data.balances[element.a].free = element.f;
+            account.data.balances[element.a].locked = element.l;
+          }
+        });
+
+        console.log(account.data.balances);
 
         break;
       case "balanceUpdate":
