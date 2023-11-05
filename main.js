@@ -102,8 +102,6 @@ const startWsUserDataStream = async () => {
           }
         });
 
-        console.log(account.data.balances);
-
         break;
       case "balanceUpdate":
         // Balance Update
