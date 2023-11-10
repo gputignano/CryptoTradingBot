@@ -106,6 +106,7 @@ const startWsUserDataStream = async () => {
       case "balanceUpdate":
         // Balance Update
 
+        console.log(payload);
         account = (await binance.account(baseAsset, quoteAsset));
 
         break;
