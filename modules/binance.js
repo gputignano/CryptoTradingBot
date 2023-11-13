@@ -41,10 +41,7 @@ export const account = (baseAsset, quoteAsset) => {
   const instance = axios.create({});
 
   instance.interceptors.response.use(response => {
-    // FILTER ONLY BALANCES FOR BASE/QUOTE ASSETS
-    const filtered = response.data.balances.filter(element => {
-      return element.asset === baseAsset || element.asset === quoteAsset;
-    });
+    const filtered = response.data.balances;
 
     // EMPTY BALANCES
     response.data.balances = {};
