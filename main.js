@@ -19,7 +19,7 @@ console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precis
 
 const startWsMarketDataStream = () => {
   // WEBSOCKET MARKET DATA STREAM
-  let ws = new WebSocket(`${binance.WS_STREAM_ENDPOINT}/ws`);
+  let ws = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
 
   ws.on("error", error => console.error(error.message));
   ws.on("open", async () => {
@@ -72,7 +72,7 @@ startWsMarketDataStream();
 const startWsUserDataStream = async () => {
   // WEBSOCKET USER DATA STREAM
   const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
-  let ws = new WebSocket(`${binance.WS_STREAM_ENDPOINT}/ws/${listenKey}`);
+  let ws = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
 
   ws.on("error", error => console.error(error.message));
   ws.on("open", async () => {
