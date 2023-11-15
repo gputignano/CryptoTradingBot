@@ -55,12 +55,10 @@ const startWsMarketDataStream = () => {
       case "aggTrade":
         const currentPrice = data.p;
         const slot = binance.priceToSlot(currentPrice, grid);
-        const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
-        const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
 
         if (!openTrades.has(slot)) {
           openTrades.add(slot);
-          openTrades.delete(await trade(currentPrice, slot, lowerPrice, higherPrice));
+          openTrades.delete(await trade(currentPrice, slot));
         }
         break;
       default:
@@ -123,7 +121,7 @@ const startWsUserDataStream = async () => {
 
 startWsUserDataStream();
 
-const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
+const trade = async (currentPrice, slot) => {
   let baseToBuy;
   let baseAvailable;
   let baseToSell;
@@ -132,6 +130,9 @@ const trade = async (currentPrice, slot, lowerPrice, higherPrice) => {
   let sellNotionalAvailable;
   let buyPrice;
   let sellPrice;
+
+  const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
+  const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
 
   if (side === "buy") {
     buyPrice = higherPrice;
