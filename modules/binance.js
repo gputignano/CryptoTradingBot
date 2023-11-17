@@ -30,8 +30,6 @@ const signature = query_string => crypto.sign(null, Buffer.from(query_string), {
   saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST
 }).toString('base64');
 
-export const ping = () => axios.get(`${API_ENDPOINT}/v3/ping`);
-
 export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_ENDPOINT}/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
 export const account = (baseAsset, quoteAsset) => {
