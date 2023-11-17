@@ -104,17 +104,3 @@ const slotToPrice = (slot, grid) => Math.pow(1 + grid / 100, slot);
 export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(priceToSlot(price, grid), grid), precision);
 
 export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);
-
-export const postApiV3UserDataStream = async () => {
-  const response = await axios.post(`https://api.binance.com/api/v3/userDataStream`, null, CONFIGS);
-
-  return response;
-};
-
-export const putApiV3UserDataStream = async listenKey => {
-  const response = await axios.put(`https://api.binance.com/api/v3/userDataStream?listenKey=${listenKey}`, null, CONFIGS);
-
-  return response;
-};
-
-export const deleteApiV3UserDataStream = async () => (await axios.delete(`https://api.binance.com/api/v3/userDataStream?listenKey=${listenKey}`, CONFIGS));

@@ -69,16 +69,65 @@ const startWsMarketDataStream = () => {
 
 startWsMarketDataStream();
 
-const startWsUserDataStream = async () => {
+const getListenKey = async () => {
+  let ws = new WebSocket(binance.WEBSOCKET_API);
+  let listenKey;
+
+  ws.on("error", error => console.error(error.message));
+
+  ws.on("open", () => {
+    ws.send(JSON.stringify({
+      id: "userDataStreamStart",
+      method: "userDataStream.start",
+      params: {
+        apiKey: binance.API_KEY
+      }
+    }));
+  });
+
+  ws.on("close", () => {
+    ws = null;
+    setImmediate(getListenKey);
+  });
+
+  ws.on("ping", () => {
+    ws.pong();
+  });
+
+  ws.on("pong", () => {
+    //
+  });
+
+  ws.on("message", data => {
+    data = JSON.parse(data.toString());
+
+    switch (data.id) {
+      case "userDataStreamStart":
+        listenKey = data.result.listenKey;
+        startWsUserDataStream(listenKey);
+        break;
+      case "userDataStreamPing":
+        //
+        break;
+      case "userDataStreamStop":
+        ws.terminate();
+        break;
+      default:
+        //
+        break;
+    }
+  });
+};
+
+getListenKey();
+
+const startWsUserDataStream = async (listenKey) => {
   // WEBSOCKET USER DATA STREAM
-  const listenKey = (await binance.postApiV3UserDataStream()).data.listenKey;
   let ws = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
 
   ws.on("error", error => console.error(error.message));
   ws.on("open", async () => {
     console.log(`ws_user_data_stream => open`);
-
-    setInterval(async () => (await binance.putApiV3UserDataStream(listenKey)).data, 30 * 60 * 1000);
   });
   ws.on("close", () => {
     console.log(`ws_user_data_stream => close`);
@@ -124,8 +173,6 @@ const startWsUserDataStream = async () => {
     }
   });
 };
-
-startWsUserDataStream();
 
 const trade = async (currentPrice, slot) => {
   let baseToBuy;
