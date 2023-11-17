@@ -86,6 +86,12 @@ const startWsUserDataStream = async () => {
     ws = null;
     setImmediate(startWsUserDataStream);
   });
+  ws.on("ping", data => {
+    ws.pong();
+  });
+  ws.on("pong", () => {
+    //
+  });
   ws.on("message", async data => {
     const payload = JSON.parse(data.toString());
 
