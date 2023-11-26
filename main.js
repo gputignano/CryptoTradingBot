@@ -38,7 +38,7 @@ const startWsMarketDataStream = () => {
     ws = null;
     setImmediate(startWsMarketDataStream);
   });
-  ws.on("ping", data => {
+  ws.on("ping", () => {
     ws.pong();
   });
   ws.on("pong", () => {
@@ -147,7 +147,7 @@ const startWsUserDataStream = async (listenKey) => {
     ws = null;
     setImmediate(startWsUserDataStream);
   });
-  ws.on("ping", data => {
+  ws.on("ping", () => {
     ws.pong();
   });
   ws.on("pong", () => {
