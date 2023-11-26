@@ -63,7 +63,7 @@ export const openOrders = (baseAsset, quoteAsset) => {
 
   instance.interceptors.response.use(response => {
     response.data.forEach(order => order.slot = priceToSlot(order.price, grid));
-    response.hasPrice = price => !!response.data.find(order => parseFloat(order.price) === price);
+    response.hasSlotAtPrice = (price, grid) => response.data.findIndex(order => order.slot === priceToSlot(price, grid));
 
     return response;
   });

@@ -208,10 +208,7 @@ const trade = async (currentPrice, slot) => {
       return slot;
     }
 
-    if (openOrders.hasPrice(sellPrice)) {
-      // console.log(`openOrders.hasPrice(${sellPrice})`);
-      return slot;
-    }
+    if (openOrders.hasSlotAtPrice(sellPrice, grid)) return slot;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
@@ -256,10 +253,7 @@ const trade = async (currentPrice, slot) => {
       return slot;
     }
 
-    if (openOrders.hasPrice(buyPrice)) {
-      // console.log(`openOrders.hasPrice(${buyPrice})`);
-      return slot;
-    }
+    if (openOrders.hasSlotAtPrice(buyPrice, grid)) return slot;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
