@@ -111,7 +111,7 @@ const getListenKey = async () => {
   });
 
   ws.on("message", data => {
-    data = JSON.parse(data.toString());
+    data = JSON.parse(data);
 
     switch (data.id) {
       case "userDataStreamStart":
@@ -154,7 +154,7 @@ const startWsUserDataStream = async (listenKey) => {
     //
   });
   ws.on("message", async data => {
-    const payload = JSON.parse(data.toString());
+    const payload = JSON.parse(data);
 
     switch (payload.e) {
       case "outboundAccountPosition":
