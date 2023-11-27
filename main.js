@@ -68,7 +68,6 @@ startWsMarketDataStream();
 
 const getListenKey = async () => {
   let ws = new WebSocket(binance.WEBSOCKET_API);
-  let listenKey;
 
   ws.on("error", error => console.error(error.message));
 
@@ -93,6 +92,7 @@ const getListenKey = async () => {
 
   ws.on("message", data => {
     data = JSON.parse(data);
+    let listenKey;
 
     switch (data.id) {
       case "userDataStreamStart":
