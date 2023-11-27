@@ -38,8 +38,8 @@ const startWsMarketDataStream = () => {
     ws = null;
     setImmediate(startWsMarketDataStream);
   });
-  ws.on("ping", () => {
-    ws.pong();
+  ws.on("ping", data => {
+    ws.pong(data);
   });
   ws.on("pong", () => {
     //
@@ -102,8 +102,8 @@ const getListenKey = async () => {
     setImmediate(getListenKey);
   });
 
-  ws.on("ping", () => {
-    ws.pong();
+  ws.on("ping", data => {
+    ws.pong(data);
   });
 
   ws.on("pong", () => {
@@ -147,8 +147,8 @@ const startWsUserDataStream = async (listenKey) => {
     ws = null;
     setImmediate(startWsUserDataStream);
   });
-  ws.on("ping", () => {
-    ws.pong();
+  ws.on("ping", data => {
+    ws.pong(data);
   });
   ws.on("pong", () => {
     //
