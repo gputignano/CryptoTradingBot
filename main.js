@@ -80,18 +80,6 @@ const getListenKey = async () => {
         apiKey: binance.API_KEY
       }
     }));
-
-    setInterval(() => {
-      ws.send(JSON.stringify({
-        id: "userDataStreamPing",
-        method: "userDataStream.ping",
-        params: {
-          "listenKey": listenKey,
-          "apiKey": binance.API_KEY
-        }
-      }));
-    }, 30 * 60 * 1000);
-
   });
 
   ws.on("close", () => {
@@ -109,6 +97,18 @@ const getListenKey = async () => {
     switch (data.id) {
       case "userDataStreamStart":
         listenKey = data.result.listenKey;
+
+        setInterval(() => {
+          ws.send(JSON.stringify({
+            id: "userDataStreamPing",
+            method: "userDataStream.ping",
+            params: {
+              listenKey: listenKey,
+              apiKey: binance.API_KEY
+            }
+          }));
+        }, 30 * 60 * 1000);
+
         startWsUserDataStream(listenKey);
         break;
       case "userDataStreamPing":
