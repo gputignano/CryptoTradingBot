@@ -41,9 +41,6 @@ const startWsMarketDataStream = () => {
   ws.on("ping", data => {
     ws.pong(data);
   });
-  ws.on("pong", () => {
-    //
-  });
   ws.on("message", async data => {
     if (kill) process.exit(0);
 
@@ -106,10 +103,6 @@ const getListenKey = async () => {
     ws.pong(data);
   });
 
-  ws.on("pong", () => {
-    //
-  });
-
   ws.on("message", data => {
     data = JSON.parse(data);
 
@@ -149,9 +142,6 @@ const startWsUserDataStream = async (listenKey) => {
   });
   ws.on("ping", data => {
     ws.pong(data);
-  });
-  ws.on("pong", () => {
-    //
   });
   ws.on("message", async data => {
     data = JSON.parse(data);
