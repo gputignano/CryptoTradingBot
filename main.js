@@ -154,13 +154,13 @@ const startWsUserDataStream = async (listenKey) => {
     //
   });
   ws.on("message", async data => {
-    const payload = JSON.parse(data);
+    data = JSON.parse(data);
 
-    switch (payload.e) {
+    switch (data.e) {
       case "outboundAccountPosition":
         // Account Update
 
-        payload.B.forEach(element => {
+        data.B.forEach(element => {
           if (account.data.balances[element.a]) {
             account.data.balances[element.a].free = element.f;
             account.data.balances[element.a].locked = element.l;
@@ -177,7 +177,7 @@ const startWsUserDataStream = async (listenKey) => {
       case "executionReport":
         // Order Update
 
-        if (payload.s !== (baseAsset + quoteAsset)) return;
+        if (data.s !== (baseAsset + quoteAsset)) return;
 
         openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 
