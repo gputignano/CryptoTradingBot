@@ -169,8 +169,6 @@ const startWsUserDataStream = async (listenKey) => {
       case "executionReport":
         // Order Update
 
-        if (data.s !== (baseAsset + quoteAsset)) return;
-
         openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 
         break;
