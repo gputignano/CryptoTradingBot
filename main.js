@@ -165,8 +165,6 @@ const startWsUserDataStream = async (listenKey) => {
       case "balanceUpdate":
         // Balance Update
 
-        account = (await binance.account());
-
         break;
       case "executionReport":
         // Order Update
