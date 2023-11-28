@@ -151,9 +151,11 @@ const startWsUserDataStream = async (listenKey) => {
         // Account Update
 
         data.B.forEach(element => {
-          if (account.data.balances[element.a]) {
-            account.data.balances[element.a].free = element.f;
-            account.data.balances[element.a].locked = element.l;
+          const balanceIndex = account.data.balances.findIndex(balance => balance.asset === element.a);
+
+          if (account.data.balances[balanceIndex]) {
+            account.data.balances[balanceIndex].free = element.f;
+            account.data.balances[balanceIndex].locked = element.l;
           }
         });
 
@@ -213,7 +215,8 @@ const trade = async (currentPrice, slot) => {
 
     buyNotional = buyPrice * baseToBuy;
 
-    if (account.data.balances[quoteAsset] === undefined || account.data.balances[quoteAsset].free < buyNotional) {
+    const quoteAssetIndex = account.data.balances.findIndex(balance => balance.asset === quoteAsset);
+    if (account.data.balances[quoteAssetIndex] === undefined || account.data.balances[quoteAssetIndex].free < buyNotional) {
       console.error("No BUY balance to trade.");
       return slot;
     }
@@ -260,7 +263,8 @@ const trade = async (currentPrice, slot) => {
 
     sellNotional = sellPrice * baseToSell;
 
-    if (account.data.balances[baseAsset] === undefined || account.data.balances[baseAsset].free * sellPrice < sellNotional) {
+    const baseAssetIndex = account.data.balances.findIndex(balance => balance.asset === quoteAsset);
+    if (account.data.balances[baseAssetIndex] === undefined || account.data.balances[baseAssetIndex].free * sellPrice < sellNotional) {
       console.error("No SELL balance to trade.");
       return slot;
     }

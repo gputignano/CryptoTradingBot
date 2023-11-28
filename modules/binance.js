@@ -38,20 +38,6 @@ export const account = (baseAsset, quoteAsset) => {
   const query_string = query.toString();
   const instance = axios.create({});
 
-  instance.interceptors.response.use(response => {
-    const filtered = response.data.balances;
-
-    // EMPTY BALANCES
-    response.data.balances = {};
-
-    // FROM ARRAY TO OBJECT
-    filtered.forEach(element => {
-      response.data.balances[element.asset] = element;
-    });
-
-    return response;
-  });
-
   return instance.get(`${API_ENDPOINT}/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
 };
 
