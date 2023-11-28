@@ -32,7 +32,7 @@ const signature = query_string => crypto.sign(null, Buffer.from(query_string), {
 
 export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_ENDPOINT}/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
-export const account = (baseAsset, quoteAsset) => {
+export const account = () => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ timestamp });
   const query_string = query.toString();

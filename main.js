@@ -4,7 +4,7 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "
 import * as binance from "./modules/binance.js";
 
 let kill = false;
-let account = (await binance.account(baseAsset, quoteAsset));
+let account = (await binance.account());
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
 
@@ -163,7 +163,7 @@ const startWsUserDataStream = async (listenKey) => {
       case "balanceUpdate":
         // Balance Update
 
-        account = (await binance.account(baseAsset, quoteAsset));
+        account = (await binance.account());
 
         break;
       case "executionReport":
