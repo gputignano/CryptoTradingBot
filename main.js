@@ -72,6 +72,7 @@ const getListenKey = async () => {
   ws.on("error", error => console.error(error.message));
 
   ws.on("open", () => {
+    console.log(`get_listenkey => open`);
     ws.send(JSON.stringify({
       id: "userDataStreamStart",
       method: "userDataStream.start",
@@ -82,6 +83,7 @@ const getListenKey = async () => {
   });
 
   ws.on("close", () => {
+    console.log(`get_listenkey => close`);
     ws = null;
     setImmediate(getListenKey);
   });
