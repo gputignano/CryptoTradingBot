@@ -7,6 +7,7 @@ let kill = false;
 let account = (await binance.account());
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
+let ws_api, ws_stream, ws_user_data_stream;
 
 const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKETWS_ws__LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = (await binance.exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
 PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
@@ -19,7 +20,7 @@ console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precis
 
 const start_ws_stream = () => {
   // WEBSOCKET MARKET DATA STREAM
-  let ws_stream = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
+  ws_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
 
   ws_stream.on("error", error => console.error(error.message));
   ws_stream.on("open", async () => {
@@ -67,7 +68,7 @@ const start_ws_stream = () => {
 start_ws_stream();
 
 const start_ws_api = async () => {
-  let ws_api = new WebSocket(binance.WEBSOCKET_API);
+  ws_api ??= new WebSocket(binance.WEBSOCKET_API);
 
   ws_api.on("error", error => console.error(error.message));
 
@@ -130,7 +131,7 @@ start_ws_api();
 
 const start_ws_user_data_stream = async (listenKey) => {
   // WEBSOCKET USER DATA STREAM
-  let ws_user_data_stream = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
+  ws_user_data_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
 
   ws_user_data_stream.on("error", error => console.error(error.message));
   ws_user_data_stream.on("open", async () => {
