@@ -17,7 +17,7 @@ console.log(`notional: ${notional}`);
 
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
-const startWsMarketDataStream = () => {
+const start_ws_stream = () => {
   // WEBSOCKET MARKET DATA STREAM
   let ws_stream = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
 
@@ -36,7 +36,7 @@ const startWsMarketDataStream = () => {
   ws_stream.on("close", () => {
     console.log(`ws_stream => close`);
     ws_stream = null;
-    setImmediate(startWsMarketDataStream);
+    setImmediate(start_ws_stream);
   });
   ws_stream.on("ping", data => {
     ws_stream.pong(data);
@@ -64,15 +64,15 @@ const startWsMarketDataStream = () => {
   });
 };
 
-startWsMarketDataStream();
+start_ws_stream();
 
-const getListenKey = async () => {
+const start_ws_api = async () => {
   let ws_api = new WebSocket(binance.WEBSOCKET_API);
 
   ws_api.on("error", error => console.error(error.message));
 
   ws_api.on("open", () => {
-    console.log(`get_listenkey => open`);
+    console.log(`ws_api => open`);
     ws_api.send(JSON.stringify({
       id: "userDataStreamStart",
       method: "userDataStream.start",
@@ -83,9 +83,9 @@ const getListenKey = async () => {
   });
 
   ws_api.on("close", () => {
-    console.log(`get_listenkey => close`);
+    console.log(`ws_api => close`);
     ws_api = null;
-    setImmediate(getListenKey);
+    setImmediate(start_ws_api);
   });
 
   ws_api.on("ping", data => {
@@ -111,7 +111,7 @@ const getListenKey = async () => {
           }));
         }, 30 * 60 * 1000);
 
-        startWsUserDataStream(listenKey);
+        start_ws_user_data_stream(listenKey);
         break;
       case "userDataStreamPing":
         //
@@ -126,9 +126,9 @@ const getListenKey = async () => {
   });
 };
 
-getListenKey();
+start_ws_api();
 
-const startWsUserDataStream = async (listenKey) => {
+const start_ws_user_data_stream = async (listenKey) => {
   // WEBSOCKET USER DATA STREAM
   let ws_user_data_stream = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
 
@@ -140,7 +140,7 @@ const startWsUserDataStream = async (listenKey) => {
     console.log(`ws_user_data_stream => close`);
 
     ws_user_data_stream = null;
-    setImmediate(startWsUserDataStream);
+    setImmediate(start_ws_user_data_stream);
   });
   ws_user_data_stream.on("ping", data => {
     ws_user_data_stream.pong(data);
