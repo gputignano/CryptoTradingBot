@@ -24,22 +24,13 @@ const CONFIGS = {
 
 const PRIVATE_KEY = fs.readFileSync("./private_key.pem", { encoding: "utf8" });
 
-const signature = query_string => crypto.sign(null, Buffer.from(query_string), {
+export const signature = query_string => crypto.sign(null, Buffer.from(query_string), {
   key: PRIVATE_KEY,
   padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
   saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST
 }).toString('base64');
 
 export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_ENDPOINT}/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
-
-export const account = () => {
-  const timestamp = Date.now();
-  const query = new URLSearchParams({ timestamp });
-  const query_string = query.toString();
-  const instance = axios.create({});
-
-  return instance.get(`${API_ENDPOINT}/v3/account?${query_string}&signature=${signature(query_string)}`, CONFIGS);
-};
 
 export const openOrders = (baseAsset, quoteAsset) => {
   const timestamp = Date.now();

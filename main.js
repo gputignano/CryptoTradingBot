@@ -4,7 +4,7 @@ import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "
 import * as binance from "./modules/binance.js";
 
 let kill = false;
-let account = (await binance.account());
+let account;
 let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
@@ -74,6 +74,9 @@ const start_ws_api = async () => {
 
   ws_api.on("open", () => {
     console.log(`ws_api => open`);
+
+    getAccount();
+
     ws_api.send(JSON.stringify({
       id: "userDataStreamStart",
       method: "userDataStream.start",
@@ -120,6 +123,9 @@ const start_ws_api = async () => {
       case "userDataStreamStop":
         ws_api.terminate();
         break;
+      case 'account_status':
+        account = data;
+        break;
       default:
         //
         break;
@@ -154,11 +160,11 @@ const start_ws_user_data_stream = async (listenKey) => {
         // Account Update
 
         data.B.forEach(element => {
-          const balanceIndex = account.data.balances.findIndex(balance => balance.asset === element.a);
+          const balanceIndex = account.result.balances.findIndex(balance => balance.asset === element.a);
 
-          if (account.data.balances[balanceIndex]) {
-            account.data.balances[balanceIndex].free = element.f;
-            account.data.balances[balanceIndex].locked = element.l;
+          if (account.result.balances[balanceIndex]) {
+            account.result.balances[balanceIndex].free = element.f;
+            account.result.balances[balanceIndex].locked = element.l;
           }
         });
 
@@ -210,18 +216,18 @@ const trade = async (currentPrice, slot) => {
     }
 
     baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
-    baseAvailable = baseToBuy * (1 - account.data.commissionRates.taker);
+    baseAvailable = baseToBuy * (1 - account.result.commissionRates.taker);
 
     buyNotional = buyPrice * baseToBuy;
 
-    const quoteAssetIndex = account.data.balances.findIndex(balance => balance.asset === quoteAsset);
-    if (account.data.balances[quoteAssetIndex] === undefined || account.data.balances[quoteAssetIndex].free < buyNotional) {
+    const quoteAssetIndex = account.result.balances.findIndex(balance => balance.asset === quoteAsset);
+    if (account.result.balances[quoteAssetIndex] === undefined || account.result.balances[quoteAssetIndex].free < buyNotional) {
       console.error("No BUY balance to trade.");
       return slot;
     }
 
     if (earn === "base") {
-      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.data.commissionRates.maker), LOT_SIZE.precision);
+      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.result.commissionRates.maker), LOT_SIZE.precision);
     } else if (earn === "quote") {
       baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
     }
@@ -232,7 +238,7 @@ const trade = async (currentPrice, slot) => {
     }
 
     sellNotional = sellPrice * baseToSell;
-    sellNotionalAvailable = sellNotional * (1 - account.data.commissionRates.maker);
+    sellNotionalAvailable = sellNotional * (1 - account.result.commissionRates.maker);
 
     if (sellNotionalAvailable - buyNotional < 0) {
       console.error("sellNotionalAvailable - buyNotional < 0");
@@ -258,25 +264,25 @@ const trade = async (currentPrice, slot) => {
       return slot;
     }
 
-    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.data.commissionRates.taker), LOT_SIZE.precision);
+    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.result.commissionRates.taker), LOT_SIZE.precision);
 
     sellNotional = sellPrice * baseToSell;
 
-    const baseAssetIndex = account.data.balances.findIndex(balance => balance.asset === quoteAsset);
-    if (account.data.balances[baseAssetIndex] === undefined || account.data.balances[baseAssetIndex].free * sellPrice < sellNotional) {
+    const baseAssetIndex = account.result.balances.findIndex(balance => balance.asset === quoteAsset);
+    if (account.result.balances[baseAssetIndex] === undefined || account.result.balances[baseAssetIndex].free * sellPrice < sellNotional) {
       console.error("No SELL balance to trade.");
       return slot;
     }
 
-    sellNotionalAvailable = sellNotional * (1 - account.data.commissionRates.taker);
+    sellNotionalAvailable = sellNotional * (1 - account.result.commissionRates.taker);
 
     if (earn === "base") {
       baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
     } else if (earn === "quote") {
-      baseToBuy = _.ceil(baseToSell / (1 - account.data.commissionRates.maker), LOT_SIZE.precision);
+      baseToBuy = _.ceil(baseToSell / (1 - account.result.commissionRates.maker), LOT_SIZE.precision);
     }
 
-    baseAvailable = baseToBuy * (1 - account.data.commissionRates.maker);
+    baseAvailable = baseToBuy * (1 - account.result.commissionRates.maker);
 
     if (baseAvailable - baseToSell < 0) {
       console.error("baseAvailable - baseToSell < 0");
@@ -378,6 +384,25 @@ const trade = async (currentPrice, slot) => {
     console.error(error.response.data || error);
     process.exit(0);
   }
+};
+
+const getAccount = () => {
+  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
+
+  const params = {
+    apiKey: binance.API_KEY,
+    timestamp: Date.now()
+  };
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+  const signature = binance.signature(searchParams.toString());
+  searchParams.append("signature", signature);
+
+  ws_api.send(JSON.stringify({
+    id: "account_status",
+    method: "account.status",
+    params: Object.fromEntries(searchParams)
+  }));
 };
 
 process.on("SIGINT", () => {
