@@ -5,7 +5,7 @@ import * as binance from "./modules/binance.js";
 
 let kill = false;
 let account;
-let openOrders = (await binance.openOrders(baseAsset, quoteAsset));
+let openOrders;
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
 
@@ -76,6 +76,7 @@ const start_ws_api = async () => {
     console.log(`ws_api => open`);
 
     getAccount();
+    getOpenOrders();
 
     ws_api.send(JSON.stringify({
       id: "userDataStreamStart",
@@ -125,6 +126,11 @@ const start_ws_api = async () => {
         break;
       case 'account_status':
         account = data;
+        break;
+      case 'openOrders_status':
+        openOrders = data;
+        openOrders.hasPrice = price => !!openOrders.result.find(openOrder => parseFloat(openOrder.price) === price);
+        openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
         break;
       default:
         //
@@ -176,7 +182,7 @@ const start_ws_user_data_stream = async (listenKey) => {
       case "executionReport":
         // Order Update
 
-        openOrders = (await binance.openOrders(baseAsset, quoteAsset));
+        getOpenOrders();
 
         break;
     }
@@ -401,6 +407,25 @@ const getAccount = () => {
   ws_api.send(JSON.stringify({
     id: "account_status",
     method: "account.status",
+    params: Object.fromEntries(searchParams)
+  }));
+};
+
+const getOpenOrders = () => {
+  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
+
+  const params = {
+    apiKey: binance.API_KEY,
+    timestamp: Date.now()
+  };
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+  const signature = binance.signature(searchParams.toString());
+  searchParams.append("signature", signature);
+
+  ws_api.send(JSON.stringify({
+    id: "openOrders_status",
+    method: "openOrders.status",
     params: Object.fromEntries(searchParams)
   }));
 };

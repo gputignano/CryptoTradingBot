@@ -32,22 +32,6 @@ export const signature = query_string => crypto.sign(null, Buffer.from(query_str
 
 export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_ENDPOINT}/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
 
-export const openOrders = (baseAsset, quoteAsset) => {
-  const timestamp = Date.now();
-  const query = new URLSearchParams({ symbol: baseAsset + quoteAsset, timestamp });
-  const query_string = query.toString();
-  const instance = axios.create({});
-
-  instance.interceptors.response.use(response => {
-    response.data.forEach(order => order.slot = priceToSlot(order.price, grid));
-    response.hasPrice = price => !!response.data.find(order => parseFloat(order.price) === price);
-
-    return response;
-  });
-
-  return instance.get(`${API_ENDPOINT}/v3/openOrders?${query_string}&signature=${signature(query_string)}`, CONFIGS);
-};
-
 export const order = params => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ ...params, timestamp });
