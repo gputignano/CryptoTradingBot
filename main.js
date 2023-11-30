@@ -18,55 +18,6 @@ console.log(`notional: ${notional}`);
 
 console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
 
-const start_ws_stream = () => {
-  // WEBSOCKET MARKET DATA STREAM
-  ws_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
-
-  ws_stream.on("error", error => console.error(error.message));
-  ws_stream.on("open", async () => {
-    console.log(`ws_stream => open`);
-
-    ws_stream.send(
-      JSON.stringify({
-        method: "SUBSCRIBE",
-        params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@aggTrade"],
-        id: 1,
-      })
-    );
-  });
-  ws_stream.on("close", () => {
-    console.log(`ws_stream => close`);
-    ws_stream = null;
-    setImmediate(start_ws_stream);
-  });
-  ws_stream.on("ping", data => {
-    ws_stream.pong(data);
-  });
-  ws_stream.on("message", async data => {
-    if (kill) process.exit(0);
-
-    data = JSON.parse(data);
-
-    if (data.result === null) return;
-
-    switch (data.e) {
-      case "aggTrade":
-        const currentPrice = data.p;
-        const slot = binance.priceToSlot(currentPrice, grid);
-
-        if (!openTrades.has(slot)) {
-          openTrades.add(slot);
-          openTrades.delete(await trade(currentPrice, slot));
-        }
-        break;
-      default:
-        console.log(data);
-    }
-  });
-};
-
-start_ws_stream();
-
 const start_ws_api = async () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
 
@@ -77,6 +28,7 @@ const start_ws_api = async () => {
 
     getAccount();
     getOpenOrders();
+    start_ws_stream();
 
     ws_api.send(JSON.stringify({
       id: "userDataStream_start",
@@ -140,6 +92,53 @@ const start_ws_api = async () => {
 };
 
 start_ws_api();
+
+const start_ws_stream = () => {
+  // WEBSOCKET MARKET DATA STREAM
+  ws_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
+
+  ws_stream.on("error", error => console.error(error.message));
+  ws_stream.on("open", async () => {
+    console.log(`ws_stream => open`);
+
+    ws_stream.send(
+      JSON.stringify({
+        method: "SUBSCRIBE",
+        params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@aggTrade"],
+        id: 1,
+      })
+    );
+  });
+  ws_stream.on("close", () => {
+    console.log(`ws_stream => close`);
+    ws_stream = null;
+    setImmediate(start_ws_stream);
+  });
+  ws_stream.on("ping", data => {
+    ws_stream.pong(data);
+  });
+  ws_stream.on("message", async data => {
+    if (kill) process.exit(0);
+
+    data = JSON.parse(data);
+
+    if (data.result === null) return;
+
+    switch (data.e) {
+      case "aggTrade":
+        const currentPrice = data.p;
+        const slot = binance.priceToSlot(currentPrice, grid);
+
+        if (!openTrades.has(slot)) {
+          openTrades.add(slot);
+          openTrades.delete(await trade(currentPrice, slot));
+        }
+        break;
+      default:
+        console.log(data);
+    }
+  });
+};
 
 const start_ws_user_data_stream = async (listenKey) => {
   // WEBSOCKET USER DATA STREAM
