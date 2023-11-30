@@ -387,7 +387,7 @@ const trade = async (currentPrice, slot) => {
       };
     }
   } catch (error) {
-    console.error(error.response.data || error);
+    console.error(error);
     process.exit(0);
   }
 };
