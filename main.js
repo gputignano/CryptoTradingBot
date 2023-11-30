@@ -335,7 +335,7 @@ const trade = async (currentPrice, slot) => {
         console.log(`${new Date().toLocaleString()} - buy ${baseToBuy} at ${buyPrice} - sell ${baseToSell} at ${sellPrice}`);
 
         if (sellOrder.data.status === "NEW") {
-          openOrders = (await binance.openOrders(baseAsset, quoteAsset));
+          getOpenOrders();
           console.log("updating openOrders");
           return slot;
         };
@@ -376,7 +376,7 @@ const trade = async (currentPrice, slot) => {
         console.log(`${new Date().toLocaleString()} - sell ${baseToSell} at ${sellPrice} - buy ${baseToBuy} at ${buyPrice}`);
 
         if (buyOrder.data.status === "NEW") {
-          openOrders = (await binance.openOrders(baseAsset, quoteAsset));
+          getOpenOrders();
           console.log("updating openOrders");
           return slot;
         }
