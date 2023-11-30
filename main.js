@@ -79,7 +79,7 @@ const start_ws_api = async () => {
     getOpenOrders();
 
     ws_api.send(JSON.stringify({
-      id: "userDataStreamStart",
+      id: "userDataStream_start",
       method: "userDataStream.start",
       params: {
         apiKey: binance.API_KEY
@@ -102,12 +102,12 @@ const start_ws_api = async () => {
     let listenKey;
 
     switch (data.id) {
-      case "userDataStreamStart":
+      case "userDataStream_start":
         listenKey = data.result.listenKey;
 
         setInterval(() => {
           ws_api.send(JSON.stringify({
-            id: "userDataStreamPing",
+            id: "userDataStream_ping",
             method: "userDataStream.ping",
             params: {
               listenKey: listenKey,
@@ -118,10 +118,10 @@ const start_ws_api = async () => {
 
         start_ws_user_data_stream(listenKey);
         break;
-      case "userDataStreamPing":
+      case "userDataStream_ping":
         //
         break;
-      case "userDataStreamStop":
+      case "userDataStream_stop":
         ws_api.terminate();
         break;
       case 'account_status':
