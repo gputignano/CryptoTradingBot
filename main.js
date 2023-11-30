@@ -334,11 +334,7 @@ const trade = async (currentPrice, slot) => {
 
         console.log(`${new Date().toLocaleString()} - buy ${baseToBuy} at ${buyPrice} - sell ${baseToSell} at ${sellPrice}`);
 
-        if (sellOrder.data.status === "NEW") {
-          getOpenOrders();
-          console.log("updating openOrders");
-          return slot;
-        };
+        if (sellOrder.data.status === "NEW") return slot;
 
 
       } else if (buyOrder.data.status === "EXPIRED") {
@@ -375,11 +371,7 @@ const trade = async (currentPrice, slot) => {
 
         console.log(`${new Date().toLocaleString()} - sell ${baseToSell} at ${sellPrice} - buy ${baseToBuy} at ${buyPrice}`);
 
-        if (buyOrder.data.status === "NEW") {
-          getOpenOrders();
-          console.log("updating openOrders");
-          return slot;
-        }
+        if (buyOrder.data.status === "NEW") return slot;
 
       } else if (sellOrder.data.status === "EXPIRED") {
         console.log("order expired");
