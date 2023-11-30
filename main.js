@@ -77,10 +77,10 @@ const start_ws_api = async () => {
         ws_api.terminate();
         break;
       case 'account_status':
-        account = data;
+        account = { ...data };
         break;
       case 'openOrders_status':
-        openOrders = data;
+        openOrders = { ...data };
         openOrders.hasPrice = price => !!openOrders.result.find(openOrder => parseFloat(openOrder.price) === price);
         // openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
         break;
