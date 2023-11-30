@@ -56,6 +56,7 @@ const start_ws_api = async () => {
     switch (data.id) {
       case "userDataStream_start":
         listenKey = data.result.listenKey;
+        start_ws_user_data_stream(listenKey);
 
         setInterval(() => {
           ws_api.send(JSON.stringify({
@@ -68,7 +69,6 @@ const start_ws_api = async () => {
           }));
         }, 30 * 60 * 1000);
 
-        start_ws_user_data_stream(listenKey);
         break;
       case "userDataStream_ping":
         //
