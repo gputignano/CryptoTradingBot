@@ -183,6 +183,7 @@ const start_ws_user_data_stream = async (listenKey) => {
 
         const index = openOrders.result.findIndex(openOrder => openOrder.orderId === data.i);
         console.log(openOrders.result[index]);
+        console.log(data);
         break;
     }
   });
