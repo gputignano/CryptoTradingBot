@@ -181,8 +181,8 @@ const start_ws_user_data_stream = async (listenKey) => {
       case "executionReport":
         // Order Update
 
-        // getOpenOrders();
-
+        const index = openOrders.result.findIndex(openOrder => openOrder.orderId === data.i);
+        console.log(openOrders.result[index]);
         break;
     }
   });
