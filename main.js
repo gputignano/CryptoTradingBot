@@ -181,9 +181,8 @@ const start_ws_user_data_stream = async (listenKey) => {
       case "executionReport":
         // Order Update
 
-        const index = openOrders.result.findIndex(openOrder => openOrder.orderId === data.i);
-        console.log(openOrders.result[index]);
-        console.log(data);
+        const index = openOrders.result.findIndex(openOrder => (openOrder.orderId === data.i) && (data.X === "FILLED"));
+        if (index > -1) openOrders.result.splice(index, 1);
         break;
     }
   });
@@ -334,7 +333,6 @@ const trade = async (currentPrice, slot) => {
 
         if (sellOrder.data.status === "NEW") {
           openOrders.result.push(sellOrder.data);
-          console.log(sellOrder.data);
           return slot;
         };
 
@@ -373,7 +371,6 @@ const trade = async (currentPrice, slot) => {
 
         if (buyOrder.data.status === "NEW") {
           openOrders.result.push(buyOrder.data);
-          console.log(buyOrder.data);
           return slot;
         };
 
