@@ -22,15 +22,7 @@ const start_ws_api = async () => {
     getAccount();
     getOpenOrders();
     start_ws_stream();
-
-    ws_api.send(JSON.stringify({
-      id: "userDataStream_start",
-      method: "userDataStream.start",
-      params: {
-        apiKey: binance.API_KEY
-      }
-    }));
-
+    startUserDataStream();
     getExchangeInfo();
   });
 
@@ -432,6 +424,22 @@ const getExchangeInfo = () => {
   ws_api.send(JSON.stringify({
     id: "exchangeInfo",
     method: "exchangeInfo",
+    params: Object.fromEntries(searchParams)
+  }));
+};
+
+const startUserDataStream = () => {
+  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
+
+  const params = {
+    apiKey: binance.API_KEY
+  };
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+
+  ws_api.send(JSON.stringify({
+    id: "userDataStream_start",
+    method: "userDataStream.start",
     params: Object.fromEntries(searchParams)
   }));
 };
