@@ -326,6 +326,7 @@ const trade = async (currentPrice, slot) => {
 
         if (sellOrder.data.status === "NEW") {
           openOrders.result.push(sellOrder.data);
+          binance.printExecutedOrder(sellOrder.data);
           return slot;
         };
 
@@ -363,6 +364,7 @@ const trade = async (currentPrice, slot) => {
 
         if (buyOrder.data.status === "NEW") {
           openOrders.result.push(buyOrder.data);
+          binance.printExecutedOrder(buyOrder.data);
           return slot;
         };
 
