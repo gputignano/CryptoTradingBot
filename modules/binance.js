@@ -56,4 +56,4 @@ export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(pric
 
 export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);
 
-export const printExecutedOrder = order => console.log(`${order.status} (${order.symbol}): ${order.side} ${order.executedQty}`);
+export const printExecutedOrder = order => console.log(`${new Date(order.transactTime).toLocaleString()} ${order.status} ${order.type} ${order.timeInForce} ${order.side} ${order.origQty} ${order.symbol}`);
