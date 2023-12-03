@@ -9,7 +9,7 @@ let openOrders;
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
 
-const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKETWS_ws__LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = (await binance.exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
+const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = (await binance.exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
 PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
 LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
 
