@@ -55,3 +55,5 @@ const slotToPrice = (slot, grid) => Math.pow(1 + grid / 100, slot);
 export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(priceToSlot(price, grid), grid), precision);
 
 export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);
+
+export const printExecutedOrder = order => console.log(`${order.status} (${order.symbol}): ${order.side} ${order.executedQty}`);
