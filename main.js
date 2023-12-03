@@ -31,13 +31,7 @@ const start_ws_api = async () => {
       }
     }));
 
-    ws_api.send(JSON.stringify({
-      id: "exchangeInfo",
-      method: "exchangeInfo",
-      params: {
-        // symbols: ["BNBBTC"]
-      }
-    }));
+    getExchangeInfo();
   });
 
   ws_api.on("close", () => {
@@ -424,6 +418,20 @@ const getOpenOrders = () => {
   ws_api.send(JSON.stringify({
     id: "openOrders_status",
     method: "openOrders.status",
+    params: Object.fromEntries(searchParams)
+  }));
+};
+
+const getExchangeInfo = () => {
+  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
+
+  const params = {};
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+
+  ws_api.send(JSON.stringify({
+    id: "exchangeInfo",
+    method: "exchangeInfo",
     params: Object.fromEntries(searchParams)
   }));
 };
