@@ -8,15 +8,8 @@ let account;
 let openOrders;
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
-
-const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = (await binance.exchangeInfo(baseAsset, quoteAsset)).data.symbols[0].filters;
-PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
-LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
-
-const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
-console.log(`notional: ${notional}`);
-
-console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
+let PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS;
+let notional;
 
 const start_ws_api = async () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
@@ -35,6 +28,14 @@ const start_ws_api = async () => {
       method: "userDataStream.start",
       params: {
         apiKey: binance.API_KEY
+      }
+    }));
+
+    ws_api.send(JSON.stringify({
+      id: "exchangeInfo",
+      method: "exchangeInfo",
+      params: {
+        // symbols: ["BNBBTC"]
       }
     }));
   });
@@ -83,6 +84,16 @@ const start_ws_api = async () => {
         openOrders = { ...data };
         openOrders.hasPrice = price => !!openOrders.result.find(openOrder => parseFloat(openOrder.price) === price);
         openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
+        break;
+      case 'exchangeInfo':
+        const symbolIndex = data.result.symbols.findIndex(symbol => symbol.baseAsset === baseAsset && symbol.quoteAsset === quoteAsset);
+        const filters = data.result.symbols[symbolIndex].filters;
+        [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = data.result.symbols[symbolIndex].filters;
+        PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
+        LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
+        notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
+        console.log(`notional: ${notional}`);
+        console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
         break;
       default:
         //

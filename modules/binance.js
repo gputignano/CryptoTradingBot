@@ -30,8 +30,6 @@ export const signature = query_string => crypto.sign(null, Buffer.from(query_str
   saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST
 }).toString('base64');
 
-export const exchangeInfo = (baseAsset, quoteAsset) => axios.get(`${API_ENDPOINT}/v3/exchangeInfo?symbol=${baseAsset}${quoteAsset}`);
-
 export const order = params => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ ...params, timestamp });
