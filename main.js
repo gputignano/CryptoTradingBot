@@ -19,10 +19,6 @@ const start_ws_api = async () => {
   ws_api.on("open", () => {
     console.log(`ws_api => open`);
 
-    getAccount();
-    getOpenOrders();
-    start_ws_stream();
-    startUserDataStream();
     getExchangeInfo();
   });
 
@@ -72,6 +68,11 @@ const start_ws_api = async () => {
         openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
         break;
       case 'exchangeInfo':
+        getAccount();
+        getOpenOrders();
+        start_ws_stream();
+        startUserDataStream();
+
         const symbolIndex = data.result.symbols.findIndex(symbol => symbol.baseAsset === baseAsset && symbol.quoteAsset === quoteAsset);
         const filters = data.result.symbols[symbolIndex].filters;
         [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = data.result.symbols[symbolIndex].filters;
