@@ -118,19 +118,25 @@ const start_ws_stream = () => {
     ws_stream.pong(data);
   });
   ws_stream.on("message", async data => {
-    if (kill) process.exit(0);
-
     data = JSON.parse(data);
 
     switch (data.id) {
       case 1: // Subscribe to a stream
-        console.log(`Subscribed`);
+        console.log(data);
         break;
       case 2: // Unsubscribe to a stream
-        console.log(`Unsubscribed`);
+        console.log(data);
+
+        setTimeout(() => process.exit(0), 5000);
         break;
       case 3: // List subscriptions
-        console.log(`list...`);
+        console.log(data);
+
+        ws_stream.send(JSON.stringify({
+          method: "UNSUBSCRIBE",
+          params: data.result,
+          id: 2
+        }));
         break;
     }
 
@@ -456,5 +462,8 @@ const startUserDataStream = () => {
 };
 
 process.on("SIGINT", () => {
-  kill = true;
+  ws_stream.send(JSON.stringify({
+    method: "LIST_SUBSCRIPTIONS",
+    id: 3
+  }));
 });
