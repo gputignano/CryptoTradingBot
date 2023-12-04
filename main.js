@@ -122,7 +122,11 @@ const start_ws_stream = () => {
 
     data = JSON.parse(data);
 
-    if (data.result === null) return;
+    switch (data.id) {
+      case 1: // Subscribe to a stream
+        console.log(`Subscribed`);
+        break;
+    }
 
     switch (data.e) {
       case "aggTrade":
@@ -134,8 +138,6 @@ const start_ws_stream = () => {
           openTrades.delete(await trade(currentPrice, slot));
         }
         break;
-      default:
-        console.log(data);
     }
   });
 };
