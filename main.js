@@ -5,6 +5,7 @@ import * as binance from "./modules/binance.js";
 
 let account;
 let openOrders;
+let exchangeInfo;
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
 let PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS;
@@ -68,15 +69,17 @@ const start_ws_api = (async () => {
         openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
         break;
       case 'exchangeInfo':
+        exchangeInfo = { ...data };
+
         getAccount();
         getOpenOrders();
         start_ws_stream();
         startUserDataStream();
 
-        const index = data.result.symbols.findIndex(s => s.symbol === symbol);
-        const filters = data.result.symbols[index].filters;
-        ({ baseAsset, quoteAsset } = data.result.symbols[index]);
-        [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = data.result.symbols[index].filters;
+        const index = exchangeInfo.result.symbols.findIndex(s => s.symbol === symbol);
+        const filters = exchangeInfo.result.symbols[index].filters;
+        ({ baseAsset, quoteAsset } = exchangeInfo.result.symbols[index]);
+        [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = exchangeInfo.result.symbols[index].filters;
         PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
         LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
         notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
