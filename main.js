@@ -126,6 +126,12 @@ const start_ws_stream = () => {
       case 1: // Subscribe to a stream
         console.log(`Subscribed`);
         break;
+      case 2: // Unsubscribe to a stream
+        console.log(`Unsubscribed`);
+        break;
+      case 3: // List subscriptions
+        console.log(`list...`);
+        break;
     }
 
     switch (data.e) {
