@@ -275,7 +275,7 @@ const trade = async (currentPrice, slot) => {
 
     sellNotional = sellPrice * baseToSell;
 
-    const baseAssetIndex = account.result.balances.findIndex(balance => balance.asset === quoteAsset);
+    const baseAssetIndex = account.result.balances.findIndex(balance => balance.asset === baseAsset);
     if (account.result.balances[baseAssetIndex] === undefined || account.result.balances[baseAssetIndex].free * sellPrice < sellNotional) {
       console.error("No SELL balance to trade.");
       return slot;
