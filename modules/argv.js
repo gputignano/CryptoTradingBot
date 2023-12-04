@@ -36,7 +36,7 @@ const argv = yargs(hideBin(process.argv))
 console.log(`symbol = ${argv.symbol}`);
 console.log(`side = ${argv.side}`);
 console.log(`grid = ${argv.grid}`);
-console.log(`earn = ${argv.earn == "base" ? argv.base : argv.quote}`);
+console.log(`earn = ${argv.earn ??= "base"}`);
 console.log(`interest = ${argv.interest}%`);
 
 export const symbol = argv.symbol;
