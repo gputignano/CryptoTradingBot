@@ -104,7 +104,7 @@ const start_ws_stream = () => {
     ws_stream.send(
       JSON.stringify({
         method: "SUBSCRIBE",
-        params: [baseAsset.toLowerCase() + quoteAsset.toLowerCase() + "@aggTrade"],
+        params: [symbol.toLowerCase() + "@aggTrade"],
         id: 1,
       })
     );
@@ -302,7 +302,7 @@ const trade = async (currentPrice, slot) => {
 
       // BUY ORDER
       const buyOrder = await binance.order({
-        symbol: baseAsset + quoteAsset,
+        symbol: symbol,
         side: "BUY",
         type: "LIMIT",
         timeInForce: "FOK",
@@ -316,7 +316,7 @@ const trade = async (currentPrice, slot) => {
 
         // SELL ORDER
         const sellOrder = await binance.order({
-          symbol: baseAsset + quoteAsset,
+          symbol: symbol,
           side: "SELL",
           type: "LIMIT",
           timeInForce: "GTC",
@@ -340,7 +340,7 @@ const trade = async (currentPrice, slot) => {
 
       // SELL ORDER
       const sellOrder = await binance.order({
-        symbol: baseAsset + quoteAsset,
+        symbol: symbol,
         side: "SELL",
         type: "LIMIT",
         timeInForce: "FOK",
@@ -354,7 +354,7 @@ const trade = async (currentPrice, slot) => {
 
         // BUY ORDER
         const buyOrder = await binance.order({
-          symbol: baseAsset + quoteAsset,
+          symbol: symbol,
           side: "BUY",
           type: "LIMIT",
           timeInForce: "GTC",
