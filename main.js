@@ -12,7 +12,7 @@ let PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERC
 let notional;
 let baseAsset, quoteAsset;
 
-const start_ws_api = async () => {
+const start_ws_api = (async () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
 
   ws_api.on("error", error => console.error(error.message));
@@ -89,9 +89,7 @@ const start_ws_api = async () => {
         break;
     }
   });
-};
-
-start_ws_api();
+})();
 
 const start_ws_stream = () => {
   // WEBSOCKET MARKET DATA STREAM
