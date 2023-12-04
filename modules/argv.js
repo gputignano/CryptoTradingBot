@@ -2,13 +2,8 @@ import yargs from "yargs";
 import { hideBin } from 'yargs/helpers';
 
 const argv = yargs(hideBin(process.argv))
-  .option("base", {
-    describe: "Base asset",
-    demandOption: true,
-    type: "string",
-  })
-  .option("quote", {
-    describe: "Quote Asset",
+  .option("symbol", {
+    describe: "Symbol",
     demandOption: true,
     type: "string",
   })
@@ -38,15 +33,13 @@ const argv = yargs(hideBin(process.argv))
     type: "number",
   }).argv;
 
-console.log(`base = ${argv.base}`);
-console.log(`quote = ${argv.quote}`);
+console.log(`symbol = ${argv.symbol}`);
 console.log(`side = ${argv.side}`);
 console.log(`grid = ${argv.grid}`);
 console.log(`earn = ${argv.earn == "base" ? argv.base : argv.quote}`);
 console.log(`interest = ${argv.interest}%`);
 
-export const baseAsset = argv.base;
-export const quoteAsset = argv.quote;
+export const symbol = argv.symbol;
 export const side = argv.side;
 export const grid = argv.grid;
 export const earn = argv.earn;

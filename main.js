@@ -1,6 +1,6 @@
 import _ from "lodash";
 import WebSocket from "ws";
-import { baseAsset, quoteAsset, side, grid, earn, interest, minNotional } from "./modules/argv.js";
+import { symbol, side, grid, earn, interest, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 let kill = false;
@@ -10,6 +10,7 @@ const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
 let PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS;
 let notional;
+let baseAsset, quoteAsset;
 
 const start_ws_api = async () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
@@ -73,9 +74,10 @@ const start_ws_api = async () => {
         start_ws_stream();
         startUserDataStream();
 
-        const symbolIndex = data.result.symbols.findIndex(symbol => symbol.baseAsset === baseAsset && symbol.quoteAsset === quoteAsset);
-        const filters = data.result.symbols[symbolIndex].filters;
-        [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = data.result.symbols[symbolIndex].filters;
+        const index = data.result.symbols.findIndex(s => s.symbol === symbol);
+        const filters = data.result.symbols[index].filters;
+        ({ baseAsset, quoteAsset } = data.result.symbols[index]);
+        [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = data.result.symbols[index].filters;
         PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
         LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
         notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
