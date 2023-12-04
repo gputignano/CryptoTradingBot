@@ -3,7 +3,6 @@ import WebSocket from "ws";
 import { symbol, side, grid, earn, interest, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
-let kill = false;
 let account;
 let openOrders;
 const openTrades = new Set();
