@@ -62,6 +62,11 @@ const start_ws_api = (async () => {
         break;
       case 'account_status':
         account = { ...data };
+        const balancesMap = new Map();
+        account.result.balances.forEach(balance => {
+          balancesMap.set(balance.asset, balance);
+        });
+        account.result.balances = balancesMap;
         break;
       case 'openOrders_status':
         openOrders = { ...data };
@@ -179,12 +184,12 @@ const start_ws_user_data_stream = async (listenKey) => {
         // Account Update
 
         data.B.forEach(element => {
-          const balanceIndex = account.result.balances.findIndex(balance => balance.asset === element.a);
+          if (!account.result.balances.has(element.a)) return;
 
-          if (account.result.balances[balanceIndex]) {
-            account.result.balances[balanceIndex].free = element.f;
-            account.result.balances[balanceIndex].locked = element.l;
-          }
+          account.result.balances.set(element.a, {
+            free: element.f,
+            locked: element.l
+          });
         });
 
         break;
@@ -236,8 +241,7 @@ const trade = async (currentPrice, slot) => {
 
     buyNotional = buyPrice * baseToBuy;
 
-    const quoteAssetIndex = account.result.balances.findIndex(balance => balance.asset === quoteAsset);
-    if (account.result.balances[quoteAssetIndex] === undefined || account.result.balances[quoteAssetIndex].free < buyNotional) {
+    if (!account.result.balances.has(quoteAsset) || account.result.balances.get(quoteAsset).free < buyNotional) {
       console.error("No BUY balance to trade.");
       return slot;
     }
@@ -281,8 +285,7 @@ const trade = async (currentPrice, slot) => {
 
     sellNotional = sellPrice * baseToSell;
 
-    const baseAssetIndex = account.result.balances.findIndex(balance => balance.asset === baseAsset);
-    if (account.result.balances[baseAssetIndex] === undefined || account.result.balances[baseAssetIndex].free * sellPrice < sellNotional) {
+    if (!account.result.balances.has(baseAsset) || account.result.balances.get(baseAsset).free * sellPrice < sellNotional) {
       console.error("No SELL balance to trade.");
       return slot;
     }
