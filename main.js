@@ -135,12 +135,11 @@ const start_ws_stream = () => {
 
     switch (data.e) {
       case "aggTrade":
-        const currentPrice = data.p;
-        const slot = binance.priceToSlot(currentPrice, grid);
+        const slot = binance.priceToSlot(data.p, grid);
 
         if (!openTrades.has(slot)) {
           openTrades.add(slot);
-          openTrades.delete(await trade(currentPrice, slot));
+          openTrades.delete(await trade(data, slot));
         }
         break;
     }
@@ -195,7 +194,7 @@ const start_ws_user_data_stream = async (listenKey) => {
   });
 };
 
-const trade = async (currentPrice, slot) => {
+const trade = async ({ s: symbol, p: price }, slot) => {
   let baseToBuy;
   let baseAvailable;
   let baseToSell;
@@ -214,15 +213,15 @@ const trade = async (currentPrice, slot) => {
   LOT_SIZE.precision = Math.round(Math.log10(LOT_SIZE.stepSize));
   const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
 
-  const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
-  const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
+  const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
+  const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
 
   if (side === "buy") {
     buyPrice = higherPrice;
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
-    if (currentPrice > buyPrice) {
-      console.log("currentPrice > buyPrice");
+    if (price > buyPrice) {
+      console.log("price > buyPrice");
       return slot;
     }
 
@@ -266,8 +265,8 @@ const trade = async (currentPrice, slot) => {
     sellPrice = lowerPrice;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
-    if (currentPrice < sellPrice) {
-      console.log("currentPrice < sellPrice");
+    if (price < sellPrice) {
+      console.log("price < sellPrice");
       return slot;
     }
 
