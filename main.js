@@ -210,7 +210,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
 
   const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = exchangeInfo.result.symbols[index].filters;
   PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
-  LOT_SIZE.precision = Math.round(Math.log10(LOT_SIZE.stepSize));
+  LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
   const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
 
   const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
