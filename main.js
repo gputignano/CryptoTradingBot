@@ -8,8 +8,6 @@ let openOrders;
 let exchangeInfo;
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
-let PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS;
-let notional;
 
 const start_ws_api = (async () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
@@ -80,14 +78,6 @@ const start_ws_api = (async () => {
         start_ws_stream();
         startUserDataStream();
 
-        const index = exchangeInfo.result.symbols.findIndex(s => s.symbol === symbol);
-        const filters = exchangeInfo.result.symbols[index].filters;
-        [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = exchangeInfo.result.symbols[index].filters;
-        PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
-        LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
-        notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
-        console.log(`notional: ${notional}`);
-        console.log(`PRICE_FILTER.precision: ${PRICE_FILTER.precision} / LOT_SIZE.precision: ${LOT_SIZE.precision}`);
         break;
       default:
         //
@@ -218,6 +208,11 @@ const trade = async (currentPrice, slot) => {
   const index = exchangeInfo.result.symbols.findIndex(s => s.symbol === symbol);
 
   const { baseAsset, quoteAsset } = exchangeInfo.result.symbols[index];
+
+  const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = exchangeInfo.result.symbols[index].filters;
+  PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
+  LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
+  const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
 
   const lowerPrice = binance.getLowerPrice(currentPrice, grid, PRICE_FILTER.precision);
   const higherPrice = binance.getHigherPrice(currentPrice, grid, PRICE_FILTER.precision);
