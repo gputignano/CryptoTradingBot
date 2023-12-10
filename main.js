@@ -88,6 +88,7 @@ const start_ws_stream = () => {
   ws_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
 
   ws_stream.on("error", error => console.error(error.message));
+
   ws_stream.on("open", async () => {
     console.log(`ws_stream => open`);
 
@@ -99,14 +100,17 @@ const start_ws_stream = () => {
       })
     );
   });
+
   ws_stream.on("close", () => {
     console.log(`ws_stream => close`);
     ws_stream = null;
     setImmediate(start_ws_stream);
   });
+
   ws_stream.on("ping", data => {
     ws_stream.pong(data);
   });
+
   ws_stream.on("message", async data => {
     data = JSON.parse(data);
 
@@ -148,18 +152,22 @@ const start_ws_user_data_stream = async (listenKey) => {
   ws_user_data_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
 
   ws_user_data_stream.on("error", error => console.error(error.message));
+
   ws_user_data_stream.on("open", async () => {
     console.log(`ws_user_data_stream => open`);
   });
+
   ws_user_data_stream.on("close", () => {
     console.log(`ws_user_data_stream => close`);
 
     ws_user_data_stream = null;
     setImmediate(start_ws_user_data_stream);
   });
+
   ws_user_data_stream.on("ping", data => {
     ws_user_data_stream.pong(data);
   });
+
   ws_user_data_stream.on("message", async data => {
     data = JSON.parse(data);
 
