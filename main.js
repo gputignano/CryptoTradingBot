@@ -79,9 +79,6 @@ const start_ws_api = (async () => {
         startUserDataStream();
 
         break;
-      default:
-        //
-        break;
     }
   });
 })();
