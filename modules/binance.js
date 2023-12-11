@@ -13,7 +13,7 @@ dotenv.config({
 
 console.log(`${NODE_ENV} mode.`);
 
-export const { API_ENDPOINT, WEBSOCKET_STREAM, WEBSOCKET_API, API_KEY, API_SECRET } = process.env;
+export const { API_ENDPOINT, WEBSOCKET_STREAM, WEBSOCKET_API, API_KEY } = process.env;
 
 const CONFIGS = {
   headers: {
