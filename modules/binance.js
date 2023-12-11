@@ -21,7 +21,7 @@ const CONFIGS = {
   },
 };
 
-const PRIVATE_KEY = fs.readFileSync("./private_key.pem", { encoding: "utf8" });
+const PRIVATE_KEY = fs.readFileSync(`./${NODE_ENV}_private_key.pem`, { encoding: "utf8" });
 
 export const signature = query_string => crypto.sign(null, Buffer.from(query_string), {
   key: PRIVATE_KEY,
