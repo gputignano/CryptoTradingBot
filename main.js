@@ -9,7 +9,7 @@ let exchangeInfo;
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
 
-const start_ws_api = (async () => {
+const start_ws_api = (() => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
 
   ws_api.on("error", error => console.error(error.message));
@@ -89,7 +89,7 @@ const start_ws_stream = () => {
 
   ws_stream.on("error", error => console.error(error.message));
 
-  ws_stream.on("open", async () => {
+  ws_stream.on("open", () => {
     console.log(`ws_stream => open`);
 
     ws_stream.send(
@@ -147,13 +147,13 @@ const start_ws_stream = () => {
   });
 };
 
-const start_ws_user_data_stream = async (listenKey) => {
+const start_ws_user_data_stream = listenKey => {
   // WEBSOCKET USER DATA STREAM
   ws_user_data_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
 
   ws_user_data_stream.on("error", error => console.error(error.message));
 
-  ws_user_data_stream.on("open", async () => {
+  ws_user_data_stream.on("open", () => {
     console.log(`ws_user_data_stream => open`);
   });
 
@@ -168,7 +168,7 @@ const start_ws_user_data_stream = async (listenKey) => {
     ws_user_data_stream.pong(data);
   });
 
-  ws_user_data_stream.on("message", async data => {
+  ws_user_data_stream.on("message", data => {
     data = JSON.parse(data);
 
     switch (data.e) {
