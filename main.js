@@ -67,7 +67,7 @@ const start_ws_api = (() => {
         break;
       case 'openOrders_status':
         openOrders = { ...data };
-        openOrders.hasPrice = price => !!openOrders.result.find(openOrder => parseFloat(openOrder.price) === price);
+        openOrders.hasPrice = (symbol, price) => !!openOrders.result.find(openOrder => openOrder.symbol === symbol && parseFloat(openOrder.price) === price);
         openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
         break;
       case 'exchangeInfo':
@@ -230,7 +230,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       return slot;
     }
 
-    if (openOrders.hasPrice(sellPrice)) return slot;
+    if (openOrders.hasPrice(symbol, sellPrice)) return slot;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
@@ -275,7 +275,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       return slot;
     }
 
-    if (openOrders.hasPrice(buyPrice)) return slot;
+    if (openOrders.hasPrice(symbol, buyPrice)) return slot;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
@@ -316,7 +316,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
 
   try {
     if (side === "buy") {
-      if (openOrders.hasPrice(sellPrice)) return slot;
+      if (openOrders.hasPrice(symbol, sellPrice)) return slot;
 
       // BUY ORDER
       const buyOrder = await binance.order({
@@ -354,7 +354,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
         return slot;
       };
     } else if (side === "sell") {
-      if (openOrders.hasPrice(buyPrice)) return slot;
+      if (openOrders.hasPrice(symbol, buyPrice)) return slot;
 
       // SELL ORDER
       const sellOrder = await binance.order({
