@@ -266,8 +266,6 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       return slot;
     }
 
-    if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
-
     // BUY ORDER
     const buyOrder = await binance.order({
       symbol: symbol,
@@ -347,8 +345,6 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       console.error("sellNotionalAvailable - buyNotional < 0");
       return slot;
     }
-
-    if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
 
     // SELL ORDER
     const sellOrder = await binance.order({
