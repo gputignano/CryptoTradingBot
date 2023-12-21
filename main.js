@@ -266,6 +266,41 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       return slot;
     }
 
+    if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
+
+    // BUY ORDER
+    const buyOrder = await binance.order({
+      symbol: symbol,
+      side: "BUY",
+      type: "LIMIT",
+      timeInForce: "FOK",
+      quantity: baseToBuy,
+      price: buyPrice,
+    });
+
+    if (buyOrder.data.status === "EXPIRED") {
+      binance.printExecutedOrder(buyOrder.data);
+      return slot;
+    };
+
+    binance.printExecutedOrder(buyOrder.data);
+
+    // SELL ORDER
+    const sellOrder = await binance.order({
+      symbol: symbol,
+      side: "SELL",
+      type: "LIMIT",
+      timeInForce: "GTC",
+      quantity: baseToSell,
+      price: sellPrice,
+    });
+
+    if (sellOrder.data.status === "NEW") {
+      openOrders.result.push(sellOrder.data);
+      binance.printExecutedOrder(sellOrder.data);
+      return slot;
+    };
+
   } else if (side === "sell") {
     sellPrice = lowerPrice;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
@@ -312,45 +347,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       console.error("sellNotionalAvailable - buyNotional < 0");
       return slot;
     }
-  }
 
-  if (side === "buy") {
-    if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
-
-    // BUY ORDER
-    const buyOrder = await binance.order({
-      symbol: symbol,
-      side: "BUY",
-      type: "LIMIT",
-      timeInForce: "FOK",
-      quantity: baseToBuy,
-      price: buyPrice,
-    });
-
-    if (buyOrder.data.status === "EXPIRED") {
-      binance.printExecutedOrder(buyOrder.data);
-      return slot;
-    };
-
-    binance.printExecutedOrder(buyOrder.data);
-
-    // SELL ORDER
-    const sellOrder = await binance.order({
-      symbol: symbol,
-      side: "SELL",
-      type: "LIMIT",
-      timeInForce: "GTC",
-      quantity: baseToSell,
-      price: sellPrice,
-    });
-
-    if (sellOrder.data.status === "NEW") {
-      openOrders.result.push(sellOrder.data);
-      binance.printExecutedOrder(sellOrder.data);
-      return slot;
-    };
-
-  } else if (side === "sell") {
     if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
 
     // SELL ORDER
