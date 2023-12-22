@@ -218,11 +218,8 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
   const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
 
-  const lowerPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);
-  const higherPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);
-
   if (side === "buy") {
-    buyPrice = higherPrice;
+    buyPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);;
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
     if (price > buyPrice) {
@@ -302,7 +299,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   }
 
   if (side === "sell") {
-    sellPrice = lowerPrice;
+    sellPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
     if (price < sellPrice) {
