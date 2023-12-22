@@ -222,12 +222,12 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     buyPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);;
     sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
 
+    if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
+
     if (price > buyPrice) {
       console.log("price > buyPrice");
       return slot;
     }
-
-    if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
@@ -302,12 +302,12 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     sellPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
+    if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
+
     if (price < sellPrice) {
       console.log("price < sellPrice");
       return slot;
     }
-
-    if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
 
     if (buyPrice === sellPrice) {
       console.error("buyPrice === sellPrice");
