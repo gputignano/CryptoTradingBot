@@ -382,8 +382,6 @@ const trade = async ({ s: symbol, p: price }, slot) => {
 };
 
 const getAccount = () => {
-  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
-
   const params = {
     apiKey: binance.API_KEY,
     timestamp: Date.now()
