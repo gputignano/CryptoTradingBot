@@ -299,7 +299,9 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       return slot;
     };
 
-  } else if (side === "sell") {
+  }
+
+  if (side === "sell") {
     sellPrice = lowerPrice;
     buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
 
