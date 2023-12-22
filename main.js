@@ -401,8 +401,6 @@ const getAccount = () => {
 };
 
 const getOpenOrders = () => {
-  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
-
   const params = {
     apiKey: binance.API_KEY,
     timestamp: Date.now()
@@ -420,8 +418,6 @@ const getOpenOrders = () => {
 };
 
 const getExchangeInfo = () => {
-  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
-
   const params = {};
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
@@ -434,8 +430,6 @@ const getExchangeInfo = () => {
 };
 
 const startUserDataStream = () => {
-  // ws_api ??= new WebSocket(binance.WEBSOCKET_API);
-
   const params = {
     apiKey: binance.API_KEY
   };
