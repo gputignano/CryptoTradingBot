@@ -61,7 +61,18 @@ export const getExchangeInfoMap = data => {
   data.result.symbols.forEach(symbol => {
     const filters = new Map();
 
-    symbol.filters.forEach(filter => filters.set(filter.filterType, filter));
+    symbol.filters.forEach(filter => {
+      switch (filter.filterType) {
+        case "PRICE_FILTER":
+          filter.precision = Math.round(-Math.log10(filter.tickSize));
+          break;
+        case "LOT_SIZE":
+          filter.precision = Math.round(-Math.log10(filter.stepSize));
+          break;
+      }
+
+      filters.set(filter.filterType, filter);
+    });
 
     exchangeInfoMap.set(symbol.symbol, new Map([['filters', filters]]));
   });
