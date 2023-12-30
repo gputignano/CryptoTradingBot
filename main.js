@@ -215,14 +215,15 @@ const trade = async ({ s: symbol, p: price }, slot) => {
 
   const { baseAsset, quoteAsset } = exchangeInfo.result.symbols[index];
 
-  const [PRICE_FILTER, LOT_SIZE, ICEBERG_PARTS, MARKET_LOT_SIZE, TRAILING_DELTA, PERCENT_PRICE_BY_SIDE, NOTIONAL, MAX_NUM_ORDERS, MAX_NUM_ALGO_ORDERS,] = exchangeInfo.result.symbols[index].filters;
-  PRICE_FILTER.precision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
-  LOT_SIZE.precision = Math.round(-Math.log10(LOT_SIZE.stepSize));
-  const notional = Math.max(minNotional || NOTIONAL.minNotional, NOTIONAL.minNotional);
+  const pricePrecision = exchangeInfoMap.get(symbol).get("filters").get("PRICE_FILTER").precision;
+
+  const lotSizePrecision = exchangeInfoMap.get(symbol).get("filters").get("LOT_SIZE").precision;
+
+  const notional = Math.max(minNotional || exchangeInfoMap.get(symbol).get("filters").get("NOTIONAL").minNotional, exchangeInfoMap.get(symbol).get("filters").get("NOTIONAL").minNotional);
 
   if (side === "buy") {
-    buyPrice = binance.getHigherPrice(price, grid, PRICE_FILTER.precision);;
-    sellPrice = _.floor(buyPrice * (1 + interest), PRICE_FILTER.precision);
+    buyPrice = binance.getHigherPrice(price, grid, pricePrecision);;
+    sellPrice = _.floor(buyPrice * (1 + interest), pricePrecision);
 
     if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
 
@@ -236,7 +237,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       return slot;
     }
 
-    baseToBuy = _.ceil(notional / buyPrice, LOT_SIZE.precision);
+    baseToBuy = _.ceil(notional / buyPrice, lotSizePrecision);
     baseAvailable = baseToBuy * (1 - account.result.commissionRates.taker);
 
     buyNotional = buyPrice * baseToBuy;
@@ -247,9 +248,9 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     }
 
     if (earn === "base") {
-      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.result.commissionRates.maker), LOT_SIZE.precision);
+      baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.result.commissionRates.maker), lotSizePrecision);
     } else if (earn === "quote") {
-      baseToSell = _.floor(baseAvailable, LOT_SIZE.precision);
+      baseToSell = _.floor(baseAvailable, lotSizePrecision);
     }
 
     if (baseAvailable - baseToSell < 0) {
@@ -301,8 +302,8 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   }
 
   if (side === "sell") {
-    sellPrice = binance.getLowerPrice(price, grid, PRICE_FILTER.precision);;
-    buyPrice = _.ceil(sellPrice / (1 + interest), PRICE_FILTER.precision);
+    sellPrice = binance.getLowerPrice(price, grid, pricePrecision);;
+    buyPrice = _.ceil(sellPrice / (1 + interest), pricePrecision);
 
     if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
 
@@ -316,7 +317,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
       return slot;
     }
 
-    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.result.commissionRates.taker), LOT_SIZE.precision);
+    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.result.commissionRates.taker), lotSizePrecision);
 
     sellNotional = sellPrice * baseToSell;
 
@@ -328,9 +329,9 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     sellNotionalAvailable = sellNotional * (1 - account.result.commissionRates.taker);
 
     if (earn === "base") {
-      baseToBuy = _.floor(sellNotionalAvailable / buyPrice, LOT_SIZE.precision);
+      baseToBuy = _.floor(sellNotionalAvailable / buyPrice, lotSizePrecision);
     } else if (earn === "quote") {
-      baseToBuy = _.ceil(baseToSell / (1 - account.result.commissionRates.maker), LOT_SIZE.precision);
+      baseToBuy = _.ceil(baseToSell / (1 - account.result.commissionRates.maker), lotSizePrecision);
     }
 
     baseAvailable = baseToBuy * (1 - account.result.commissionRates.maker);
