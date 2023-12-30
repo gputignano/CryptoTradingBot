@@ -5,7 +5,7 @@ import * as binance from "./modules/binance.js";
 
 let account;
 let openOrders;
-let exchangeInfo;
+let exchangeInfo, exchangeInfoMap = new Map();
 const openTrades = new Set();
 let ws_api, ws_stream, ws_user_data_stream;
 
@@ -72,6 +72,8 @@ const start_ws_api = (() => {
         break;
       case 'exchangeInfo':
         exchangeInfo = { ...data };
+
+        exchangeInfoMap = binance.getExchangeInfoMap(data);
 
         getAccount();
         getOpenOrders();
