@@ -211,9 +211,8 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   let buyPrice;
   let sellPrice;
 
-  const index = exchangeInfo.result.symbols.findIndex(s => s.symbol === symbol);
-
-  const { baseAsset, quoteAsset } = exchangeInfo.result.symbols[index];
+  const baseAsset = exchangeInfoMap.get("result").get("symbols").get(symbol).get("baseAsset");
+  const quoteAsset = exchangeInfoMap.get("result").get("symbols").get(symbol).get("quoteAsset");
 
   const pricePrecision = exchangeInfoMap.get("result").get("symbols").get(symbol).get("filters").get("PRICE_FILTER").precision;
 

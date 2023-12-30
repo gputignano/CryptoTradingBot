@@ -75,7 +75,11 @@ export const getExchangeInfoMap = data => {
       filtersMap.set(filter.filterType, filter);
     });
 
-    symbolsMap.set(symbol.symbol, new Map([['filters', filtersMap]]));
+    symbolsMap.set(symbol.symbol, new Map([
+      ["baseAsset", symbol.baseAsset],
+      ["quoteAsset", symbol.quoteAsset],
+      ['filters', filtersMap]
+    ]));
   });
 
   return exchangeInfoMap.set("result", new Map([["symbols", symbolsMap]]));
