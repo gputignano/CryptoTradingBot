@@ -57,9 +57,10 @@ export const printExecutedOrder = order => console.log(`${new Date(order.transac
 
 export const getExchangeInfoMap = data => {
   const exchangeInfoMap = new Map();
+  const symbolsMap = new Map();
 
   data.result.symbols.forEach(symbol => {
-    const filters = new Map();
+    const filtersMap = new Map();
 
     symbol.filters.forEach(filter => {
       switch (filter.filterType) {
@@ -71,11 +72,11 @@ export const getExchangeInfoMap = data => {
           break;
       }
 
-      filters.set(filter.filterType, filter);
+      filtersMap.set(filter.filterType, filter);
     });
 
-    exchangeInfoMap.set(symbol.symbol, new Map([['filters', filters]]));
+    symbolsMap.set(symbol.symbol, new Map([['filters', filtersMap]]));
   });
 
-  return exchangeInfoMap;
+  return exchangeInfoMap.set("result", new Map([["symbols", symbolsMap]]));
 };

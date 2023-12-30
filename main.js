@@ -215,11 +215,11 @@ const trade = async ({ s: symbol, p: price }, slot) => {
 
   const { baseAsset, quoteAsset } = exchangeInfo.result.symbols[index];
 
-  const pricePrecision = exchangeInfoMap.get(symbol).get("filters").get("PRICE_FILTER").precision;
+  const pricePrecision = exchangeInfoMap.get("result").get("symbols").get(symbol).get("filters").get("PRICE_FILTER").precision;
 
-  const lotSizePrecision = exchangeInfoMap.get(symbol).get("filters").get("LOT_SIZE").precision;
+  const lotSizePrecision = exchangeInfoMap.get("result").get("symbols").get(symbol).get("filters").get("LOT_SIZE").precision;
 
-  const notional = Math.max(minNotional, exchangeInfoMap.get(symbol).get("filters").get("NOTIONAL").minNotional);
+  const notional = Math.max(minNotional, exchangeInfoMap.get("result").get("symbols").get(symbol).get("filters").get("NOTIONAL").minNotional);
 
   if (side === "buy") {
     buyPrice = binance.getHigherPrice(price, grid, pricePrecision);;
