@@ -31,6 +31,7 @@ const argv = yargs(hideBin(process.argv))
   .option("minNotional", {
     describe: "minNotional",
     type: "number",
+    default: 0,
   }).argv;
 
 console.log(`symbol = ${argv.symbol}`);
