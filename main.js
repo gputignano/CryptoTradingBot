@@ -96,7 +96,7 @@ const start_ws_stream = () => {
       JSON.stringify({
         method: "SUBSCRIBE",
         params: [symbol.toLowerCase() + "@aggTrade"],
-        id: 1,
+        id: "SUBSCRIBE",
       })
     );
   });
@@ -115,21 +115,21 @@ const start_ws_stream = () => {
     data = JSON.parse(data);
 
     switch (data.id) {
-      case 1: // Subscribe to a stream
+      case "SUBSCRIBE": // Subscribe to a stream
         console.log(data);
         break;
-      case 2: // Unsubscribe to a stream
+      case "UNSUBSCRIBE": // Unsubscribe to a stream
         console.log(data);
 
         setTimeout(() => process.exit(0), 5000);
         break;
-      case 3: // List subscriptions
+      case "LIST_SUBSCRIPTIONS": // List subscriptions
         console.log(data);
 
         ws_stream.send(JSON.stringify({
           method: "UNSUBSCRIBE",
           params: data.result,
-          id: 2
+          id: "UNSUBSCRIBE"
         }));
         break;
     }
@@ -446,6 +446,6 @@ const startUserDataStream = () => {
 process.on("SIGINT", () => {
   ws_stream.send(JSON.stringify({
     method: "LIST_SUBSCRIPTIONS",
-    id: 3
+    id: "LIST_SUBSCRIPTIONS"
   }));
 });
