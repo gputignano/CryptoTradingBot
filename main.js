@@ -114,6 +114,8 @@ const start_ws_stream = () => {
   ws_stream.on("message", async data => {
     data = JSON.parse(data);
 
+    if (!data.result) return;
+
     switch (data.id) {
       case 1: // Subscribe to a stream
         console.log(data);
