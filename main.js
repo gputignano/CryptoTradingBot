@@ -126,11 +126,12 @@ const start_ws_stream = () => {
       case "LIST_SUBSCRIPTIONS": // List subscriptions
         console.log(data);
 
-        ws_stream.send(JSON.stringify({
-          method: "UNSUBSCRIBE",
-          params: data.result,
-          id: "UNSUBSCRIBE"
-        }));
+        if (data.result.length > 0)
+          ws_stream.send(JSON.stringify({
+            method: "UNSUBSCRIBE",
+            params: data.result,
+            id: "UNSUBSCRIBE"
+          }));
         break;
     }
 
