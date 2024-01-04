@@ -7,6 +7,7 @@ let account;
 let openOrders;
 const exchangeInfoMap = new Map();
 const openTrades = new Set();
+const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream;
 
 const start_ws_api = (() => {
@@ -139,10 +140,13 @@ const start_ws_stream = () => {
       case "aggTrade":
         const slot = binance.priceToSlot(data.p, grid);
 
-        if (!openTrades.has(slot)) {
-          openTrades.add(slot);
-          openTrades.delete(await trade(data, slot));
+        if (!openTradesMap.has(data.s)) openTradesMap.set(data.s, new Set());
+
+        if (!openTradesMap.get(data.s).has(slot)) {
+          openTradesMap.get(data.s).add(slot);
+          openTradesMap.get(data.s).delete(await trade(data, slot));
         }
+
         break;
     }
   });
