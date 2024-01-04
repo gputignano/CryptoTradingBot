@@ -55,8 +55,7 @@ export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(pr
 
 export const printExecutedOrder = order => console.log(`${new Date(order.transactTime).toLocaleString()} ${order.status} ${order.type} ${order.timeInForce} ${order.side} ${order.origQty} ${order.symbol} at ${order.price}`);
 
-export const getExchangeInfoMap = data => {
-  const exchangeInfoMap = new Map();
+export const getExchangeInfoMap = (data, exchangeInfoMap) => {
   const symbolsMap = new Map();
 
   data.result.symbols.forEach(symbol => {
@@ -82,5 +81,5 @@ export const getExchangeInfoMap = data => {
     ]));
   });
 
-  return exchangeInfoMap.set("result", new Map([["symbols", symbolsMap]]));
+  exchangeInfoMap.set("result", new Map([["symbols", symbolsMap]]));
 };
