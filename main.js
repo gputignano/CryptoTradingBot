@@ -445,6 +445,8 @@ const startUserDataStream = () => {
 };
 
 process.on("SIGINT", () => {
+  if (!ws_stream) process.exit(0);
+
   ws_stream.send(JSON.stringify({
     method: "LIST_SUBSCRIPTIONS",
     id: "LIST_SUBSCRIPTIONS"
