@@ -6,7 +6,6 @@ import * as binance from "./modules/binance.js";
 let account;
 let openOrders;
 const exchangeInfoMap = new Map();
-const openTrades = new Set();
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream;
 
