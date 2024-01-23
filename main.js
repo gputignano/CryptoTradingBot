@@ -165,7 +165,7 @@ const start_ws_user_data_stream = listenKey => {
     console.log(`ws_user_data_stream => close`);
 
     ws_user_data_stream = null;
-    setTimeout(() => start_ws_user_data_stream, 5000);
+    setTimeout(() => start_ws_user_data_stream, 5000, listenKey);
   });
 
   ws_user_data_stream.on("ping", data => {
