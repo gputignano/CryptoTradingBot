@@ -55,7 +55,7 @@ export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(pr
 
 export const printExecutedOrder = order => console.log(`${new Date(order.transactTime).toLocaleString()} ${order.status} ${order.type} ${order.timeInForce} ${order.side} ${order.origQty} ${order.symbol} at ${order.price}`);
 
-export const getAccount = (ws) => {
+export const getAccount = ws => {
   const params = {
     timestamp: Date.now()
   };
@@ -69,7 +69,7 @@ export const getAccount = (ws) => {
   }));
 };
 
-export const getOpenOrders = (ws) => {
+export const getOpenOrders = ws => {
   const params = {
     timestamp: Date.now()
   };
@@ -83,7 +83,7 @@ export const getOpenOrders = (ws) => {
   }));
 };
 
-export const getExchangeInfo = (ws) => {
+export const getExchangeInfo = ws => {
   const params = {};
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
@@ -95,7 +95,7 @@ export const getExchangeInfo = (ws) => {
   }));
 };
 
-export const startUserDataStream = (ws) => {
+export const startUserDataStream = ws => {
   const params = {
     apiKey: API_KEY
   };
