@@ -18,6 +18,7 @@ const start_ws_api = (() => {
     console.log(`ws_api => open`);
 
     binance.getExchangeInfo(ws_api);
+    binance.sessionLogon(ws_api);
   });
 
   ws_api.on("close", () => {

@@ -112,3 +112,19 @@ export const startUserDataStream = (ws) => {
     params: Object.fromEntries(searchParams)
   }));
 };
+
+export const sessionLogon = ws => {
+  const params = {
+    apiKey: API_KEY,
+    timestamp: Date.now()
+  };
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+  searchParams.append("signature", signature(searchParams.toString()));
+
+  ws.send(JSON.stringify({
+    id: "session_logon",
+    method: "session.logon",
+    params: Object.fromEntries(searchParams)
+  }));
+};
