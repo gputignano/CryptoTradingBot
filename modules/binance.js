@@ -57,12 +57,10 @@ export const printExecutedOrder = order => console.log(`${new Date(order.transac
 
 export const getAccount = (ws) => {
   const params = {
-    apiKey: API_KEY,
     timestamp: Date.now()
   };
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
-  searchParams.append("signature", signature(searchParams.toString()));
 
   ws.send(JSON.stringify({
     id: "account_status",
@@ -73,12 +71,10 @@ export const getAccount = (ws) => {
 
 export const getOpenOrders = (ws) => {
   const params = {
-    apiKey: API_KEY,
     timestamp: Date.now()
   };
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
-  searchParams.append("signature", signature(searchParams.toString()));
 
   ws.send(JSON.stringify({
     id: "openOrders_status",
