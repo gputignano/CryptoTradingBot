@@ -54,32 +54,3 @@ export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(pric
 export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);
 
 export const printExecutedOrder = order => console.log(`${new Date(order.transactTime).toLocaleString()} ${order.status} ${order.type} ${order.timeInForce} ${order.side} ${order.origQty} ${order.symbol} at ${order.price}`);
-
-export const getExchangeInfoMap = (data, exchangeInfoMap) => {
-  const symbolsMap = new Map();
-
-  data.result.symbols.forEach(symbol => {
-    const filtersMap = new Map();
-
-    symbol.filters.forEach(filter => {
-      switch (filter.filterType) {
-        case "PRICE_FILTER":
-          filter.precision = Math.round(-Math.log10(filter.tickSize));
-          break;
-        case "LOT_SIZE":
-          filter.precision = Math.round(-Math.log10(filter.stepSize));
-          break;
-      }
-
-      filtersMap.set(filter.filterType, filter);
-    });
-
-    symbolsMap.set(symbol.symbol, new Map([
-      ["baseAsset", symbol.baseAsset],
-      ["quoteAsset", symbol.quoteAsset],
-      ['filters', filtersMap]
-    ]));
-  });
-
-  exchangeInfoMap.set("result", new Map([["symbols", symbolsMap]]));
-};

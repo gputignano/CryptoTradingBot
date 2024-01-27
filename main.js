@@ -5,7 +5,7 @@ import * as binance from "./modules/binance.js";
 
 let account;
 let openOrders;
-const exchangeInfoMap = new Map();
+let exchangeInfo;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream;
 
@@ -71,8 +71,7 @@ const start_ws_api = (() => {
         openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
         break;
       case 'exchangeInfo':
-        binance.getExchangeInfoMap(data, exchangeInfoMap);
-
+        exchangeInfo = data;
         getAccount();
         getOpenOrders();
         start_ws_stream();
@@ -213,16 +212,20 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   let buyPrice;
   let sellPrice;
 
-  const symbolMap = exchangeInfoMap.get("result").get("symbols").get(symbol);
+  const exchangeInfoSymbol = exchangeInfo.result.symbols.find(element => element.symbol === symbol);
 
-  const baseAsset = symbolMap.get("baseAsset");
-  const quoteAsset = symbolMap.get("quoteAsset");
+  const baseAsset = exchangeInfoSymbol.baseAsset;
+  const quoteAsset = exchangeInfoSymbol.quoteAsset;
 
-  const filtersMap = symbolMap.get("filters");
+  const filters = exchangeInfoSymbol.filters;
 
-  const pricePrecision = filtersMap.get("PRICE_FILTER").precision;
-  const lotSizePrecision = filtersMap.get("LOT_SIZE").precision;
-  const notional = Math.max(minNotional, filtersMap.get("NOTIONAL").minNotional);
+  const PRICE_FILTER = filters.find(filter => filter.filterType === "PRICE_FILTER");
+  const LOT_SIZE = filters.find(filter => filter.filterType === "LOT_SIZE");
+  const NOTIONAL = filters.find(filter => filter.filterType === "NOTIONAL");
+
+  const pricePrecision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
+  const lotSizePrecision = Math.round(-Math.log10(LOT_SIZE.stepSize));
+  const notional = Math.max(minNotional, NOTIONAL.minNotional);
 
   if (side === "buy") {
     buyPrice = binance.getHigherPrice(price, grid, pricePrecision);;
