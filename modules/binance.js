@@ -54,3 +54,61 @@ export const getLowerPrice = (price, grid, precision) => _.ceil(slotToPrice(pric
 export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(priceToSlot(price, grid) + 1, grid), precision);
 
 export const printExecutedOrder = order => console.log(`${new Date(order.transactTime).toLocaleString()} ${order.status} ${order.type} ${order.timeInForce} ${order.side} ${order.origQty} ${order.symbol} at ${order.price}`);
+
+export const getAccount = (ws) => {
+  const params = {
+    apiKey: API_KEY,
+    timestamp: Date.now()
+  };
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+  searchParams.append("signature", signature(searchParams.toString()));
+
+  ws.send(JSON.stringify({
+    id: "account_status",
+    method: "account.status",
+    params: Object.fromEntries(searchParams)
+  }));
+};
+
+export const getOpenOrders = (ws) => {
+  const params = {
+    apiKey: API_KEY,
+    timestamp: Date.now()
+  };
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+  searchParams.append("signature", signature(searchParams.toString()));
+
+  ws.send(JSON.stringify({
+    id: "openOrders_status",
+    method: "openOrders.status",
+    params: Object.fromEntries(searchParams)
+  }));
+};
+
+export const getExchangeInfo = (ws) => {
+  const params = {};
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+
+  ws.send(JSON.stringify({
+    id: "exchangeInfo",
+    method: "exchangeInfo",
+    params: Object.fromEntries(searchParams)
+  }));
+};
+
+export const startUserDataStream = (ws) => {
+  const params = {
+    apiKey: API_KEY
+  };
+  const searchParams = new URLSearchParams({ ...params });
+  searchParams.sort();
+
+  ws.send(JSON.stringify({
+    id: "userDataStream_start",
+    method: "userDataStream.start",
+    params: Object.fromEntries(searchParams)
+  }));
+};

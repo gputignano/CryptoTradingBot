@@ -17,7 +17,7 @@ const start_ws_api = (() => {
   ws_api.on("open", () => {
     console.log(`ws_api => open`);
 
-    getExchangeInfo();
+    binance.getExchangeInfo(ws_api);
   });
 
   ws_api.on("close", () => {
@@ -72,10 +72,10 @@ const start_ws_api = (() => {
         break;
       case 'exchangeInfo':
         exchangeInfo = data;
-        getAccount();
-        getOpenOrders();
+        binance.getAccount(ws_api);
+        binance.getOpenOrders(ws_api);
         start_ws_stream();
-        startUserDataStream();
+        binance.startUserDataStream(ws_api);
 
         break;
     }
@@ -388,66 +388,6 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     };
 
   }
-};
-
-const getAccount = () => {
-  const params = {
-    apiKey: binance.API_KEY,
-    timestamp: Date.now()
-  };
-  const searchParams = new URLSearchParams({ ...params });
-  searchParams.sort();
-  const signature = binance.signature(searchParams.toString());
-  searchParams.append("signature", signature);
-
-  ws_api.send(JSON.stringify({
-    id: "account_status",
-    method: "account.status",
-    params: Object.fromEntries(searchParams)
-  }));
-};
-
-const getOpenOrders = () => {
-  const params = {
-    apiKey: binance.API_KEY,
-    timestamp: Date.now()
-  };
-  const searchParams = new URLSearchParams({ ...params });
-  searchParams.sort();
-  const signature = binance.signature(searchParams.toString());
-  searchParams.append("signature", signature);
-
-  ws_api.send(JSON.stringify({
-    id: "openOrders_status",
-    method: "openOrders.status",
-    params: Object.fromEntries(searchParams)
-  }));
-};
-
-const getExchangeInfo = () => {
-  const params = {};
-  const searchParams = new URLSearchParams({ ...params });
-  searchParams.sort();
-
-  ws_api.send(JSON.stringify({
-    id: "exchangeInfo",
-    method: "exchangeInfo",
-    params: Object.fromEntries(searchParams)
-  }));
-};
-
-const startUserDataStream = () => {
-  const params = {
-    apiKey: binance.API_KEY
-  };
-  const searchParams = new URLSearchParams({ ...params });
-  searchParams.sort();
-
-  ws_api.send(JSON.stringify({
-    id: "userDataStream_start",
-    method: "userDataStream.start",
-    params: Object.fromEntries(searchParams)
-  }));
 };
 
 process.on("SIGINT", () => {
