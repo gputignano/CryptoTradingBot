@@ -24,7 +24,7 @@ const start_ws_api = () => {
   ws_api.on("close", () => {
     console.log(`ws_api => close`);
     ws_api = null;
-    setTimeout(() => start_ws_api, 5000);
+    setTimeout(start_ws_api, 5000);
   });
 
   ws_api.on("ping", data => {
@@ -99,7 +99,7 @@ const start_ws_stream = () => {
   ws_stream.on("close", () => {
     console.log(`ws_stream => close`);
     ws_stream = null;
-    setTimeout(() => start_ws_stream, 5000);
+    setTimeout(start_ws_stream, 5000);
   });
 
   ws_stream.on("ping", data => {
@@ -160,7 +160,7 @@ const start_ws_user_data_stream = listenKey => {
     console.log(`ws_user_data_stream => close`);
 
     ws_user_data_stream = null;
-    setTimeout(() => start_ws_user_data_stream, 5000, listenKey);
+    setTimeout(start_ws_user_data_stream, 5000, listenKey);
   });
 
   ws_user_data_stream.on("ping", data => {
