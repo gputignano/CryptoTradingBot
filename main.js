@@ -78,6 +78,8 @@ const start_ws_api = () => {
   });
 };
 
+start_ws_api();
+
 const start_ws_stream = () => {
   // WEBSOCKET MARKET DATA STREAM
   ws_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
