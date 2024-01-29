@@ -6,8 +6,9 @@ import * as binance from "./modules/binance.js";
 let account;
 let openOrders;
 let exchangeInfo;
+let bookTicker;
 const openTradesMap = new Map();
-let ws_api, ws_stream, ws_user_data_stream;
+let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
 
 const start_ws_api = () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
@@ -71,6 +72,7 @@ const start_ws_api = () => {
         binance.getAccount(ws_api);
         binance.getOpenOrders(ws_api);
         start_ws_stream();
+        start_ws_bookTicker();
         binance.startUserDataStream(ws_api);
 
         break;
@@ -197,6 +199,41 @@ const start_ws_user_data_stream = listenKey => {
         if (index > -1) openOrders.result.splice(index, 1);
         break;
     }
+  });
+};
+
+const start_ws_bookTicker = () => {
+  // WEBSOCKET BOOKTICKER DATA STREAM
+  ws_bookTicker ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
+
+  ws_bookTicker.on("error", error => console.error(error.message));
+
+  ws_bookTicker.on("open", () => {
+    console.log(`start_ws_bookTicker => open`);
+
+    ws_bookTicker.send(
+      JSON.stringify({
+        method: "SUBSCRIBE",
+        params: [symbol.toLowerCase() + "@bookTicker"],
+        id: "SUBSCRIBE",
+      })
+    );
+  });
+
+  ws_bookTicker.on("close", () => {
+    console.log(`ws_bookTicker => close`);
+    ws_bookTicker = null;
+    setTimeout(start_ws_bookTicker, 5000);
+  });
+
+  ws_bookTicker.on("ping", data => {
+    ws_bookTicker.pong(data);
+  });
+
+  ws_bookTicker.on("message", async data => {
+    data = JSON.parse(data);
+
+    bookTicker = data;
   });
 };
 
@@ -398,4 +435,12 @@ process.on("SIGINT", () => {
     method: "LIST_SUBSCRIPTIONS",
     id: "LIST_SUBSCRIPTIONS"
   }));
+
+  ws_bookTicker.send(
+    JSON.stringify({
+      method: "UNSUBSCRIBE",
+      params: [symbol.toLowerCase() + "@bookTicker"],
+      id: "UNSUBSCRIBE",
+    })
+  );
 });
