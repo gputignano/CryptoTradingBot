@@ -9,7 +9,7 @@ let exchangeInfo;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream;
 
-const start_ws_api = (() => {
+const start_ws_api = () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);
 
   ws_api.on("error", error => console.error(error.message));
@@ -76,7 +76,7 @@ const start_ws_api = (() => {
         break;
     }
   });
-})();
+};
 
 const start_ws_stream = () => {
   // WEBSOCKET MARKET DATA STREAM
