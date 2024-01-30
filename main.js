@@ -209,7 +209,7 @@ const start_ws_bookTicker = () => {
   ws_bookTicker.on("error", error => console.error(error.message));
 
   ws_bookTicker.on("open", () => {
-    console.log(`start_ws_bookTicker => open`);
+    console.log(`ws_bookTicker => open`);
 
     ws_bookTicker.send(
       JSON.stringify({
