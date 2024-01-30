@@ -266,7 +266,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   const quoteBalance = account.result.balances.find(element => element.asset === quoteAsset);
 
   if (side === "buy") {
-    buyPrice = binance.getHigherPrice(price, grid, pricePrecision);;
+    buyPrice = binance.getHigherPrice(price, grid, pricePrecision);
     if (buyPrice < bookTicker.a) return slot;
     sellPrice = _.floor(buyPrice * (1 + interest), pricePrecision);
 
@@ -347,7 +347,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   }
 
   if (side === "sell") {
-    sellPrice = binance.getLowerPrice(price, grid, pricePrecision);;
+    sellPrice = binance.getLowerPrice(price, grid, pricePrecision);
     if (sellPrice > bookTicker.b) return slot;
     buyPrice = _.ceil(sellPrice / (1 + interest), pricePrecision);
 
