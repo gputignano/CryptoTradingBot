@@ -446,3 +446,7 @@ process.on("SIGINT", () => {
     })
   );
 });
+
+process.setUncaughtExceptionCaptureCallback(e => {
+  console.error("Uncaught exception:", e);
+});
