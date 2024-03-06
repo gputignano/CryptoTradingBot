@@ -273,12 +273,12 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
 
     if (price > buyPrice) {
-      console.log(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: price > buyPrice`);
+      console.log(`${new Date().toLocaleString()} - ${symbol}: price > buyPrice`);
       return slot;
     }
 
     if (buyPrice === sellPrice) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: buyPrice === sellPrice`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: buyPrice === sellPrice`);
       return slot;
     }
 
@@ -288,7 +288,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     buyNotional = buyPrice * baseToBuy;
 
     if (quoteBalance && quoteBalance.free < buyNotional) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: No BUY balance to trade.`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: No BUY balance to trade.`);
       return slot;
     }
 
@@ -299,7 +299,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     }
 
     if (baseAvailable - baseToSell < 0) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: baseAvailable - baseToSell < 0`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: baseAvailable - baseToSell < 0`);
       return slot;
     }
 
@@ -307,7 +307,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     sellNotionalAvailable = sellNotional * (1 - account.result.commissionRates.maker);
 
     if (sellNotionalAvailable - buyNotional < 0) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: sellNotionalAvailable - buyNotional < 0`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: sellNotionalAvailable - buyNotional < 0`);
       return slot;
     }
 
@@ -354,12 +354,12 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
 
     if (price < sellPrice) {
-      console.log(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: price < sellPrice`);
+      console.log(`${new Date().toLocaleString()} - ${symbol}: price < sellPrice`);
       return slot;
     }
 
     if (buyPrice === sellPrice) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: buyPrice === sellPrice`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: buyPrice === sellPrice`);
       return slot;
     }
 
@@ -368,7 +368,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     sellNotional = sellPrice * baseToSell;
 
     if (baseBalance && baseBalance.free * sellPrice < sellNotional) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: No SELL balance to trade.`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: No SELL balance to trade.`);
       return slot;
     }
 
@@ -383,14 +383,14 @@ const trade = async ({ s: symbol, p: price }, slot) => {
     baseAvailable = baseToBuy * (1 - account.result.commissionRates.maker);
 
     if (baseAvailable - baseToSell < 0) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: baseAvailable - baseToSell < 0`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: baseAvailable - baseToSell < 0`);
       return slot;
     }
 
     buyNotional = buyPrice * baseToBuy;
 
     if (sellNotionalAvailable - buyNotional < 0) {
-      console.error(`${new Date(order.transactTime).toLocaleString()} - ${symbol}: sellNotionalAvailable - buyNotional < 0`);
+      console.error(`${new Date().toLocaleString()} - ${symbol}: sellNotionalAvailable - buyNotional < 0`);
       return slot;
     }
 
