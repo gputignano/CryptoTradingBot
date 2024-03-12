@@ -252,6 +252,20 @@ const start_ws_bookTicker = () => {
     data = JSON.parse(data);
 
     bookTicker = data;
+
+    switch (data.id) {
+      case "SUBSCRIBE": // Subscribe to a stream
+        console.log(data);
+        break;
+      case "UNSUBSCRIBE": // Unsubscribe to a stream
+        console.log(data);
+
+        setTimeout(() => process.exit(0), 5000);
+        break;
+      case "LIST_SUBSCRIPTIONS": // List subscriptions
+        console.log(data);
+        break;
+    }
   });
 };
 
