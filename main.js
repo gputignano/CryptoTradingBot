@@ -228,7 +228,7 @@ const start_ws_user_data_stream = listenKey => {
 };
 
 const start_ws_bookTicker = () => {
-  // WEBSOCKET BOOKTICKER DATA STREAM
+  // bookTicker stream response does not return an id so I need to create a separate stream
   ws_bookTicker ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
 
   ws_bookTicker.on("error", error => console.error(error.message));
