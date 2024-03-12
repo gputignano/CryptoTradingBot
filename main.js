@@ -144,8 +144,6 @@ const start_ws_stream = () => {
         break;
       case "UNSUBSCRIBE": // Unsubscribe to a stream
         console.log(data);
-
-        setTimeout(() => process.exit(0), 5000);
         break;
       case "LIST_SUBSCRIPTIONS": // List subscriptions
         console.log(data);
@@ -259,8 +257,6 @@ const start_ws_bookTicker = () => {
         break;
       case "UNSUBSCRIBE": // Unsubscribe to a stream
         console.log(data);
-
-        setTimeout(() => process.exit(0), 5000);
         break;
       case "LIST_SUBSCRIPTIONS": // List subscriptions
         console.log(data);
@@ -479,6 +475,8 @@ process.on("SIGINT", () => {
       id: "UNSUBSCRIBE",
     })
   );
+
+  setTimeout(() => process.exit(0), 1000);
 });
 
 process.setUncaughtExceptionCaptureCallback(e => {
