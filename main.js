@@ -1,14 +1,41 @@
+import { watchFile, readFileSync } from "fs";
 import _ from "lodash";
 import WebSocket from "ws";
 import { symbol, side, grid, earn, interest, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
+const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
 let exchangeInfo;
 let bookTicker;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
+let configData, configDataJSON;
+
+try {
+  configData = readFileSync(CONFIG_FILE_NAME, "utf8");
+  configDataJSON = JSON.parse(configData);
+  console.log(configDataJSON);
+} catch (error) {
+  console.error("File not found or empty!");
+}
+
+watchFile(CONFIG_FILE_NAME, {
+  // Passing the options parameter
+  bigint: false,
+  persistent: true,
+  interval: 1000,
+}, (curr, prev) => {
+
+  try {
+    configData = readFileSync(CONFIG_FILE_NAME, "utf8");
+    configDataJSON = JSON.parse(configData);
+    console.log(configDataJSON);
+  } catch (error) {
+    console.error("File not found or empty!");
+  }
+});
 
 const start_ws_api = () => {
   ws_api ??= new WebSocket(binance.WEBSOCKET_API);

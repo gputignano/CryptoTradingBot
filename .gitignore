@@ -4,3 +4,4 @@ playground/
 .env.production
 package-lock.json
 *.pem
+config.json
