@@ -149,13 +149,6 @@ const start_ws_stream = () => {
         break;
       case "LIST_SUBSCRIPTIONS": // List subscriptions
         console.log(data);
-
-        if (data.result.length > 0)
-          ws_stream.send(JSON.stringify({
-            method: "UNSUBSCRIBE",
-            params: data.result,
-            id: "UNSUBSCRIBE"
-          }));
         break;
     }
 
@@ -458,10 +451,12 @@ const trade = async ({ s: symbol, p: price }, slot) => {
 process.on("SIGINT", () => {
   if (!ws_stream) process.exit(0);
 
-  ws_stream.send(JSON.stringify({
-    method: "LIST_SUBSCRIPTIONS",
-    id: "LIST_SUBSCRIPTIONS"
-  }));
+  ws_stream.send(
+    JSON.stringify({
+      method: "UNSUBSCRIBE",
+      params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@aggTrade`),
+      id: "UNSUBSCRIBE"
+    }));
 
   ws_bookTicker.send(
     JSON.stringify({
