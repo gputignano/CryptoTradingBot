@@ -16,7 +16,6 @@ let configData, configDataJSON;
 try {
   configData = readFileSync(CONFIG_FILE_NAME, "utf8");
   configDataJSON = JSON.parse(configData);
-  console.log(configDataJSON);
 } catch (error) {
   console.error("File not found or empty!");
 }
@@ -31,7 +30,6 @@ watchFile(CONFIG_FILE_NAME, {
   try {
     configData = readFileSync(CONFIG_FILE_NAME, "utf8");
     configDataJSON = JSON.parse(configData);
-    console.log(configDataJSON);
   } catch (error) {
     console.error("File not found or empty!");
   }
