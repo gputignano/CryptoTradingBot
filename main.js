@@ -372,38 +372,45 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
     }
 
     // BUY ORDER
-    const buyOrder = await binance.order({
-      symbol: symbol,
-      side: "BUY",
-      type: "LIMIT",
-      timeInForce: "FOK",
-      quantity: baseToBuy,
-      price: buyPrice,
-    });
+    try {
+      const buyOrder = await binance.order({
+        symbol: symbol,
+        side: "BUY",
+        type: "LIMIT",
+        timeInForce: "FOK",
+        quantity: baseToBuy,
+        price: buyPrice,
+      });
 
-    if (buyOrder.data.status === "EXPIRED") {
+      if (buyOrder.data.status === "EXPIRED") {
+        binance.printExecutedOrder(buyOrder.data);
+        return slot;
+      };
+
       binance.printExecutedOrder(buyOrder.data);
-      return slot;
-    };
-
-    binance.printExecutedOrder(buyOrder.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
 
     // SELL ORDER
-    const sellOrder = await binance.order({
-      symbol: symbol,
-      side: "SELL",
-      type: "LIMIT",
-      timeInForce: "GTC",
-      quantity: baseToSell,
-      price: sellPrice,
-    });
+    try {
+      const sellOrder = await binance.order({
+        symbol: symbol,
+        side: "SELL",
+        type: "LIMIT",
+        timeInForce: "GTC",
+        quantity: baseToSell,
+        price: sellPrice,
+      });
 
-    if (sellOrder.data.status === "NEW") {
-      openOrders.result.push(sellOrder.data);
-      binance.printExecutedOrder(sellOrder.data);
-      return slot;
-    };
-
+      if (sellOrder.data.status === "NEW") {
+        openOrders.result.push(sellOrder.data);
+        binance.printExecutedOrder(sellOrder.data);
+        return slot;
+      };
+    } catch (error) {
+      console.error(error.response.data);
+    }
   }
 
   if (symbolData.side === "sell") {
@@ -452,38 +459,45 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
     }
 
     // SELL ORDER
-    const sellOrder = await binance.order({
-      symbol: symbol,
-      side: "SELL",
-      type: "LIMIT",
-      timeInForce: "FOK",
-      quantity: baseToSell,
-      price: sellPrice,
-    });
+    try {
+      const sellOrder = await binance.order({
+        symbol: symbol,
+        side: "SELL",
+        type: "LIMIT",
+        timeInForce: "FOK",
+        quantity: baseToSell,
+        price: sellPrice,
+      });
 
-    if (sellOrder.data.status === "EXPIRED") {
+      if (sellOrder.data.status === "EXPIRED") {
+        binance.printExecutedOrder(sellOrder.data);
+        return slot;
+      };
+
       binance.printExecutedOrder(sellOrder.data);
-      return slot;
-    };
-
-    binance.printExecutedOrder(sellOrder.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
 
     // BUY ORDER
-    const buyOrder = await binance.order({
-      symbol: symbol,
-      side: "BUY",
-      type: "LIMIT",
-      timeInForce: "GTC",
-      quantity: baseToBuy,
-      price: buyPrice,
-    });
+    try {
+      const buyOrder = await binance.order({
+        symbol: symbol,
+        side: "BUY",
+        type: "LIMIT",
+        timeInForce: "GTC",
+        quantity: baseToBuy,
+        price: buyPrice,
+      });
 
-    if (buyOrder.data.status === "NEW") {
-      openOrders.result.push(buyOrder.data);
-      binance.printExecutedOrder(buyOrder.data);
-      return slot;
-    };
-
+      if (buyOrder.data.status === "NEW") {
+        openOrders.result.push(buyOrder.data);
+        binance.printExecutedOrder(buyOrder.data);
+        return slot;
+      };
+    } catch (error) {
+      console.error(error.response.data);
+    }
   }
 };
 
