@@ -1,7 +1,7 @@
 import { watchFile, readFileSync } from "fs";
 import _ from "lodash";
 import WebSocket from "ws";
-import { grid, interest, minNotional } from "./modules/argv.js";
+import { grid, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 const CONFIG_FILE_NAME = "config.json";
@@ -331,7 +331,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   if (symbolData.side === "buy") {
     buyPrice = binance.getHigherPrice(price, grid, pricePrecision);
     if (buyPrice < bookTicker.a) return slot;
-    sellPrice = _.floor(buyPrice * (1 + interest), pricePrecision);
+    sellPrice = _.floor(buyPrice * (1 + symbolData.interest), pricePrecision);
 
     if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
 
@@ -412,7 +412,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   if (symbolData.side === "sell") {
     sellPrice = binance.getLowerPrice(price, grid, pricePrecision);
     if (sellPrice > bookTicker.b) return slot;
-    buyPrice = _.ceil(sellPrice / (1 + interest), pricePrecision);
+    buyPrice = _.ceil(sellPrice / (1 + symbolData.interest), pricePrecision);
 
     if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
 
@@ -426,7 +426,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
       return slot;
     }
 
-    baseToSell = _.ceil(notional / sellPrice / (1 - interest) / (1 - account.result.commissionRates.taker), lotSizePrecision);
+    baseToSell = _.ceil(notional / sellPrice / (1 - symbolData.interest) / (1 - account.result.commissionRates.taker), lotSizePrecision);
 
     sellNotional = sellPrice * baseToSell;
 
