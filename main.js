@@ -1,7 +1,7 @@
 import { watchFile, readFileSync } from "fs";
 import _ from "lodash";
 import WebSocket from "ws";
-import { side, grid, earn, interest, minNotional } from "./modules/argv.js";
+import { grid, earn, interest, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 const CONFIG_FILE_NAME = "config.json";
@@ -186,12 +186,13 @@ const start_ws_stream = () => {
     switch (data.e) {
       case "aggTrade":
         const slot = binance.priceToSlot(data.p, grid);
+        const symbolData = configDataJSON.symbols.find(symbol => symbol.name === data.s);
 
         if (!openTradesMap.has(data.s)) openTradesMap.set(data.s, new Set());
 
         if (!openTradesMap.get(data.s).has(slot)) {
           openTradesMap.get(data.s).add(slot);
-          openTradesMap.get(data.s).delete(await trade(data, slot));
+          openTradesMap.get(data.s).delete(await trade(data, symbolData, slot));
         }
 
         break;
@@ -299,7 +300,7 @@ const start_ws_bookTicker = () => {
   });
 };
 
-const trade = async ({ s: symbol, p: price }, slot) => {
+const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   let baseToBuy;
   let baseAvailable;
   let baseToSell;
@@ -327,7 +328,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
   const baseBalance = account.result.balances.find(element => element.asset === baseAsset);
   const quoteBalance = account.result.balances.find(element => element.asset === quoteAsset);
 
-  if (side === "buy") {
+  if (symbolData.side === "buy") {
     buyPrice = binance.getHigherPrice(price, grid, pricePrecision);
     if (buyPrice < bookTicker.a) return slot;
     sellPrice = _.floor(buyPrice * (1 + interest), pricePrecision);
@@ -408,7 +409,7 @@ const trade = async ({ s: symbol, p: price }, slot) => {
 
   }
 
-  if (side === "sell") {
+  if (symbolData.side === "sell") {
     sellPrice = binance.getLowerPrice(price, grid, pricePrecision);
     if (sellPrice > bookTicker.b) return slot;
     buyPrice = _.ceil(sellPrice / (1 + interest), pricePrecision);
