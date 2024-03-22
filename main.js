@@ -1,7 +1,7 @@
 import { watchFile, readFileSync } from "fs";
 import _ from "lodash";
 import WebSocket from "ws";
-import { grid, earn, interest, minNotional } from "./modules/argv.js";
+import { grid, interest, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 const CONFIG_FILE_NAME = "config.json";
@@ -355,9 +355,9 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
       return slot;
     }
 
-    if (earn === "base") {
+    if (symbolData.earn === "base") {
       baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.result.commissionRates.maker), lotSizePrecision);
-    } else if (earn === "quote") {
+    } else if (symbolData.earn === "quote") {
       baseToSell = _.floor(baseAvailable, lotSizePrecision);
     }
 
@@ -437,9 +437,9 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
     sellNotionalAvailable = sellNotional * (1 - account.result.commissionRates.taker);
 
-    if (earn === "base") {
+    if (symbolData.earn === "base") {
       baseToBuy = _.floor(sellNotionalAvailable / buyPrice, lotSizePrecision);
-    } else if (earn === "quote") {
+    } else if (symbolData.earn === "quote") {
       baseToBuy = _.ceil(baseToSell / (1 - account.result.commissionRates.maker), lotSizePrecision);
     }
 

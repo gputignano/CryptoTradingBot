@@ -7,12 +7,6 @@ const argv = yargs(hideBin(process.argv))
     type: "number",
     default: 1.0,
   })
-  .option("earn", {
-    describe: "Asset to earn (base or quote)",
-    demandOption: true,
-    type: "string",
-    default: "base",
-  })
   .option("interest", {
     describe: "Interest",
     type: "number",
@@ -25,10 +19,8 @@ const argv = yargs(hideBin(process.argv))
   }).argv;
 
 console.log(`grid = ${argv.grid}`);
-console.log(`earn = ${argv.earn ??= "base"}`);
 console.log(`interest = ${argv.interest}%`);
 
 export const grid = argv.grid;
-export const earn = argv.earn;
 export const interest = argv.interest / 100;
 export const minNotional = argv.minNotional;
