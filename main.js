@@ -1,7 +1,7 @@
 import { watchFile, readFileSync } from "fs";
 import _ from "lodash";
 import WebSocket from "ws";
-import { symbol, side, grid, earn, interest, minNotional } from "./modules/argv.js";
+import { side, grid, earn, interest, minNotional } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 const CONFIG_FILE_NAME = "config.json";
