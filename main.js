@@ -26,10 +26,42 @@ watchFile(CONFIG_FILE_NAME, {
   persistent: true,
   interval: 1000,
 }, (curr, prev) => {
-
   try {
     configData = readFileSync(CONFIG_FILE_NAME, "utf8");
+    const oldConfigDataJSON = configDataJSON;
     configDataJSON = JSON.parse(configData);
+    console.log(configDataJSON);
+
+    ws_stream.send(
+      JSON.stringify({
+        method: "UNSUBSCRIBE",
+        params: oldConfigDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@aggTrade`),
+        id: "UNSUBSCRIBE"
+      }));
+
+    ws_bookTicker.send(
+      JSON.stringify({
+        method: "UNSUBSCRIBE",
+        params: oldConfigDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@bookTicker`),
+        id: "UNSUBSCRIBE",
+      })
+    );
+
+    ws_stream.send(
+      JSON.stringify({
+        method: "SUBSCRIBE",
+        params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@aggTrade`),
+        id: "SUBSCRIBE",
+      })
+    );
+
+    ws_bookTicker.send(
+      JSON.stringify({
+        method: "SUBSCRIBE",
+        params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@bookTicker`),
+        id: "SUBSCRIBE",
+      })
+    );
   } catch (error) {
     console.error("File not found or empty!");
   }
