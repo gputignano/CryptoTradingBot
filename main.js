@@ -1,10 +1,10 @@
 import { watchFile, readFileSync } from "fs";
 import _ from "lodash";
 import WebSocket from "ws";
-import { grid } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 const CONFIG_FILE_NAME = "config.json";
+const GRID = 1.0;
 let account;
 let openOrders;
 let exchangeInfo;
@@ -122,7 +122,7 @@ const start_ws_api = () => {
       case 'openOrders_status':
         openOrders = { ...data };
         openOrders.hasPrice = (symbol, price) => openOrders.result.findIndex(openOrder => openOrder.symbol === symbol && parseFloat(openOrder.price) === price);
-        openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, grid));
+        openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, GRID));
         break;
       case 'exchangeInfo':
         exchangeInfo = data;
@@ -185,7 +185,7 @@ const start_ws_stream = () => {
 
     switch (data.e) {
       case "aggTrade":
-        const slot = binance.priceToSlot(data.p, grid);
+        const slot = binance.priceToSlot(data.p, GRID);
         const symbolData = configDataJSON.symbols.find(symbol => symbol.name === data.s);
 
         if (!openTradesMap.has(data.s)) openTradesMap.set(data.s, new Set());
@@ -329,7 +329,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   const quoteBalance = account.result.balances.find(element => element.asset === quoteAsset);
 
   if (symbolData.side === "buy") {
-    buyPrice = binance.getHigherPrice(price, grid, pricePrecision);
+    buyPrice = binance.getHigherPrice(price, GRID, pricePrecision);
     if (buyPrice < bookTicker.a) return slot;
     sellPrice = _.floor(buyPrice * (1 + symbolData.interest), pricePrecision);
 
@@ -410,7 +410,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   }
 
   if (symbolData.side === "sell") {
-    sellPrice = binance.getLowerPrice(price, grid, pricePrecision);
+    sellPrice = binance.getLowerPrice(price, GRID, pricePrecision);
     if (sellPrice > bookTicker.b) return slot;
     buyPrice = _.ceil(sellPrice / (1 + symbolData.interest), pricePrecision);
 
