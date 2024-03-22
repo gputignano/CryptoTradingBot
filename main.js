@@ -152,7 +152,7 @@ const start_ws_stream = () => {
       ws_stream.send(
         JSON.stringify({
           method: "SUBSCRIBE",
-          params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@aggTrade`),
+          params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
           id: "SUBSCRIBE",
         })
       );
@@ -264,7 +264,7 @@ const start_ws_bookTicker = () => {
       ws_bookTicker.send(
         JSON.stringify({
           method: "SUBSCRIBE",
-          params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@bookTicker`),
+          params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
           id: "SUBSCRIBE",
         })
       );
@@ -498,14 +498,14 @@ process.on("SIGINT", () => {
   ws_stream.send(
     JSON.stringify({
       method: "UNSUBSCRIBE",
-      params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@aggTrade`),
+      params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
       id: "UNSUBSCRIBE"
     }));
 
   ws_bookTicker.send(
     JSON.stringify({
       method: "UNSUBSCRIBE",
-      params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@bookTicker`),
+      params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
       id: "UNSUBSCRIBE",
     })
   );
