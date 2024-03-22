@@ -350,10 +350,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
     buyNotional = buyPrice * baseToBuy;
 
-    if (quoteBalance && quoteBalance.free < buyNotional) {
-      console.error(`${new Date().toLocaleString()} - ${symbol}: No BUY balance to trade.`);
-      return slot;
-    }
+    if (quoteBalance && quoteBalance.free < buyNotional) return slot;
 
     if (symbolData.earn === "base") {
       baseToSell = _.ceil(buyNotional / sellPrice / (1 - account.result.commissionRates.maker), lotSizePrecision);
@@ -430,10 +427,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
     sellNotional = sellPrice * baseToSell;
 
-    if (baseBalance && baseBalance.free * sellPrice < sellNotional) {
-      console.error(`${new Date().toLocaleString()} - ${symbol}: No SELL balance to trade.`);
-      return slot;
-    }
+    if (baseBalance && baseBalance.free * sellPrice < sellNotional) return slot;
 
     sellNotionalAvailable = sellNotional * (1 - account.result.commissionRates.taker);
 
