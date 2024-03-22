@@ -1,7 +1,7 @@
 import { watchFile, readFileSync } from "fs";
 import _ from "lodash";
 import WebSocket from "ws";
-import { grid, minNotional } from "./modules/argv.js";
+import { grid } from "./modules/argv.js";
 import * as binance from "./modules/binance.js";
 
 const CONFIG_FILE_NAME = "config.json";
@@ -323,7 +323,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
   const pricePrecision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
   const lotSizePrecision = Math.round(-Math.log10(LOT_SIZE.stepSize));
-  const notional = Math.max(minNotional, NOTIONAL.minNotional);
+  const notional = Math.max(symbolData.notional, NOTIONAL.minNotional);
 
   const baseBalance = account.result.balances.find(element => element.asset === baseAsset);
   const quoteBalance = account.result.balances.find(element => element.asset === quoteAsset);
