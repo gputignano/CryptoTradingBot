@@ -148,13 +148,14 @@ const start_ws_stream = () => {
   ws_stream.on("open", () => {
     console.log(`ws_stream => open`);
 
-    ws_stream.send(
-      JSON.stringify({
-        method: "SUBSCRIBE",
-        params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@aggTrade`),
-        id: "SUBSCRIBE",
-      })
-    );
+    if (configDataJSON.symbols.length > 0)
+      ws_stream.send(
+        JSON.stringify({
+          method: "SUBSCRIBE",
+          params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@aggTrade`),
+          id: "SUBSCRIBE",
+        })
+      );
   });
 
   ws_stream.on("close", () => {
@@ -259,13 +260,14 @@ const start_ws_bookTicker = () => {
   ws_bookTicker.on("open", () => {
     console.log(`ws_bookTicker => open`);
 
-    ws_bookTicker.send(
-      JSON.stringify({
-        method: "SUBSCRIBE",
-        params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@bookTicker`),
-        id: "SUBSCRIBE",
-      })
-    );
+    if (configDataJSON.symbols.length > 0)
+      ws_bookTicker.send(
+        JSON.stringify({
+          method: "SUBSCRIBE",
+          params: configDataJSON.symbols.map(symbol => `${symbol.toLowerCase()}@bookTicker`),
+          id: "SUBSCRIBE",
+        })
+      );
   });
 
   ws_bookTicker.on("close", () => {
