@@ -30,7 +30,6 @@ watchFile(CONFIG_FILE_NAME, {
     configData = readFileSync(CONFIG_FILE_NAME, "utf8");
     const oldConfigDataJSON = configDataJSON;
     configDataJSON = JSON.parse(configData);
-    console.log(configDataJSON);
 
     ws_stream.send(
       JSON.stringify({
