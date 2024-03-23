@@ -35,14 +35,14 @@ watchFile(CONFIG_FILE_NAME, {
     ws_stream.send(
       JSON.stringify({
         method: "UNSUBSCRIBE",
-        params: oldConfigDataJSON.symbols.map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
+        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
         id: "UNSUBSCRIBE"
       }));
 
     ws_bookTicker.send(
       JSON.stringify({
         method: "UNSUBSCRIBE",
-        params: oldConfigDataJSON.symbols.map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
+        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
         id: "UNSUBSCRIBE",
       })
     );
@@ -50,7 +50,7 @@ watchFile(CONFIG_FILE_NAME, {
     ws_stream.send(
       JSON.stringify({
         method: "SUBSCRIBE",
-        params: configDataJSON.symbols.map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
+        params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
         id: "SUBSCRIBE",
       })
     );
@@ -58,7 +58,7 @@ watchFile(CONFIG_FILE_NAME, {
     ws_bookTicker.send(
       JSON.stringify({
         method: "SUBSCRIBE",
-        params: configDataJSON.symbols.map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
+        params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
         id: "SUBSCRIBE",
       })
     );
