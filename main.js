@@ -392,23 +392,25 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
     }
 
     // SELL ORDER
-    try {
-      const sellOrder = await binance.order({
-        symbol: symbol,
-        side: "SELL",
-        type: "LIMIT",
-        timeInForce: "GTC",
-        quantity: baseToSell,
-        price: sellPrice,
-      });
+    if (buyOrder.data.status === "FILLED") {
+      try {
+        const sellOrder = await binance.order({
+          symbol: symbol,
+          side: "SELL",
+          type: "LIMIT",
+          timeInForce: "GTC",
+          quantity: baseToSell,
+          price: sellPrice,
+        });
 
-      if (sellOrder.data.status === "NEW") {
-        openOrders.result.push(sellOrder.data);
-        binance.printExecutedOrder(sellOrder.data);
-        return slot;
-      };
-    } catch (error) {
-      console.error(error.response.data);
+        if (sellOrder.data.status === "NEW") {
+          openOrders.result.push(sellOrder.data);
+          binance.printExecutedOrder(sellOrder.data);
+          return slot;
+        };
+      } catch (error) {
+        console.error(error.response.data);
+      }
     }
   }
 
@@ -479,23 +481,25 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
     }
 
     // BUY ORDER
-    try {
-      const buyOrder = await binance.order({
-        symbol: symbol,
-        side: "BUY",
-        type: "LIMIT",
-        timeInForce: "GTC",
-        quantity: baseToBuy,
-        price: buyPrice,
-      });
+    if (sellOrder.data.status === "FILLED") {
+      try {
+        const buyOrder = await binance.order({
+          symbol: symbol,
+          side: "BUY",
+          type: "LIMIT",
+          timeInForce: "GTC",
+          quantity: baseToBuy,
+          price: buyPrice,
+        });
 
-      if (buyOrder.data.status === "NEW") {
-        openOrders.result.push(buyOrder.data);
-        binance.printExecutedOrder(buyOrder.data);
-        return slot;
-      };
-    } catch (error) {
-      console.error(error.response.data);
+        if (buyOrder.data.status === "NEW") {
+          openOrders.result.push(buyOrder.data);
+          binance.printExecutedOrder(buyOrder.data);
+          return slot;
+        };
+      } catch (error) {
+        console.error(error.response.data);
+      }
     }
   }
 };
