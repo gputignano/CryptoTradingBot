@@ -388,6 +388,8 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
       // SELL ORDER
       if (buyOrder.data.status === "FILLED") {
+        binance.printExecutedOrder(buyOrder.data);
+
         const sellOrder = await binance.order({
           symbol: symbol,
           side: "SELL",
@@ -403,8 +405,6 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
           return slot;
         };
       }
-
-      binance.printExecutedOrder(buyOrder.data);
     } catch (error) {
       console.error(error.response.data);
     }
@@ -473,6 +473,8 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
       // BUY ORDER
       if (sellOrder.data.status === "FILLED") {
+        binance.printExecutedOrder(sellOrder.data);
+
         const buyOrder = await binance.order({
           symbol: symbol,
           side: "BUY",
@@ -488,8 +490,6 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
           return slot;
         };
       }
-
-      binance.printExecutedOrder(sellOrder.data);
     } catch (error) {
       console.error(error.response.data);
     }
