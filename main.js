@@ -11,11 +11,12 @@ let exchangeInfo;
 let bookTicker;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
-let configData, configDataJSON;
+let configData, configDataJSON, configDataMap;
 
 try {
   configData = readFileSync(CONFIG_FILE_NAME, "utf8");
   configDataJSON = JSON.parse(configData);
+  configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
 } catch (error) {
   console.error("File not found or empty!");
 }
@@ -30,6 +31,7 @@ watchFile(CONFIG_FILE_NAME, {
     configData = readFileSync(CONFIG_FILE_NAME, "utf8");
     const oldConfigDataJSON = configDataJSON;
     configDataJSON = JSON.parse(configData);
+    configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
 
     ws_stream.send(
       JSON.stringify({
@@ -185,13 +187,12 @@ const start_ws_stream = () => {
     switch (data.e) {
       case "aggTrade":
         const slot = binance.priceToSlot(data.p, GRID);
-        const symbolData = configDataJSON.symbols.find(symbol => symbol.name === data.s);
 
         if (!openTradesMap.has(data.s)) openTradesMap.set(data.s, new Set());
 
         if (!openTradesMap.get(data.s).has(slot)) {
           openTradesMap.get(data.s).add(slot);
-          openTradesMap.get(data.s).delete(await trade(data, symbolData, slot));
+          openTradesMap.get(data.s).delete(await trade(data, configDataMap.get(data.s)[0], slot));
         }
 
         break;
