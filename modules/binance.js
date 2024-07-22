@@ -124,3 +124,5 @@ export const sessionLogon = ws => {
     params: Object.fromEntries(searchParams)
   }));
 };
+
+export const hasPrice = (openOrders, symbol, price) => openOrders.result.findIndex(openOrder => openOrder.symbol === symbol && parseFloat(openOrder.price) === price);

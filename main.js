@@ -122,7 +122,6 @@ const start_ws_api = () => {
         break;
       case 'openOrders_status':
         openOrders = { ...data };
-        openOrders.hasPrice = (symbol, price) => openOrders.result.findIndex(openOrder => openOrder.symbol === symbol && parseFloat(openOrder.price) === price);
         openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, GRID));
         break;
       case 'exchangeInfo':
@@ -333,7 +332,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
     if (buyPrice < bookTicker.a) return slot;
     sellPrice = _.floor(buyPrice * (1 + symbolData.interest), pricePrecision);
 
-    if (openOrders.hasPrice(symbol, sellPrice) > -1) return slot;
+    if (binance.hasPrice(openOrders, symbol, sellPrice) > -1) return slot;
 
     if (price > buyPrice) {
       console.log(`${new Date().toLocaleString()} - ${symbol}: price > buyPrice`);
@@ -419,7 +418,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
     if (sellPrice > bookTicker.b) return slot;
     buyPrice = _.ceil(sellPrice / (1 + symbolData.interest), pricePrecision);
 
-    if (openOrders.hasPrice(symbol, buyPrice) > -1) return slot;
+    if (binance.hasPrice(openOrders, symbol, buyPrice) > -1) return slot;
 
     if (price < sellPrice) {
       console.log(`${new Date().toLocaleString()} - ${symbol}: price < sellPrice`);
