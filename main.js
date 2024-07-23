@@ -4,7 +4,6 @@ import WebSocket from "ws";
 import * as binance from "./modules/binance.js";
 
 const CONFIG_FILE_NAME = "config.json";
-const GRID = 1.0;
 let account;
 let openOrders;
 let exchangeInfo;
@@ -122,7 +121,7 @@ const start_ws_api = () => {
         break;
       case 'openOrders_status':
         openOrders = { ...data };
-        openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, GRID));
+        openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, configDataMap.get(openOrder.symbol)[0].grid);
         break;
       case 'exchangeInfo':
         exchangeInfo = data;
@@ -185,7 +184,7 @@ const start_ws_stream = () => {
 
     switch (data.e) {
       case "aggTrade":
-        const slot = binance.priceToSlot(data.p, GRID);
+        const slot = binance.priceToSlot(data.p, configDataMap.get(data.s)[0].grid);
 
         if (!openTradesMap.has(data.s)) openTradesMap.set(data.s, new Set());
 
@@ -328,7 +327,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   const quoteBalance = account.result.balances.find(element => element.asset === quoteAsset);
 
   if (symbolData.side === "buy") {
-    buyPrice = binance.getHigherPrice(price, GRID, pricePrecision);
+    buyPrice = binance.getHigherPrice(price, configDataMap.get(symbol)[0].grid, pricePrecision);
     if (buyPrice < bookTicker.a) return slot;
     sellPrice = _.floor(buyPrice * (1 + symbolData.interest), pricePrecision);
 
@@ -414,7 +413,7 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   }
 
   if (symbolData.side === "sell") {
-    sellPrice = binance.getLowerPrice(price, GRID, pricePrecision);
+    sellPrice = binance.getLowerPrice(price, configDataMap.get(symbol)[0].grid, pricePrecision);
     if (sellPrice > bookTicker.b) return slot;
     buyPrice = _.ceil(sellPrice / (1 + symbolData.interest), pricePrecision);
 
