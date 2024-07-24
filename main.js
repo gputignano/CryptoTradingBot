@@ -121,7 +121,6 @@ const start_ws_api = () => {
         break;
       case 'openOrders_status':
         openOrders = { ...data };
-        openOrders.result.forEach(openOrder => openOrder.slot = binance.priceToSlot(openOrder.price, configDataMap.get(openOrder.symbol)[0].grid));
         break;
       case 'exchangeInfo':
         exchangeInfo = data;
