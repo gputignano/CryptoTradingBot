@@ -241,6 +241,7 @@ const start_ws_user_data_stream = listenKey => {
         break;
       case "executionReport":
         // Order Update
+        binance.printExecutedOrder(data);
 
         const index = openOrders.result.findIndex(openOrder => (openOrder.orderId === data.i) && (data.X === "FILLED"));
         if (index > -1) openOrders.result.splice(index, 1);
@@ -383,13 +384,11 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
       });
 
       if (buyOrder.data.status === "EXPIRED") {
-        binance.printExecutedOrder(buyOrder.data);
         return slot;
       };
 
       // SELL ORDER
       if (buyOrder.data.status === "FILLED") {
-        binance.printExecutedOrder(buyOrder.data);
 
         const sellOrder = await binance.order({
           symbol: symbol,
@@ -402,7 +401,6 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
         if (sellOrder.data.status === "NEW") {
           openOrders.result.push(sellOrder.data);
-          binance.printExecutedOrder(sellOrder.data);
           return slot;
         };
       }
@@ -471,13 +469,11 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
       });
 
       if (sellOrder.data.status === "EXPIRED") {
-        binance.printExecutedOrder(sellOrder.data);
         return slot;
       };
 
       // BUY ORDER
       if (sellOrder.data.status === "FILLED") {
-        binance.printExecutedOrder(sellOrder.data);
 
         const buyOrder = await binance.order({
           symbol: symbol,
@@ -490,7 +486,6 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
         if (buyOrder.data.status === "NEW") {
           openOrders.result.push(buyOrder.data);
-          binance.printExecutedOrder(buyOrder.data);
           return slot;
         };
       }
