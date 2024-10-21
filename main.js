@@ -10,7 +10,7 @@ let exchangeInfo;
 let bookTicker;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
-let configData, configDataJSON, configDataMap;
+let configData, configDataJSON, oldConfigDataJSON, configDataMap;
 
 try {
   configData = readFileSync(CONFIG_FILE_NAME, "utf8");
@@ -28,7 +28,7 @@ watchFile(CONFIG_FILE_NAME, {
 }, (curr, prev) => {
   try {
     configData = readFileSync(CONFIG_FILE_NAME, "utf8");
-    const oldConfigDataJSON = configDataJSON;
+    oldConfigDataJSON = configDataJSON;
     configDataJSON = JSON.parse(configData);
     configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
 
@@ -37,7 +37,8 @@ watchFile(CONFIG_FILE_NAME, {
         method: "UNSUBSCRIBE",
         params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
         id: "UNSUBSCRIBE"
-      }));
+      })
+    );
 
     ws_bookTicker.send(
       JSON.stringify({
@@ -158,6 +159,15 @@ const start_ws_stream = () => {
 
   ws_stream.on("close", () => {
     console.log(`ws_stream => close`);
+
+    ws_stream.send(
+      JSON.stringify({
+        method: "UNSUBSCRIBE",
+        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
+        id: "UNSUBSCRIBE"
+      })
+    );
+
     ws_stream = null;
     setTimeout(start_ws_stream, 5000);
   });
@@ -271,6 +281,15 @@ const start_ws_bookTicker = () => {
 
   ws_bookTicker.on("close", () => {
     console.log(`ws_bookTicker => close`);
+
+    ws_bookTicker.send(
+      JSON.stringify({
+        method: "UNSUBSCRIBE",
+        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
+        id: "UNSUBSCRIBE",
+      })
+    );
+
     ws_bookTicker = null;
     setTimeout(start_ws_bookTicker, 5000);
   });
