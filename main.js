@@ -166,6 +166,10 @@ const start_ws_stream = () => {
       case "UNSUBSCRIBE": // Unsubscribe to a stream
         console.log(data);
         break;
+      case "UNSUBSCRIBE_AND_EXIT":
+        console.log(data);
+        process.exit(0);
+        break;
       case "LIST_SUBSCRIPTIONS": // List subscriptions
         console.log(data);
         break;
@@ -437,16 +441,12 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 };
 
 process.on("SIGINT", () => {
-  if (!ws_stream) process.exit(0);
-
   ws_stream.send(
     JSON.stringify({
       method: "UNSUBSCRIBE",
       params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
-      id: "UNSUBSCRIBE"
+      id: "UNSUBSCRIBE_AND_EXIT"
     }));
-
-  setTimeout(() => process.exit(0), 1000);
 });
 
 process.setUncaughtExceptionCaptureCallback(e => {
