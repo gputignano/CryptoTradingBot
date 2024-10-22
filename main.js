@@ -10,11 +10,10 @@ let exchangeInfo;
 let bookTicker;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
-let configData, configDataJSON, oldConfigDataJSON, configDataMap;
+let configDataJSON, oldConfigDataJSON, configDataMap;
 
 try {
-  configData = readFileSync(CONFIG_FILE_NAME, "utf8");
-  configDataJSON = JSON.parse(configData);
+  configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
   configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
 } catch (error) {
   console.error("File not found or empty!");
@@ -27,9 +26,8 @@ watchFile(CONFIG_FILE_NAME, {
   interval: 1000,
 }, (curr, prev) => {
   try {
-    configData = readFileSync(CONFIG_FILE_NAME, "utf8");
     oldConfigDataJSON = configDataJSON;
-    configDataJSON = JSON.parse(configData);
+    configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
     configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
 
     ws_stream.send(
