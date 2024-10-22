@@ -7,7 +7,6 @@ const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
 let exchangeInfo;
-let bookTicker;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
 let configDataJSON, oldConfigDataJSON, configDataMap;
@@ -38,26 +37,10 @@ watchFile(CONFIG_FILE_NAME, {
       })
     );
 
-    ws_bookTicker.send(
-      JSON.stringify({
-        method: "UNSUBSCRIBE",
-        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
-        id: "UNSUBSCRIBE",
-      })
-    );
-
     ws_stream.send(
       JSON.stringify({
         method: "SUBSCRIBE",
         params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
-        id: "SUBSCRIBE",
-      })
-    );
-
-    ws_bookTicker.send(
-      JSON.stringify({
-        method: "SUBSCRIBE",
-        params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
         id: "SUBSCRIBE",
       })
     );
@@ -126,7 +109,6 @@ const start_ws_api = () => {
         binance.getAccount(ws_api);
         binance.getOpenOrders(ws_api);
         start_ws_stream();
-        start_ws_bookTicker();
         binance.startUserDataStream(ws_api);
 
         break;
@@ -258,63 +240,6 @@ const start_ws_user_data_stream = listenKey => {
   });
 };
 
-const start_ws_bookTicker = () => {
-  // bookTicker stream response does not return an id so I need to create a separate stream
-  ws_bookTicker ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
-
-  ws_bookTicker.on("error", error => console.error(error.message));
-
-  ws_bookTicker.on("open", () => {
-    console.log(`ws_bookTicker => open`);
-
-    if (configDataJSON.symbols.length > 0)
-      ws_bookTicker.send(
-        JSON.stringify({
-          method: "SUBSCRIBE",
-          params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
-          id: "SUBSCRIBE",
-        })
-      );
-  });
-
-  ws_bookTicker.on("close", () => {
-    console.log(`ws_bookTicker => close`);
-
-    ws_bookTicker.send(
-      JSON.stringify({
-        method: "UNSUBSCRIBE",
-        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
-        id: "UNSUBSCRIBE",
-      })
-    );
-
-    ws_bookTicker = null;
-    setTimeout(start_ws_bookTicker, 5000);
-  });
-
-  ws_bookTicker.on("ping", data => {
-    ws_bookTicker.pong(data);
-  });
-
-  ws_bookTicker.on("message", async data => {
-    data = JSON.parse(data);
-
-    bookTicker = data;
-
-    switch (data.id) {
-      case "SUBSCRIBE": // Subscribe to a stream
-        console.log(data);
-        break;
-      case "UNSUBSCRIBE": // Unsubscribe to a stream
-        console.log(data);
-        break;
-      case "LIST_SUBSCRIPTIONS": // List subscriptions
-        console.log(data);
-        break;
-    }
-  });
-};
-
 const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
   let baseToBuy;
   let baseAvailable;
@@ -345,7 +270,6 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
   if (symbolData.side === "buy") {
     buyPrice = binance.getHigherPrice(price, configDataMap.get(symbol)[0].grid, pricePrecision);
-    if (buyPrice < bookTicker.a) return slot;
     sellPrice = _.floor(buyPrice * (1 + symbolData.interest), pricePrecision);
 
     if (binance.hasPrice(openOrders, symbol, sellPrice) > -1) return slot;
@@ -428,7 +352,6 @@ const trade = async ({ s: symbol, p: price }, symbolData, slot) => {
 
   if (symbolData.side === "sell") {
     sellPrice = binance.getLowerPrice(price, configDataMap.get(symbol)[0].grid, pricePrecision);
-    if (sellPrice > bookTicker.b) return slot;
     buyPrice = _.ceil(sellPrice / (1 + symbolData.interest), pricePrecision);
 
     if (binance.hasPrice(openOrders, symbol, buyPrice) > -1) return slot;
@@ -522,14 +445,6 @@ process.on("SIGINT", () => {
       params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
       id: "UNSUBSCRIBE"
     }));
-
-  ws_bookTicker.send(
-    JSON.stringify({
-      method: "UNSUBSCRIBE",
-      params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@bookTicker`),
-      id: "UNSUBSCRIBE",
-    })
-  );
 
   setTimeout(() => process.exit(0), 1000);
 });
