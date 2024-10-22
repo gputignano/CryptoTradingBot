@@ -9,7 +9,8 @@ let openOrders;
 let exchangeInfo;
 const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
-let configDataJSON, oldConfigDataJSON, configDataMap;
+let configDataJSON, configDataMap;
+let list_subscriptions;
 
 try {
   configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
@@ -25,14 +26,13 @@ watchFile(CONFIG_FILE_NAME, {
   interval: 1000,
 }, (curr, prev) => {
   try {
-    oldConfigDataJSON = configDataJSON;
     configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
     configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
 
     ws_stream.send(
       JSON.stringify({
         method: "UNSUBSCRIBE",
-        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
+        params: list_subscriptions,
         id: "UNSUBSCRIBE"
       })
     );
@@ -140,14 +140,6 @@ const start_ws_stream = () => {
   ws_stream.on("close", () => {
     console.log(`ws_stream => close`);
 
-    ws_stream.send(
-      JSON.stringify({
-        method: "UNSUBSCRIBE",
-        params: oldConfigDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
-        id: "UNSUBSCRIBE"
-      })
-    );
-
     ws_stream = null;
     setTimeout(start_ws_stream, 5000);
   });
@@ -162,6 +154,11 @@ const start_ws_stream = () => {
     switch (data.id) {
       case "SUBSCRIBE": // Subscribe to a stream
         console.log(data);
+
+        ws_stream.send(JSON.stringify({
+          "method": "LIST_SUBSCRIPTIONS",
+          "id": "UPDATE_LIST_SUBSCRIPTIONS"
+        }));
         break;
       case "UNSUBSCRIBE": // Unsubscribe to a stream
         console.log(data);
@@ -170,8 +167,9 @@ const start_ws_stream = () => {
         console.log(data);
         process.exit(0);
         break;
-      case "LIST_SUBSCRIPTIONS": // List subscriptions
+      case "UPDATE_LIST_SUBSCRIPTIONS": // List subscriptions
         console.log(data);
+        list_subscriptions = data.result;
         break;
     }
 
