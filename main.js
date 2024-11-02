@@ -7,7 +7,6 @@ const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
 let exchangeInfo;
-const openTradesMap = new Map();
 let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
 let configDataJSON, configDataMap;
 let list_subscriptions;
@@ -177,12 +176,7 @@ const start_ws_stream = () => {
       case "aggTrade":
         const slot = binance.priceToSlot(data.p, configDataMap.get(data.s)[0].grid);
 
-        if (!openTradesMap.has(data.s)) openTradesMap.set(data.s, new Set());
-
-        if (!openTradesMap.get(data.s).has(slot)) {
-          openTradesMap.get(data.s).add(slot);
-          openTradesMap.get(data.s).delete(await trade(data, configDataMap.get(data.s)[0], slot));
-        }
+        await trade(data, configDataMap.get(data.s)[0], slot);
 
         break;
     }
@@ -243,6 +237,8 @@ const start_ws_user_data_stream = listenKey => {
 };
 
 const trade = (() => {
+  let isProcessing = false;
+
   return async ({ s: symbol, p: price }, symbolData, slot) => {
     let baseToBuy;
     let baseAvailable;
@@ -252,6 +248,13 @@ const trade = (() => {
     let sellNotionalAvailable;
     let buyPrice;
     let sellPrice;
+
+    if (isProcessing) {
+      console.log("Trade discarded - process in progress");
+      return;  // Discard the trade if the process is already in progress
+    }
+
+    isProcessing = true;
 
     const exchangeInfoSymbol = exchangeInfo.result.symbols.find(element => element.symbol === symbol);
 
@@ -275,16 +278,21 @@ const trade = (() => {
       buyPrice = binance.getHigherPrice(price, configDataMap.get(symbol)[0].grid, pricePrecision);
       sellPrice = _.floor(buyPrice * (1 + symbolData.interest), pricePrecision);
 
-      if (binance.hasPrice(openOrders, symbol, sellPrice) > -1) return slot;
+      if (binance.hasPrice(openOrders, symbol, sellPrice) > -1) {
+        isProcessing = false;
+        return;
+      };
 
       if (price > buyPrice) {
         console.log(`${new Date().toLocaleString()} - ${symbol}: price > buyPrice`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       if (buyPrice === sellPrice) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: buyPrice === sellPrice`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       baseToBuy = _.ceil(notional / buyPrice, lotSizePrecision);
@@ -294,7 +302,8 @@ const trade = (() => {
 
       if (quoteBalance && quoteBalance.free < buyNotional) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: No BUY balance to trade.`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       if (symbolData.earn === "base") {
@@ -305,7 +314,8 @@ const trade = (() => {
 
       if (baseAvailable - baseToSell < 0) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: baseAvailable - baseToSell < 0`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       sellNotional = sellPrice * baseToSell;
@@ -313,7 +323,8 @@ const trade = (() => {
 
       if (sellNotionalAvailable - buyNotional < 0) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: sellNotionalAvailable - buyNotional < 0`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       // BUY ORDER
@@ -328,7 +339,8 @@ const trade = (() => {
         });
 
         if (buyOrder.data.status === "EXPIRED") {
-          return slot;
+          isProcessing = false;
+          return;
         };
 
         // SELL ORDER
@@ -345,7 +357,8 @@ const trade = (() => {
 
           if (sellOrder.data.status === "NEW") {
             openOrders.result.push(sellOrder.data);
-            return slot;
+            isProcessing = false;
+            return;
           };
         }
       } catch (error) {
@@ -357,16 +370,21 @@ const trade = (() => {
       sellPrice = binance.getLowerPrice(price, configDataMap.get(symbol)[0].grid, pricePrecision);
       buyPrice = _.ceil(sellPrice / (1 + symbolData.interest), pricePrecision);
 
-      if (binance.hasPrice(openOrders, symbol, buyPrice) > -1) return slot;
+      if (binance.hasPrice(openOrders, symbol, buyPrice) > -1) {
+        isProcessing = false;
+        return;
+      };
 
       if (price < sellPrice) {
         console.log(`${new Date().toLocaleString()} - ${symbol}: price < sellPrice`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       if (buyPrice === sellPrice) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: buyPrice === sellPrice`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       baseToSell = _.ceil(notional / sellPrice / (1 - symbolData.interest) / (1 - account.result.commissionRates.taker), lotSizePrecision);
@@ -375,7 +393,8 @@ const trade = (() => {
 
       if (baseBalance && baseBalance.free * sellPrice < sellNotional) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: No SELL balance to trade.`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       sellNotionalAvailable = sellNotional * (1 - account.result.commissionRates.taker);
@@ -390,14 +409,16 @@ const trade = (() => {
 
       if (baseAvailable - baseToSell < 0) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: baseAvailable - baseToSell < 0`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       buyNotional = buyPrice * baseToBuy;
 
       if (sellNotionalAvailable - buyNotional < 0) {
         console.error(`${new Date().toLocaleString()} - ${symbol}: sellNotionalAvailable - buyNotional < 0`);
-        return slot;
+        isProcessing = false;
+        return;
       }
 
       // SELL ORDER
@@ -412,7 +433,8 @@ const trade = (() => {
         });
 
         if (sellOrder.data.status === "EXPIRED") {
-          return slot;
+          isProcessing = false;
+          return;
         };
 
         // BUY ORDER
@@ -429,7 +451,8 @@ const trade = (() => {
 
           if (buyOrder.data.status === "NEW") {
             openOrders.result.push(buyOrder.data);
-            return slot;
+            isProcessing = false;
+            return;
           };
         }
       } catch (error) {
