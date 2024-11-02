@@ -174,7 +174,7 @@ const start_ws_stream = () => {
 
     switch (data.e) {
       case "aggTrade":
-        await trade(data, configDataMap.get(data.s)[0]);
+        await processSingleTrade(data, configDataMap.get(data.s)[0]);
 
         break;
     }
@@ -234,7 +234,7 @@ const start_ws_user_data_stream = listenKey => {
   });
 };
 
-const trade = (() => {
+const createTradeProcessor = () => {
   let isProcessing = false;
 
   return async ({ s: symbol, p: price }, symbolData) => {
@@ -460,7 +460,9 @@ const trade = (() => {
     }
 
   };
-})();
+};
+
+const processSingleTrade = createTradeProcessor();
 
 process.on("SIGINT", () => {
   ws_stream.send(
