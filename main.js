@@ -174,9 +174,7 @@ const start_ws_stream = () => {
 
     switch (data.e) {
       case "aggTrade":
-        const slot = binance.priceToSlot(data.p, configDataMap.get(data.s)[0].grid);
-
-        await trade(data, configDataMap.get(data.s)[0], slot);
+        await trade(data, configDataMap.get(data.s)[0]);
 
         break;
     }
@@ -239,7 +237,7 @@ const start_ws_user_data_stream = listenKey => {
 const trade = (() => {
   let isProcessing = false;
 
-  return async ({ s: symbol, p: price }, symbolData, slot) => {
+  return async ({ s: symbol, p: price }, symbolData) => {
     let baseToBuy;
     let baseAvailable;
     let baseToSell;
