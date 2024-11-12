@@ -7,7 +7,6 @@ const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
 let exchangeInfo;
-let ws_stream;
 let configDataJSON, configDataMap;
 let list_subscriptions;
 
@@ -17,36 +16,6 @@ try {
 } catch (error) {
   console.error("File not found or empty!");
 }
-
-watchFile(CONFIG_FILE_NAME, {
-  // Passing the options parameter
-  bigint: false,
-  persistent: true,
-  interval: 1000,
-}, (curr, prev) => {
-  try {
-    configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
-    configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
-
-    ws_stream.send(
-      JSON.stringify({
-        method: "UNSUBSCRIBE",
-        params: list_subscriptions,
-        id: "UNSUBSCRIBE"
-      })
-    );
-
-    ws_stream.send(
-      JSON.stringify({
-        method: "SUBSCRIBE",
-        params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
-        id: "SUBSCRIBE",
-      })
-    );
-  } catch (error) {
-    console.error("File not found or empty!");
-  }
-});
 
 const start_ws_api = () => {
   const ws_api = new WebSocket(binance.WEBSOCKET_API);
@@ -118,7 +87,7 @@ start_ws_api();
 
 const start_ws_stream = () => {
   // WEBSOCKET MARKET DATA STREAM
-  ws_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
+  const ws_stream = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
 
   ws_stream.on("error", error => console.error(error.message));
 
@@ -132,6 +101,36 @@ const start_ws_stream = () => {
           params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
           id: "UNSUBSCRIBE_AND_EXIT"
         }));
+    });
+
+    watchFile(CONFIG_FILE_NAME, {
+      // Passing the options parameter
+      bigint: false,
+      persistent: true,
+      interval: 1000,
+    }, (curr, prev) => {
+      try {
+        configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
+        configDataMap = Map.groupBy(configDataJSON.symbols, ({ name }) => name);
+
+        ws_stream.send(
+          JSON.stringify({
+            method: "UNSUBSCRIBE",
+            params: list_subscriptions,
+            id: "UNSUBSCRIBE"
+          })
+        );
+
+        ws_stream.send(
+          JSON.stringify({
+            method: "SUBSCRIBE",
+            params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
+            id: "SUBSCRIBE",
+          })
+        );
+      } catch (error) {
+        console.error("File not found or empty!");
+      }
     });
 
     if (configDataJSON.symbols.length > 0)
