@@ -7,7 +7,7 @@ const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
 let exchangeInfo;
-let ws_stream, ws_user_data_stream;
+let ws_stream;
 let configDataJSON, configDataMap;
 let list_subscriptions;
 
@@ -182,7 +182,7 @@ const start_ws_stream = () => {
 
 const start_ws_user_data_stream = listenKey => {
   // WEBSOCKET USER DATA STREAM
-  ws_user_data_stream ??= new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
+  const ws_user_data_stream = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws/${listenKey}`);
 
   ws_user_data_stream.on("error", error => console.error(error.message));
 
@@ -193,7 +193,6 @@ const start_ws_user_data_stream = listenKey => {
   ws_user_data_stream.on("close", () => {
     console.log(`ws_user_data_stream => close`);
 
-    ws_user_data_stream = null;
     setTimeout(start_ws_user_data_stream, 5000, listenKey);
   });
 
