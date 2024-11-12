@@ -125,6 +125,15 @@ const start_ws_stream = () => {
   ws_stream.on("open", () => {
     console.log(`ws_stream => open`);
 
+    process.on("SIGINT", () => {
+      ws_stream.send(
+        JSON.stringify({
+          method: "UNSUBSCRIBE",
+          params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
+          id: "UNSUBSCRIBE_AND_EXIT"
+        }));
+    });
+
     if (configDataJSON.symbols.length > 0)
       ws_stream.send(
         JSON.stringify({
@@ -435,15 +444,6 @@ const createTradeProcessor = () => {
 };
 
 const processSingleTrade = createTradeProcessor();
-
-process.on("SIGINT", () => {
-  ws_stream.send(
-    JSON.stringify({
-      method: "UNSUBSCRIBE",
-      params: configDataJSON.symbols.filter(symbol => symbol.active === true).map(symbol => `${symbol.name.toLowerCase()}@aggTrade`),
-      id: "UNSUBSCRIBE_AND_EXIT"
-    }));
-});
 
 process.setUncaughtExceptionCaptureCallback(e => {
   console.error("Uncaught exception:", e);
