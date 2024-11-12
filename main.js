@@ -7,7 +7,7 @@ const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
 let exchangeInfo;
-let ws_api, ws_stream, ws_user_data_stream;
+let ws_stream, ws_user_data_stream;
 let configDataJSON, configDataMap;
 let list_subscriptions;
 
@@ -49,7 +49,7 @@ watchFile(CONFIG_FILE_NAME, {
 });
 
 const start_ws_api = () => {
-  ws_api ??= new WebSocket(binance.WEBSOCKET_API);
+  const ws_api = new WebSocket(binance.WEBSOCKET_API);
 
   ws_api.on("error", error => console.error(error.message));
 
@@ -62,7 +62,6 @@ const start_ws_api = () => {
 
   ws_api.on("close", () => {
     console.log(`ws_api => close`);
-    ws_api = null;
     setTimeout(start_ws_api, 5000);
   });
 
