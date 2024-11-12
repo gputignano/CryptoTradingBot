@@ -37,6 +37,14 @@ export const order = params => {
   return axios.post(`${API_ENDPOINT}/v3/order?${query_string}&signature=${signature(query_string)}`, null, CONFIGS);
 };
 
+export const orderListOto = params => {
+  const timestamp = Date.now();
+  const query = new URLSearchParams({ ...params, timestamp });
+  const query_string = query.toString();
+
+  return axios.post(`${API_ENDPOINT}/v3/orderList/oto?${query_string}&signature=${signature(query_string)}`, null, CONFIGS);
+};
+
 export const cancelOrder = params => {
   const timestamp = Date.now();
   const query = new URLSearchParams({ ...params, timestamp });

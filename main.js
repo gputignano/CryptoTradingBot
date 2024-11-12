@@ -327,38 +327,25 @@ const createTradeProcessor = () => {
 
       // BUY ORDER
       try {
-        const buyOrder = await binance.order({
+        const orderListOco = await binance.orderListOto({
           symbol: symbol,
-          side: "BUY",
-          type: "LIMIT",
-          timeInForce: "FOK",
-          quantity: baseToBuy,
-          price: buyPrice,
+          workingPrice: buyPrice,
+          workingQuantity: baseToBuy,
+          workingSide: "BUY",
+          workingTimeInForce: "FOK",
+          workingType: "LIMIT",
+          pendingPrice: sellPrice,
+          pendingQuantity: baseToSell,
+          pendingSide: "SELL",
+          pendingTimeInForce: "GTC",
+          pendingType: "LIMIT",
         });
 
-        if (buyOrder.data.status === "EXPIRED") {
-          isProcessing = false;
-          return;
-        };
+        if (orderListOco.data.orderReports[0].status === "FILLED") openOrders.result.push(orderListOco.data.orderReports[1]);
 
-        // SELL ORDER
-        if (buyOrder.data.status === "FILLED") {
+        isProcessing = false;
+        return;
 
-          const sellOrder = await binance.order({
-            symbol: symbol,
-            side: "SELL",
-            type: "LIMIT",
-            timeInForce: "GTC",
-            quantity: baseToSell,
-            price: sellPrice,
-          });
-
-          if (sellOrder.data.status === "NEW") {
-            openOrders.result.push(sellOrder.data);
-            isProcessing = false;
-            return;
-          };
-        }
       } catch (error) {
         console.error(error.response.data);
       }
@@ -421,43 +408,30 @@ const createTradeProcessor = () => {
 
       // SELL ORDER
       try {
-        const sellOrder = await binance.order({
+        const orderListOco = await binance.orderListOto({
           symbol: symbol,
-          side: "SELL",
-          type: "LIMIT",
-          timeInForce: "FOK",
-          quantity: baseToSell,
-          price: sellPrice,
+          workingPrice: sellPrice,
+          workingQuantity: baseToSell,
+          workingSide: "SELL",
+          workingTimeInForce: "FOK",
+          workingType: "LIMIT",
+          pendingPrice: buyPrice,
+          pendingQuantity: baseToBuy,
+          pendingSide: "BUY",
+          pendingTimeInForce: "GTC",
+          pendingType: "LIMIT",
         });
 
-        if (sellOrder.data.status === "EXPIRED") {
-          isProcessing = false;
-          return;
-        };
+        if (orderListOco.data.orderReports[0].status === "FILLED") openOrders.result.push(orderListOco.data.orderReports[1]);
 
-        // BUY ORDER
-        if (sellOrder.data.status === "FILLED") {
+        isProcessing = false;
+        return;
 
-          const buyOrder = await binance.order({
-            symbol: symbol,
-            side: "BUY",
-            type: "LIMIT",
-            timeInForce: "GTC",
-            quantity: baseToBuy,
-            price: buyPrice,
-          });
-
-          if (buyOrder.data.status === "NEW") {
-            openOrders.result.push(buyOrder.data);
-            isProcessing = false;
-            return;
-          };
-        }
       } catch (error) {
         console.error(error.response.data);
       }
 
-    }
+    };
 
   };
 };
