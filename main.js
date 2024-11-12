@@ -7,7 +7,7 @@ const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
 let exchangeInfo;
-let ws_api, ws_stream, ws_user_data_stream, ws_bookTicker;
+let ws_api, ws_stream, ws_user_data_stream;
 let configDataJSON, configDataMap;
 let list_subscriptions;
 
