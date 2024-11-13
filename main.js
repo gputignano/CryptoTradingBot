@@ -353,8 +353,17 @@ const createTradeProcessor = () => {
         return;
 
       } catch (error) {
-        console.error(error.response);
-        process.exit(0);
+        switch (error.response.data.code) {
+          case -2010:
+            isProcessing = false;
+            break;
+          default:
+            console.error(error.response.data);
+            process.exit(0);
+            break;
+        }
+
+        return;
       }
     }
 
@@ -435,10 +444,18 @@ const createTradeProcessor = () => {
         return;
 
       } catch (error) {
-        console.error(error.response);
-        process.exit(0);
-      }
+        switch (error.response.data.code) {
+          case -2010:
+            isProcessing = false;
+            break;
+          default:
+            console.error(error.response.data);
+            process.exit(0);
+            break;
+        }
 
+        return;
+      }
     };
 
   };
