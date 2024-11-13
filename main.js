@@ -353,7 +353,8 @@ const createTradeProcessor = () => {
         return;
 
       } catch (error) {
-        console.error(error.response.data);
+        console.error(error.response);
+        process.exit(0);
       }
     }
 
@@ -434,7 +435,8 @@ const createTradeProcessor = () => {
         return;
 
       } catch (error) {
-        console.error(error.response.data);
+        console.error(error.response);
+        process.exit(0);
       }
 
     };
