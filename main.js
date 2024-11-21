@@ -146,7 +146,6 @@ const start_ws_stream = () => {
   ws_stream.on("close", () => {
     console.log(`ws_stream => close`);
 
-    ws_stream = null;
     setTimeout(start_ws_stream, 5000);
   });
 
