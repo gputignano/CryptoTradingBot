@@ -69,7 +69,7 @@ const start_ws_api = () => {
         account = data;
         break;
       case 'openOrders_status':
-        openOrders = { ...data };
+        openOrders = data;
         break;
       case 'exchangeInfo':
         exchangeInfo = data;
