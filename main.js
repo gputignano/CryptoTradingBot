@@ -8,7 +8,6 @@ let account;
 let openOrders;
 let exchangeInfo;
 let configDataJSON, configDataMap;
-let list_subscriptions;
 
 try {
   configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
@@ -89,6 +88,7 @@ start_ws_api();
 const start_ws_stream = () => {
   // WEBSOCKET MARKET DATA STREAM
   const ws_stream = new WebSocket(`${binance.WEBSOCKET_STREAM}/ws`);
+  let list_subscriptions;
 
   ws_stream.on("error", error => console.error(error.message));
 
