@@ -25,8 +25,11 @@ const start_ws_api = () => {
   ws_api.on("open", () => {
     console.log(`ws_api => open`);
 
-    binance.getExchangeInfo(ws_api);
     binance.sessionLogon(ws_api);
+
+    binance.getExchangeInfo(ws_api);
+    binance.getAccount(ws_api);
+    binance.getOpenOrders(ws_api);
   });
 
   ws_api.on("close", () => {
@@ -73,8 +76,6 @@ const start_ws_api = () => {
         break;
       case 'exchangeInfo':
         exchangeInfo = data;
-        binance.getAccount(ws_api);
-        binance.getOpenOrders(ws_api);
         start_ws_stream();
         binance.startUserDataStream(ws_api);
 
