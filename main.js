@@ -6,8 +6,8 @@ import * as binance from "./modules/binance.js";
 const CONFIG_FILE_NAME = "config.json";
 let account;
 let openOrders;
-let exchangeInfo;
 let configDataJSON, configDataMap;
+let processSingleTrade;
 
 try {
   configDataJSON = JSON.parse(readFileSync(CONFIG_FILE_NAME, "utf8"));
@@ -18,6 +18,7 @@ try {
 
 const start_ws_api = () => {
   const ws_api = new WebSocket(binance.WEBSOCKET_API);
+  let exchangeInfo;
 
   ws_api.on("error", error => console.error(error.message));
 
@@ -75,6 +76,8 @@ const start_ws_api = () => {
         break;
       case 'exchangeInfo':
         exchangeInfo = data;
+        processSingleTrade = createTradeProcessor(exchangeInfo);
+
         start_ws_stream();
         binance.startUserDataStream(ws_api);
 
@@ -240,7 +243,9 @@ const start_ws_user_data_stream = listenKey => {
   });
 };
 
-const createTradeProcessor = () => {
+const createTradeProcessor = (exchangeInfo) => {
+  console.log(exchangeInfo.result);
+
   let isProcessing = false;
 
   return async ({ s: symbol, p: price }, symbolData) => {
@@ -460,8 +465,6 @@ const createTradeProcessor = () => {
 
   };
 };
-
-const processSingleTrade = createTradeProcessor();
 
 process.setUncaughtExceptionCaptureCallback(e => {
   console.error("Uncaught exception:", e);
