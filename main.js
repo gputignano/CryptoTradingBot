@@ -245,6 +245,8 @@ const start_ws_user_data_stream = listenKey => {
 
 const createTradeProcessor = (exchangeInfo) => {
   let isProcessing = false;
+  exchangeInfo.result.symbols.forEach(element => element.filters = Object.groupBy(element.filters, filter => filter.filterType));
+  exchangeInfo.result.symbols = Object.groupBy(exchangeInfo.result.symbols, symbol => symbol.symbol);
 
   return async ({ s: symbol, p: price }, symbolData) => {
     let baseToBuy;
@@ -263,16 +265,14 @@ const createTradeProcessor = (exchangeInfo) => {
 
     isProcessing = true;
 
-    const exchangeInfoSymbol = exchangeInfo.result.symbols.find(element => element.symbol === symbol);
+    const exchangeInfoSymbol = exchangeInfo.result.symbols[symbol][0];
 
     const baseAsset = exchangeInfoSymbol.baseAsset;
     const quoteAsset = exchangeInfoSymbol.quoteAsset;
 
-    const filters = exchangeInfoSymbol.filters;
-
-    const PRICE_FILTER = filters.find(filter => filter.filterType === "PRICE_FILTER");
-    const LOT_SIZE = filters.find(filter => filter.filterType === "LOT_SIZE");
-    const NOTIONAL = filters.find(filter => filter.filterType === "NOTIONAL");
+    const PRICE_FILTER = exchangeInfoSymbol.filters["PRICE_FILTER"][0];
+    const LOT_SIZE = exchangeInfoSymbol.filters["LOT_SIZE"][0];
+    const NOTIONAL = exchangeInfoSymbol.filters["NOTIONAL"][0];
 
     const pricePrecision = Math.round(-Math.log10(PRICE_FILTER.tickSize));
     const lotSizePrecision = Math.round(-Math.log10(LOT_SIZE.stepSize));
