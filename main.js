@@ -244,8 +244,6 @@ const start_ws_user_data_stream = listenKey => {
 };
 
 const createTradeProcessor = (exchangeInfo) => {
-  console.log(exchangeInfo.result);
-
   let isProcessing = false;
 
   return async ({ s: symbol, p: price }, symbolData) => {
