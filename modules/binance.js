@@ -63,61 +63,61 @@ export const getHigherPrice = (price, grid, precision) => _.floor(slotToPrice(pr
 
 export const printExecutedOrder = order => console.log(`${new Date(order.E).toLocaleString()} ${order.s} ${order.X} ${order.o} ${order.f} ${order.S} ${order.q} at ${order.p}`);
 
-export const getAccount = ws => {
+export const getAccount = () => {
   const params = {
     timestamp: Date.now()
   };
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
 
-  ws.send(JSON.stringify({
+  return JSON.stringify({
     id: "account_status",
     method: "account.status",
     params: Object.fromEntries(searchParams)
-  }));
+  });
 };
 
-export const getOpenOrders = ws => {
+export const getOpenOrders = () => {
   const params = {
     timestamp: Date.now()
   };
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
 
-  ws.send(JSON.stringify({
+  return JSON.stringify({
     id: "openOrders_status",
     method: "openOrders.status",
     params: Object.fromEntries(searchParams)
-  }));
+  });
 };
 
-export const getExchangeInfo = ws => {
+export const getExchangeInfo = () => {
   const params = {};
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
 
-  ws.send(JSON.stringify({
+  return JSON.stringify({
     id: "exchangeInfo",
     method: "exchangeInfo",
     params: Object.fromEntries(searchParams)
-  }));
+  });
 };
 
-export const startUserDataStream = ws => {
+export const startUserDataStream = () => {
   const params = {
     apiKey: API_KEY
   };
   const searchParams = new URLSearchParams({ ...params });
   searchParams.sort();
 
-  ws.send(JSON.stringify({
+  return JSON.stringify({
     id: "userDataStream_start",
     method: "userDataStream.start",
     params: Object.fromEntries(searchParams)
-  }));
+  });
 };
 
-export const sessionLogon = ws => {
+export const sessionLogon = () => {
   const params = {
     apiKey: API_KEY,
     timestamp: Date.now()
@@ -126,11 +126,11 @@ export const sessionLogon = ws => {
   searchParams.sort();
   searchParams.append("signature", signature(searchParams.toString()));
 
-  ws.send(JSON.stringify({
+  return JSON.stringify({
     id: "session_logon",
     method: "session.logon",
     params: Object.fromEntries(searchParams)
-  }));
+  });
 };
 
 export const hasPrice = (openOrders, symbol, price) => openOrders.result.findIndex(openOrder => openOrder.symbol === symbol && parseFloat(openOrder.price) === price);

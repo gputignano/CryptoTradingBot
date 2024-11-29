@@ -25,11 +25,10 @@ const start_ws_api = () => {
   ws_api.on("open", () => {
     console.log(`ws_api => open`);
 
-    binance.sessionLogon(ws_api);
-
-    binance.getExchangeInfo(ws_api);
-    binance.getAccount(ws_api);
-    binance.getOpenOrders(ws_api);
+    ws_api.send(binance.sessionLogon());
+    ws_api.send(binance.getExchangeInfo());
+    ws_api.send(binance.getAccount());
+    ws_api.send(binance.getOpenOrders());
   });
 
   ws_api.on("close", () => {
@@ -79,7 +78,7 @@ const start_ws_api = () => {
         processSingleTrade = createTradeProcessor(exchangeInfo);
 
         start_ws_stream();
-        binance.startUserDataStream(ws_api);
+        ws_api.send(binance.startUserDataStream());
 
         break;
     }
